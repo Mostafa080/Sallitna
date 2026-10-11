@@ -1,0 +1,180 @@
+{
+  "home": {
+    "title": "Home list",
+    "itemCount": {
+      "zero": "No items",
+      "one": "1 item",
+      "other": "{{n}} items"
+    },
+    "sectionHeader": "{{name}} · {{n}}",
+    "inviteA11y": "Invite someone to the household",
+    "markBoughtA11y": "Mark {{name}} as bought",
+    "emptyFilter": "Nothing added today",
+    "openItemA11y": "Open {{name}}"
+  },
+  "banner": {
+    "atStore_f": "{{name}} is at the store now",
+    "atStore_m": "{{name}} is at the store now",
+    "hint_f": "Missing something? Say it and she sees it right away",
+    "hint_m": "Missing something? Say it and he sees it right away"
+  },
+  "filters": {
+    "all": "All",
+    "addedToday": "Added today · {{n}}"
+  },
+  "item": {
+    "new": "New",
+    "metaSeparator": " · ",
+    "requestedBy": {
+      "other": "{{n}} people asked"
+    },
+    "merged": "merged",
+    "addedByVoiceA11y": "Added by voice",
+    "claimedByMe": "You're getting it",
+    "claimedBy": "{{name}} is getting it"
+  },
+  "units": {
+    "count": {
+      "other": "{{n}}×"
+    },
+    "kg": {
+      "other": "{{n}} kg"
+    },
+    "piece": {
+      "one": "1 piece",
+      "other": "{{n}} pieces"
+    },
+    "carton": {
+      "one": "1 carton",
+      "other": "{{n}} cartons"
+    },
+    "bag": {
+      "one": "1 bag",
+      "other": "{{n}} bags"
+    },
+    "box": {
+      "one": "1 box",
+      "other": "{{n}} boxes"
+    }
+  },
+  "time": {
+    "justNow": "now",
+    "minutesAgo": "{{n}}m ago",
+    "hoursAgo": "{{n}}h ago",
+    "yesterday": "yesterday",
+    "daysAgo": "{{n}} days ago",
+    "todayAt": "Today {{time}}",
+    "yesterdayAt": "Yesterday {{time}}",
+    "dateAt": "{{date}} {{time}}",
+    "am": "am",
+    "pm": "pm"
+  },
+  "categories": {
+    "produce": "Fruit & vegetables",
+    "dairy": "Dairy & eggs",
+    "bakery": "Bakery",
+    "pantry": "Pantry",
+    "cleaning": "Cleaning",
+    "other": "Other"
+  },
+  "bottomBar": {
+    "atStore": "I'm at the store",
+    "talk": "Hold to talk",
+    "type": "Type"
+  },
+  "unitNames": {
+    "count": "Count",
+    "kg": "Kilo",
+    "piece": "Piece",
+    "box": "Box",
+    "carton": "Carton",
+    "bag": "Bag"
+  },
+  "swipe": {
+    "claim": "I'll get it",
+    "unclaim": "Not me",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "toast": {
+    "undo": "Undo",
+    "bought": "Checked off “{{name}}”",
+    "removed": "Deleted “{{name}}”",
+    "removedSeen_m": "Deleted “{{name}}” · {{who}} will see it’s gone",
+    "removedSeen_f": "Deleted “{{name}}” · {{who}} will see it’s gone",
+    "claimed": "Everyone can see you’re getting “{{name}}”",
+    "unclaimed": "“{{name}}” is open again",
+    "saved": "Saved “{{name}}”",
+    "added": "Added “{{name}}”",
+    "comingSoon": "Coming soon",
+    "addedMore": "More “{{name}}” · now {{qty}}",
+    "addedMany": {
+      "one": "Added 1 item",
+      "other": "Added {{n}} items"
+    },
+    "clipboardEmpty": "Nothing copied — copy the list from WhatsApp first",
+    "nothingFound": "No items found in the copied text"
+  },
+  "empty": {
+    "title": "The basket is empty",
+    "subtitle": "Tap the button and say what the house needs. For example:",
+    "example1": "“We need 2 kilos of tomatoes and cucumbers”",
+    "example2": "“We’re out of milk”",
+    "basicsHeader": "Or start with the basics · {{n}} added",
+    "basicAddA11y": "Add {{name}}",
+    "basicRemoveA11y": "Remove {{name}}",
+    "showList": "See the list · {{n}}"
+  },
+  "detail": {
+    "back": "Back",
+    "delete": "Delete item",
+    "quantity": "Quantity",
+    "increase": "Increase",
+    "decrease": "Decrease",
+    "noteLabel": "Note for the shopper",
+    "notePlaceholder": "e.g. the big size",
+    "photo": "Add a photo so they get it right",
+    "translations": "{{hi}} · {{en}} — how {{name}} sees it",
+    "addedByVoice_f": "{{name}} added it by voice",
+    "addedByVoice_m": "{{name}} added it by voice",
+    "addedByText_f": "{{name}} added it",
+    "addedByText_m": "{{name}} added it",
+    "quote": "“{{text}}”",
+    "play": "Play recording",
+    "stats": {
+      "one": "Bought once this month · last by {{name}}",
+      "other": "Bought {{n}} times this month · last by {{name}}"
+    },
+    "save": "Save"
+  },
+  "dev": {
+    "title": "Demo data",
+    "empty": "Empty the list",
+    "demo": "Restore demo list",
+    "cancel": "Cancel"
+  },
+  "typeAdd": {
+    "placeholder": "What does the house need?",
+    "searchA11y": "Type an item name",
+    "voiceA11y": "Add by voice",
+    "cancel": "Cancel",
+    "addA11y": "Add {{name}}",
+    "addAsIs": "Add “{{text}}” as is",
+    "inList": "On the list {{qty}}",
+    "boughtThisMonth": {
+      "one": "Bought once this month",
+      "other": "Bought {{n}} times this month"
+    },
+    "runningLow": "Running low?",
+    "cadence": {
+      "one": "every week",
+      "other": "every {{n}} weeks"
+    },
+    "habit": "You usually buy it {{cadence}}. Last time {{ago}}",
+    "addIt": "Add",
+    "usual": "You usually buy",
+    "pasteTitle": "Got a list on WhatsApp?",
+    "pasteSubtitle": "Paste it and we’ll split it into items",
+    "paste": "Paste"
+  }
+}

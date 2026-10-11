@@ -1,0 +1,197 @@
+{
+  "home": {
+    "title": "قائمة البيت",
+    "itemCount": {
+      "zero": "ما فيه أغراض",
+      "one": "غرض واحد",
+      "two": "غرضين",
+      "few": "{{n}} أغراض",
+      "many": "{{n}} غرض",
+      "other": "{{n}} غرض"
+    },
+    "sectionHeader": "{{name}} · {{n}}",
+    "inviteA11y": "ادعُ أحد للبيت",
+    "markBoughtA11y": "علّم {{name}} كمشترى",
+    "emptyFilter": "ما أضيف شي اليوم",
+    "openItemA11y": "افتح {{name}}"
+  },
+  "banner": {
+    "atStore_f": "{{name}} في السوق الحين",
+    "atStore_m": "{{name}} في السوق الحين",
+    "hint_f": "أي شي ناقص؟ قوله وتشوفه عندها فورًا",
+    "hint_m": "أي شي ناقص؟ قوله ويشوفه عنده فورًا"
+  },
+  "filters": {
+    "all": "الكل",
+    "addedToday": "أضيف اليوم · {{n}}"
+  },
+  "item": {
+    "new": "جديد",
+    "metaSeparator": " · ",
+    "requestedBy": {
+      "two": "طلبه اثنين",
+      "few": "طلبه {{n}}",
+      "many": "طلبه {{n}}",
+      "other": "طلبه {{n}}"
+    },
+    "merged": "دمجناه",
+    "addedByVoiceA11y": "أضيف بالصوت",
+    "claimedByMe": "عليك",
+    "claimedBy": "على {{name}}"
+  },
+  "units": {
+    "count": {
+      "other": "×{{n}}"
+    },
+    "kg": {
+      "other": "{{n}} كيلو"
+    },
+    "piece": {
+      "few": "{{n}} حبات",
+      "other": "{{n}} حبة"
+    },
+    "carton": {
+      "few": "{{n}} كراتين",
+      "other": "{{n}} كرتون"
+    },
+    "bag": {
+      "few": "{{n}} أكياس",
+      "other": "{{n}} كيس"
+    },
+    "box": {
+      "few": "{{n}} صناديق",
+      "other": "{{n}} صندوق"
+    }
+  },
+  "time": {
+    "justNow": "الحين",
+    "minutesAgo": "قبل {{n}} د",
+    "hoursAgo": "قبل {{n}} س",
+    "yesterday": "أمس",
+    "daysAgo": {
+      "two": "قبل يومين",
+      "few": "قبل {{n}} أيام",
+      "other": "قبل {{n}} يوم"
+    },
+    "todayAt": "اليوم {{time}}",
+    "yesterdayAt": "أمس {{time}}",
+    "dateAt": "{{date}} {{time}}",
+    "am": "ص",
+    "pm": "م"
+  },
+  "categories": {
+    "produce": "خضار وفواكه",
+    "dairy": "ألبان وبيض",
+    "bakery": "مخبوزات",
+    "pantry": "مواد غذائية",
+    "cleaning": "منظفات",
+    "other": "أغراض ثانية"
+  },
+  "bottomBar": {
+    "atStore": "أنا في السوق",
+    "talk": "اضغط وتكلّم",
+    "type": "اكتب"
+  },
+  "unitNames": {
+    "count": "عدد",
+    "kg": "كيلو",
+    "piece": "حبة",
+    "box": "صندوق",
+    "carton": "كرتون",
+    "bag": "كيس"
+  },
+  "swipe": {
+    "claim": "أنا أجيبه",
+    "unclaim": "ما أجيبه",
+    "edit": "عدّل",
+    "delete": "احذف"
+  },
+  "toast": {
+    "undo": "تراجع",
+    "bought": "شطبنا «{{name}}» من القائمة",
+    "removed": "انحذفت «{{name}}»",
+    "removedSeen_m": "انحذفت «{{name}}» · {{who}} يشوفها راحت",
+    "removedSeen_f": "انحذفت «{{name}}» · {{who}} تشوفها راحت",
+    "claimed": "الكل يشوف إنك بتجيب «{{name}}»",
+    "unclaimed": "«{{name}}» رجع للكل",
+    "saved": "انحفظ «{{name}}»",
+    "added": "انضاف «{{name}}»",
+    "comingSoon": "قريبًا — نشتغل عليها",
+    "addedMore": "زدنا «{{name}}» · صار {{qty}}",
+    "addedMany": {
+      "two": "انضاف غرضين",
+      "few": "انضاف {{n}} أغراض",
+      "other": "انضاف {{n}} غرض"
+    },
+    "clipboardEmpty": "ما فيه شي منسوخ — انسخ القائمة من الواتساب أول",
+    "nothingFound": "ما لقينا أغراض في النص المنسوخ"
+  },
+  "empty": {
+    "title": "السلة فاضية",
+    "subtitle": "اضغط الزر وقل وش ناقص البيت. مثلًا:",
+    "example1": "«نبي طماطم كيلوين وخيار»",
+    "example2": "«خلص الحليب»",
+    "basicsHeader": "أو ابدأ بالأساسيات · {{n}} مضافة",
+    "basicAddA11y": "أضف {{name}}",
+    "basicRemoveA11y": "شيل {{name}}",
+    "showList": "شوف القائمة · {{n}}"
+  },
+  "detail": {
+    "back": "رجوع",
+    "delete": "احذف الغرض",
+    "quantity": "الكمية",
+    "increase": "زِد",
+    "decrease": "نقّص",
+    "noteLabel": "ملاحظة للي يشتري",
+    "notePlaceholder": "مثلًا: الحجم الكبير",
+    "photo": "صوّرها عشان ما يغلط",
+    "translations": "{{hi}} · {{en}} — كذا يشوفها {{name}}",
+    "addedByVoice_f": "أضافتها {{name}} بالصوت",
+    "addedByVoice_m": "أضافها {{name}} بالصوت",
+    "addedByText_f": "أضافتها {{name}}",
+    "addedByText_m": "أضافها {{name}}",
+    "quote": "«{{text}}»",
+    "play": "شغّل التسجيل",
+    "stats": {
+      "one": "اشتريتوها مرة هالشهر · آخر مرة {{name}}",
+      "two": "اشتريتوها مرتين هالشهر · آخر مرة {{name}}",
+      "few": "اشتريتوها {{n}} مرات هالشهر · آخر مرة {{name}}",
+      "other": "اشتريتوها {{n}} مرة هالشهر · آخر مرة {{name}}"
+    },
+    "save": "حفظ"
+  },
+  "dev": {
+    "title": "بيانات تجريبية",
+    "empty": "فضّي القائمة",
+    "demo": "رجّع القائمة التجريبية",
+    "cancel": "إلغاء"
+  },
+  "typeAdd": {
+    "placeholder": "وش ناقص البيت؟",
+    "searchA11y": "اكتب اسم الغرض",
+    "voiceA11y": "أضف بالصوت",
+    "cancel": "إلغاء",
+    "addA11y": "أضف {{name}}",
+    "addAsIs": "أضف «{{text}}» كما هو",
+    "inList": "موجود بالقائمة {{qty}}",
+    "boughtThisMonth": {
+      "one": "اشتريتوه مرة هالشهر",
+      "two": "اشتريتوه مرتين هالشهر",
+      "few": "اشتريتوه {{n}} مرات هالشهر",
+      "other": "اشتريتوه {{n}} مرة هالشهر"
+    },
+    "runningLow": "قرب يخلص؟",
+    "cadence": {
+      "one": "كل أسبوع",
+      "two": "كل أسبوعين",
+      "few": "كل {{n}} أسابيع",
+      "other": "كل {{n}} أسبوع"
+    },
+    "habit": "عادةً تشترونه {{cadence}}. آخر مرة {{ago}}",
+    "addIt": "أضفه",
+    "usual": "عادةً تشترون",
+    "pasteTitle": "عندك قائمة بالواتساب؟",
+    "pasteSubtitle": "الصقها ونفصّلها لك أغراض",
+    "paste": "الصق"
+  }
+}
