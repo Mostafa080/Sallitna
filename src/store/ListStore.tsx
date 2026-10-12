@@ -15,6 +15,7 @@ import {
 import { t } from '@/i18n';
 import { normalizeArabic } from '@/lib/arabic';
 import { formatQuantity } from '@/lib/format';
+import type { ListChange } from '@/lib/voiceReview';
 
 // What "undo" reverses: items to put back as they were, and newly added items to take away
 export type Undo = {
@@ -73,14 +74,15 @@ let idCounter = 0;
 
 const sameName = (a: string, b: string) => normalizeArabic(a) === normalizeArabic(b);
 
-function newItem(draft: ItemDraft): Item {
+function newItem(draft: ItemDraft, voiceTranscript?: string): Item {
   return {
     ...draft,
     id: `local-${Date.now()}-${++idCounter}`,
     status: 'open',
     note: '',
     added_by: currentMemberId,
-    added_via: 'text',
+    added_via: voiceTranscript ? 'voice' : 'text',
+    voice_transcript: voiceTranscript,
     requested_by: [currentMemberId],
     claimed_by: null,
     created_at: new Date().toISOString(),
@@ -167,6 +169,29 @@ function useListState() {
       if (fresh.length > 0) dispatch({ type: 'add', items: fresh });
       if (drafts.length === 0) return;
       showToast(drafts.length === 1 ? lastMessage : t('toast.addedMany', { n: drafts.length }), undo);
+    },
+
+    // Apply a reviewed recording in one go, with one undo for all of it
+    applyVoice(changes: ListChange[], transcript: string) {
+      if (changes.length === 0) return;
+      const undo: Undo = { restore: [], discard: [] };
+      const fresh: Item[] = [];
+
+      for (const change of changes) {
+        if (change.kind === 'patch') {
+          const item = find(change.id);
+          if (!item) continue;
+          dispatch({ type: 'patch', id: change.id, patch: change.patch });
+          undo.restore.push(item);
+        } else {
+          const item = newItem(change.draft, transcript);
+          fresh.push(item);
+          undo.discard.push(item.id);
+        }
+      }
+
+      if (fresh.length > 0) dispatch({ type: 'add', items: fresh });
+      showToast(t('toast.voiceApplied', { n: changes.length }), undo);
     },
 
     // Quick add (empty-state basics) — no toast; returns the id so it can be taken back

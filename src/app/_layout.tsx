@@ -45,6 +45,7 @@ export default function RootLayout() {
           <StatusBar style="dark" />
           <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.ground } }}>
             <Stack.Screen name="add" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
+            <Stack.Screen name="voice" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
           </Stack>
         </ListProvider>
       </GestureHandlerRootView>

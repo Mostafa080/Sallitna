@@ -113,7 +113,11 @@
       "other": "Added {{n}} items"
     },
     "clipboardEmpty": "Nothing copied — copy the list from WhatsApp first",
-    "nothingFound": "No items found in the copied text"
+    "nothingFound": "No items found in the copied text",
+    "voiceApplied": {
+      "one": "Added 1 change from your voice",
+      "other": "Added {{n}} changes from your voice"
+    }
   },
   "empty": {
     "title": "The basket is empty",
@@ -151,7 +155,8 @@
     "title": "Demo data",
     "empty": "Empty the list",
     "demo": "Restore demo list",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "micDenied": "Mic blocked screen"
   },
   "typeAdd": {
     "placeholder": "What does the house need?",
@@ -176,5 +181,78 @@
     "pasteTitle": "Got a list on WhatsApp?",
     "pasteSubtitle": "Paste it and we’ll split it into items",
     "paste": "Paste"
+  },
+  "voice": {
+    "addingTo": "Adding to",
+    "close": "Close",
+    "permission": {
+      "title": "Let us hear you",
+      "body": "We need the mic so you can add by voice. We only listen while you hold the button.",
+      "noBackground": "We never listen in the background",
+      "deleted": "The recording is deleted once we understand it",
+      "typeAnytime": "You can type instead any time",
+      "allow": "Allow microphone",
+      "later": "Later"
+    },
+    "denied": {
+      "title": "Microphone is off",
+      "body": "To add by voice, turn on the microphone for Sallitna in your phone settings.",
+      "step1": "Open Settings",
+      "step2": "Choose “Sallitna”",
+      "step3": "Turn on “Microphone”",
+      "openSettings": "Open Settings",
+      "typeInstead": "Type instead"
+    },
+    "listening": {
+      "hint": "Listening… speak naturally",
+      "caught": {
+        "zero": "Listening…",
+        "one": "Caught 1 thing so far",
+        "other": "Caught {{n}} things so far"
+      },
+      "try": "Try: “one more carton of eggs”",
+      "try2": "“make the tomatoes one kilo”",
+      "done": "Done",
+      "autoStop": "Stops by itself after 2 seconds of silence"
+    },
+    "processing": {
+      "title": "Understanding you…",
+      "subtitle": "Usually 2 seconds",
+      "auto": "Moves to review automatically"
+    },
+    "review": {
+      "title": {
+        "zero": "Nothing understood",
+        "one": "Understood 1 thing",
+        "other": "Understood {{n}} things"
+      },
+      "subtitle": "Check them before they’re added · you can change anything",
+      "transcriptMeta": "{{name}} · {{duration}}",
+      "badgeUpdate": "Update",
+      "badgeNew": "New",
+      "badgeConfirm": "Confirm",
+      "badgeRemove": "Remove",
+      "updateFrom": "On the list — changing to {{qty}} from {{old}}",
+      "updateSame": "On the list {{qty}} — same amount",
+      "editA11y": "Edit quantity of {{name}}",
+      "confirmTitle": "“{{word}}” — which one?",
+      "confirmBody": "In the Gulf “{{word}}” usually means rice. We picked rice, change it if you meant bread.",
+      "removeBody": "Will be removed from the list",
+      "keepBody": "Will stay on the list",
+      "undo": "Undo",
+      "removeAgain": "Remove",
+      "add": "Add to list",
+      "recordAgain": "Record again"
+    },
+    "notUnderstood": {
+      "title": "We didn’t catch that",
+      "body": "It’s noisy. Hold the phone closer and speak after the beep.",
+      "caught": "What we caught",
+      "unclear": "[unclear]",
+      "onlyThis": "Only this was clear. Add it?",
+      "add": "Add",
+      "retry": "Try again",
+      "type": "Type it instead"
+    }
   }
 }

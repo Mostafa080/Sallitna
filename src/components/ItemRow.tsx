@@ -30,7 +30,9 @@ type Props = {
 
 const CHECKBOX_HIT_SLOP = (size.touch - size.checkbox) / 2;
 const ACTIONS_WIDTH = size.swipeAction * 3;
-const SWIPE_ACTIVATE = spacing.md; // finger travel before a horizontal swipe starts
+const SWIPE_ACTIVATE = spacing.xl; // sideways travel before a row swipe starts
+const SCROLL_WINS = spacing.sm; // vertical travel that hands the touch to the list scroll
+const NEVER = 10_000; // offset that can't be reached — disables one direction
 const FLING_VELOCITY = 600;
 
 export function ItemRow({
@@ -62,9 +64,13 @@ export function ItemRow({
     onOpenChange(open);
   };
 
+  // Closed rows only react to a swipe toward the start side (that's the only way they can open),
+  // so drags in any other direction are left to the list scroll.
+  const openDirection: [number, number] =
+    startSign > 0 ? [-NEVER, SWIPE_ACTIVATE] : [-SWIPE_ACTIVATE, NEVER];
   const pan = Gesture.Pan()
-    .activeOffsetX([-SWIPE_ACTIVATE, SWIPE_ACTIVATE])
-    .failOffsetY([-SWIPE_ACTIVATE, SWIPE_ACTIVATE])
+    .activeOffsetX(isOpen ? [-SWIPE_ACTIVATE, SWIPE_ACTIVATE] : openDirection)
+    .failOffsetY([-SCROLL_WINS, SCROLL_WINS])
     .onStart(() => {
       revealAtStart.value = reveal.value;
     })

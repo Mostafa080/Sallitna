@@ -98,6 +98,7 @@ export default function HomeScreen() {
           leaveStarterMode();
         },
       },
+      { text: t('dev.micDenied'), onPress: () => router.push({ pathname: '/voice', params: { mode: 'denied' } }) },
       { text: t('dev.cancel'), style: 'cancel' },
     ]);
   };
@@ -206,11 +207,11 @@ export default function HomeScreen() {
 
       <UndoToast bottomOffset={insets.bottom + BOTTOM_BAR_HEIGHT + spacing.md} />
 
-      {/* Voice is the next session; shopper mode has no design yet */}
+      {/* Shopper mode is a later session. Long-press the mic = simulated noisy recording */}
       <BottomBar
         onAtStore={comingSoon}
-        onTalk={comingSoon}
-        onLongTalk={comingSoon}
+        onTalk={() => router.push('/voice')}
+        onLongTalk={() => router.push({ pathname: '/voice', params: { mode: 'noisy' } })}
         onType={() => router.push('/add')}
       />
     </View>

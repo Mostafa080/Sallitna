@@ -165,3 +165,7 @@ export function usualItems(excludeNames: Set<string>, limit = 5): CatalogItem[] 
     .sort((a, b) => b.habits!.times_this_month - a.habits!.times_this_month)
     .slice(0, limit);
 }
+
+export function catalogById(id: string): CatalogItem | undefined {
+  return catalog.find((c) => c.id === id);
+}

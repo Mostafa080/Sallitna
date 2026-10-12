@@ -147,3 +147,36 @@ Agreed split for "interactive flow for all screens": **(1) this session**, (2) t
 - In Expo Go, screen push/back slides like LTR; real builds will slide RTL.
 - ESLint isn't installed; `npx tsc --noEmit` passes.
 - iOS asks «Allow Paste?» the first time «الصق» is tapped (iOS rule).
+
+## Session 4 — 2026-10-12: Voice flow (simulated)
+
+### Done
+- **Voice screen** — `src/app/voice.tsx`, opens from the big mic on Home and from the mic in type-to-add.
+  Plays a pretend recording (no real microphone or speech-to-text yet):
+  - **mic-permission** (first time only) → «اسمح بالمايك» / «بعدين».
+  - **listening** — transcript appears phrase by phrase, understood items underlined orange, «شيل» dashed,
+    moving sound bars, «خلّصت» or stops by itself after 2 s.
+  - **processing** — spinner, cards fill in, then moves to review by itself.
+  - **review** — cards checked against the live list: تحديث (already on list, edit with ✎), جديد (stepper),
+    تأكيد «عيش» (rice / bread), حذف with تراجع. «أضف للقائمة» applies everything with one undo;
+    «سجّل مرة ثانية» records again; ✕ closes.
+  - **not-understood** — long-press the mic on Home. «أضفه» adds the one word caught, «جرّب مرة ثانية»,
+    «اكتبها بدالها» opens type-to-add.
+  - **mic-denied** — test menu (long-press household name) → «شاشة المايك المقفّل». «افتح الإعدادات» opens phone settings.
+- Items added by voice show the mic icon and keep the transcript (visible in item detail).
+- Voice sets a quantity ("حليب ثنتين" → 2), it doesn't add to it — matches «بنخليه 2 بدل 1» in review.png.
+- **Scrolling fix attempt:** row swipe now only starts on a clear sideways swipe in the opening direction,
+  and any small vertical movement hands the touch to the list. A drag that starts sideways then goes up now scrolls.
+- No new libraries.
+
+### Next
+- **Session 5: Shopper mode** — start-trip → shopper → not-found / answer → end-early → trip-done,
+  plus shopper-empty, split, offline. Replaces «قريبًا» on «أنا في السوق».
+
+### Known issues / open questions
+- **Scrolling on the user's iPhone** — please re-test after this session's swipe change.
+- Voice is simulated: always the same sentence. Real recording needs expo-audio + a Supabase Edge Function
+  for speech-to-text and parsing (secrets stay server-side).
+- The «عيش» explanation always says "In the Gulf…" — should depend on the speaker's dialect (Egyptian «عيش» = bread).
+- «جرّب: …» tip chips on the listening screen are not tappable (just examples, like the design).
+- «تحديث» cards use set-quantity; if the person meant "more", they can fix it in review.

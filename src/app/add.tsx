@@ -51,8 +51,6 @@ export default function TypeAddScreen() {
   const trimmed = query.trim();
   const showAddAsIs = trimmed.length > 0 && !results.some((r) => normalizeArabic(r.name) === normalizeArabic(trimmed));
 
-  const comingSoon = () => list.notify(t('toast.comingSoon'));
-
   const addFromCatalog = (item: CatalogItem) => {
     Haptics.selectionAsync();
     list.addItems([catalogToDraft(item)]);
@@ -106,7 +104,7 @@ export default function TypeAddScreen() {
             accessibilityLabel={t('typeAdd.searchA11y')}
           />
           <Pressable
-            onPress={comingSoon}
+            onPress={() => router.replace('/voice')}
             style={styles.micButton}
             accessibilityRole="button"
             accessibilityLabel={t('typeAdd.voiceA11y')}>
