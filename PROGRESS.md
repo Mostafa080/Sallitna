@@ -180,3 +180,41 @@ Agreed split for "interactive flow for all screens": **(1) this session**, (2) t
 - The «عيش» explanation always says "In the Gulf…" — should depend on the speaker's dialect (Egyptian «عيش» = bread).
 - «جرّب: …» tip chips on the listening screen are not tappable (just examples, like the design).
 - «تحديث» cards use set-quantity; if the person meant "more", they can fix it in review.
+
+## Session 5 — 2026-10-12: Shopper mode (simulated)
+
+### Done
+- **«أنا في السوق»** now opens **start-trip** (bottom sheet): where (supermarket / grocery / pharmacy / bakery),
+  and — because سارة is already shopping — split with her or "I'll get everything".
+- **shop** (`src/app/shop.tsx`): dark header, progress bar «X من Y في السلة», list sorted by aisle,
+  tap to put in cart (and back out), «في السلة» section, «خلّصت التسوق» / «شي ما لقيته».
+  - **Live addition (simulated):** 5 s into a trip خالد adds «هيل» by voice — appears highlighted at the top with a toast.
+  - **Not found:** long-press a row, or «شي ما لقيته» → pick the item → sheet: ask the person who added it
+    (with notification preview), leave for next time, or remove.
+  - **Split mode:** «ما أحد أخذه» with orange «أنا أجيبه», «عليك», «على سارة» (bought / looking).
+  - **Offline (test):** long-press the screen title → yellow «ما فيه شبكة» banner + «بانتظار الإرسال».
+    Long-press again to come back online.
+  - **Empty list:** «ما فيه شي تشتريه» → «اسأل العائلة» / «اطلع من وضع التسوق».
+- **end-early** sheet when items are left: keep the rest on the list, or ask someone to finish.
+- **trip-done**: bought / not found / added-meanwhile, notes for each not-found item (including the family's reply),
+  optional amount paid, «شارك الملخص» (system share sheet), back to the list with a toast.
+- **answer** (family's side): test menu → «ردّ على السؤال (كأنك خالد)». Replying "yes" swaps the item to the
+  alternative (هيل → هيل مطحون) and puts it back on the shopper's list; "no" removes it; "later" keeps it for next time.
+- Home banner shows «أنتي في السوق الحين» during your own trip; tap it to go back to shopping.
+  Items in the cart are hidden from Home.
+- New colors: `live` (green dot on dark), `warningTint` / `warningLine` / `warningInk` (offline banner), `scrim`.
+- Store: trips, questions, trip summary and offline state added to `ListStore` (`src/store/tripTypes.ts` mirrors
+  the planned `trips` and `questions` tables). No new libraries.
+
+### Next
+- **Session 6: Family** — members, member-detail, invite, invite-expired, settings.
+- Then helper view (EN/HI, LTR, Noto Sans Devanagari), then Supabase + sign-in.
+
+### Known issues / open questions
+- In split mode the partner's progress is simulated: dairy is "theirs" (one bought), produce is "yours".
+- The blue «· عليك» label on Home (session 2) is still there; split.png handles claims inside shopper mode.
+  Keep both, or drop the Home label?
+- Amount paid isn't saved anywhere yet (needs the `trips` table). Receipt photo → «قريبًا».
+- «ردّ بصوتك» on the answer screen → «قريبًا».
+- Only one phone: the family's side (answer) is reached from the test menu, not a real notification.
+- Ending a trip early with "ask someone to finish" only shows a toast (no real notification yet).

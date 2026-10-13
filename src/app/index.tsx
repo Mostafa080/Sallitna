@@ -55,7 +55,9 @@ export default function HomeScreen() {
     else if (Object.keys(addedBasics).length === 0) setStarterMode(false);
   }, [openItems.length]);
 
-  const shopper = members.find((m) => m.id === activeShopperId);
+  // My own trip takes over the banner; otherwise show whoever else is shopping
+  const shopper = members.find((m) => m.id === (list.trip ? list.currentMemberId : activeShopperId));
+  const pendingQuestion = list.questions.find((q) => !q.answer);
   const sections = categoryOrder
     .map((category) => ({ category, items: visibleItems.filter((item) => item.category === category) }))
     .filter((section) => section.items.length > 0);
@@ -99,6 +101,14 @@ export default function HomeScreen() {
         },
       },
       { text: t('dev.micDenied'), onPress: () => router.push({ pathname: '/voice', params: { mode: 'denied' } }) },
+      ...(pendingQuestion
+        ? [
+            {
+              text: t('dev.answer', { name: members.find((m) => m.id === pendingQuestion.to)?.display_name ?? '' }),
+              onPress: () => router.push({ pathname: '/answer', params: { id: pendingQuestion.id } }),
+            },
+          ]
+        : []),
       { text: t('dev.cancel'), style: 'cancel' },
     ]);
   };
@@ -144,7 +154,13 @@ export default function HomeScreen() {
           />
         ) : (
           <>
-            {shopper && <ShopperBanner shopper={shopper} />}
+            {shopper && (
+              <ShopperBanner
+                shopper={shopper}
+                self={!!list.trip}
+                onPress={list.trip ? () => router.push('/shop') : undefined}
+              />
+            )}
 
             {/* Count + filters */}
             <View style={styles.filterRow}>
@@ -207,9 +223,9 @@ export default function HomeScreen() {
 
       <UndoToast bottomOffset={insets.bottom + BOTTOM_BAR_HEIGHT + spacing.md} />
 
-      {/* Shopper mode is a later session. Long-press the mic = simulated noisy recording */}
+      {/* Long-press the mic = simulated noisy recording */}
       <BottomBar
-        onAtStore={comingSoon}
+        onAtStore={() => router.push(list.trip ? '/shop' : '/start-trip')}
         onTalk={() => router.push('/voice')}
         onLongTalk={() => router.push({ pathname: '/voice', params: { mode: 'noisy' } })}
         onType={() => router.push('/add')}

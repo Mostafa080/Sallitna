@@ -12,6 +12,7 @@ export type CatalogItem = {
   default_qty: number;
   default_unit: Unit;
   translations?: { en: string; hi: string };
+  alternative?: string; // catalog id to suggest when this isn't in the shop
   habits?: {
     times_this_month: number;
     cadence_days?: number; // how often the household usually buys it
@@ -21,7 +22,7 @@ export type CatalogItem = {
 
 export const catalog: CatalogItem[] = [
   {
-    id: 'c1', name: 'حليب كامل الدسم', aliases: ['حليب', 'حليب كامل'], category: 'dairy',
+    id: 'c1', name: 'حليب كامل الدسم', aliases: ['حليب', 'حليب كامل'], category: 'dairy', alternative: 'c2',
     default_qty: 1, default_unit: 'count', translations: { en: 'Full-fat milk', hi: 'फुल क्रीम दूध' },
     habits: { times_this_month: 4, cadence_days: 7, last_bought_days_ago: 2 },
   },
@@ -101,6 +102,14 @@ export const catalog: CatalogItem[] = [
   {
     id: 'c18', name: 'مناديل', aliases: ['كلينكس', 'محارم', 'فاين'], category: 'cleaning',
     default_qty: 1, default_unit: 'count', translations: { en: 'Tissues', hi: 'टिशू' },
+  },
+  {
+    id: 'c20', name: 'هيل', aliases: ['هيل حب', 'حبهان'], category: 'pantry', alternative: 'c21',
+    default_qty: 1, default_unit: 'bag', translations: { en: 'Cardamom', hi: 'इलायची' },
+  },
+  {
+    id: 'c21', name: 'هيل مطحون', aliases: ['مطحون'], category: 'pantry',
+    default_qty: 1, default_unit: 'bag', translations: { en: 'Ground cardamom', hi: 'पिसी इलायची' },
   },
   {
     id: 'c19', name: 'صابون غسيل', aliases: ['مسحوق', 'تايد', 'صابون'], category: 'cleaning',

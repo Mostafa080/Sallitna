@@ -68,8 +68,17 @@ export const members: Member[] = [
 // The person using this phone
 export const currentMemberId = 'm1';
 
-// Who is in shopper mode right now (null = nobody)
+// Someone else already at the shops (the Home banner, and "split with…" on start-trip)
 export const activeShopperId: string | null = 'm3';
+export const activeShopperSinceMinutes = 10;
+
+// Where a trip can be
+export type StoreKey = 'supermarket' | 'grocery' | 'pharmacy' | 'bakery';
+export const storeOrder: StoreKey[] = ['supermarket', 'grocery', 'pharmacy', 'bakery'];
+
+// Simulated: while you shop, this member adds something by voice (shows as "just added")
+export const liveAdderId = 'm2';
+export const LIVE_ADD_DELAY_MS = 5000;
 
 export const categoryOrder: CategoryKey[] = ['produce', 'dairy', 'bakery', 'pantry', 'cleaning', 'other'];
 

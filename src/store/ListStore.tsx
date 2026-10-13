@@ -2,20 +2,26 @@
 // In-memory for now (resets on reload). Later this is backed by Supabase + Realtime,
 // and undo maps to item_events.
 
-import { createContext, useContext, useReducer, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useReducer, type ReactNode } from 'react';
 
+import { catalogById, catalogToDraft, findCatalogMatch } from '@/data/fakeCatalog';
 import {
+  activeShopperId,
   currentMemberId,
+  LIVE_ADD_DELAY_MS,
+  liveAdderId,
   makeDemoItems,
   members,
   type Basic,
   type Item,
   type ItemDraft,
+  type StoreKey,
 } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { normalizeArabic } from '@/lib/arabic';
 import { formatQuantity } from '@/lib/format';
 import type { ListChange } from '@/lib/voiceReview';
+import type { Question, QuestionAnswer, Trip, TripOutcome, TripSummary } from '@/store/tripTypes';
 
 // What "undo" reverses: items to put back as they were, and newly added items to take away
 export type Undo = {
@@ -32,6 +38,11 @@ export type Toast = {
 type State = {
   items: Item[];
   toast: Toast | null;
+  trip: Trip | null; // the trip this phone's member is on
+  questions: Question[];
+  summary: TripSummary | null; // last finished trip, for the summary screen
+  offline: boolean; // simulated
+  pendingSync: string[]; // item ids put in the cart while offline
 };
 
 type Action =
@@ -40,7 +51,14 @@ type Action =
   | { type: 'discard'; ids: string[] }
   | { type: 'undo'; undo: Undo }
   | { type: 'reset'; items: Item[] }
-  | { type: 'toast'; toast: Toast | null };
+  | { type: 'toast'; toast: Toast | null }
+  | { type: 'set'; patch: Partial<Omit<State, 'items' | 'toast'>> }
+  | { type: 'trip'; patch: Partial<Trip> }
+  | { type: 'liveAdd'; item: Item };
+
+function initialState(): State {
+  return { items: makeDemoItems(), toast: null, trip: null, questions: [], summary: null, offline: false, pendingSync: [] };
+}
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -56,6 +74,7 @@ function reducer(state: State, action: Action): State {
     case 'undo': {
       const byId = new Map(action.undo.restore.map((s) => [s.id, s]));
       return {
+        ...state,
         items: state.items
           .filter((item) => !action.undo.discard.includes(item.id))
           .map((item) => byId.get(item.id) ?? item),
@@ -63,9 +82,25 @@ function reducer(state: State, action: Action): State {
       };
     }
     case 'reset':
-      return { items: action.items, toast: null };
+      return { ...initialState(), items: action.items };
     case 'toast':
       return { ...state, toast: action.toast };
+    case 'set':
+      return { ...state, ...action.patch };
+    case 'trip':
+      return state.trip ? { ...state, trip: { ...state.trip, ...action.patch } } : state;
+    case 'liveAdd':
+      // Only while still shopping, and only once
+      if (!state.trip || state.items.some((i) => i.status === 'open' && sameName(i.name, action.item.name))) return state;
+      return {
+        ...state,
+        items: [...state.items, action.item],
+        trip: {
+          ...state.trip,
+          itemIds: [...state.trip.itemIds, action.item.id],
+          addedIds: [...state.trip.addedIds, action.item.id],
+        },
+      };
   }
 }
 
@@ -74,23 +109,45 @@ let idCounter = 0;
 
 const sameName = (a: string, b: string) => normalizeArabic(a) === normalizeArabic(b);
 
-function newItem(draft: ItemDraft, voiceTranscript?: string): Item {
+const newId = (prefix: string) => `${prefix}-${Date.now()}-${++idCounter}`;
+
+function newItem(draft: ItemDraft, voiceTranscript?: string, addedBy = currentMemberId): Item {
   return {
     ...draft,
-    id: `local-${Date.now()}-${++idCounter}`,
+    id: newId('local'),
     status: 'open',
     note: '',
-    added_by: currentMemberId,
+    added_by: addedBy,
     added_via: voiceTranscript ? 'voice' : 'text',
     voice_transcript: voiceTranscript,
-    requested_by: [currentMemberId],
+    requested_by: [addedBy],
     claimed_by: null,
     created_at: new Date().toISOString(),
   };
 }
 
 function useListState() {
-  const [state, dispatch] = useReducer(reducer, undefined, () => ({ items: makeDemoItems(), toast: null }));
+  const [state, dispatch] = useReducer(reducer, undefined, initialState);
+  const { trip } = state;
+
+  // Simulated family: a few seconds into a trip, someone adds an item by voice
+  useEffect(() => {
+    if (!trip) return;
+    const timer = setTimeout(() => {
+      const cardamom = catalogById('c20');
+      if (!cardamom) return;
+      const adder = members.find((m) => m.id === liveAdderId);
+      dispatch({ type: 'liveAdd', item: newItem(catalogToDraft(cardamom), 'هيل كيس', liveAdderId) });
+      if (adder) {
+        dispatch({
+          type: 'toast',
+          toast: { id: ++toastCounter, message: t(`toast.liveAdded_${adder.gender}`, { name: adder.display_name, item: cardamom.name }) },
+        });
+      }
+    }, LIVE_ADD_DELAY_MS);
+    return () => clearTimeout(timer);
+    // Once per trip
+  }, [trip?.id]);
 
   const find = (id: string) => state.items.find((item) => item.id === id);
   const memberById = (id: string) => members.find((m) => m.id === id);
@@ -102,10 +159,26 @@ function useListState() {
 
   const undoFor = (item: Item): Undo => ({ restore: [item], discard: [] });
 
+  const outcome = (item: Item, decision: TripOutcome['decision'], extra: Partial<TripOutcome> = {}): TripOutcome => ({
+    itemId: item.id,
+    name: item.name,
+    decision,
+    ...extra,
+  });
+  const withOutcome = (outcomes: TripOutcome[], next: TripOutcome) => [
+    ...outcomes.filter((o) => o.itemId !== next.itemId),
+    next,
+  ];
+
   return {
     items: state.items,
     toast: state.toast,
     currentMemberId,
+    trip,
+    questions: state.questions,
+    summary: state.summary,
+    offline: state.offline,
+    pendingSync: state.pendingSync,
 
     // Open item with this name (ignores أ/ا, ة/ه spelling differences)
     findOpenByName: openItemNamed,
@@ -216,6 +289,183 @@ function useListState() {
 
     dismissToast() {
       dispatch({ type: 'toast', toast: null });
+    },
+
+    // --- Shopping trips -------------------------------------------------------
+
+    startTrip(store: StoreKey, mode: Trip['mode']) {
+      const open = state.items.filter((i) => i.status === 'open');
+      const partnerId = mode === 'split' ? activeShopperId : null;
+
+      // Simulated split: the partner already took the dairy aisle and found one thing; produce is yours
+      if (partnerId) {
+        let partnerFoundOne = false;
+        for (const item of open) {
+          if (item.category === 'produce') dispatch({ type: 'patch', id: item.id, patch: { claimed_by: currentMemberId } });
+          if (item.category === 'dairy') {
+            dispatch({
+              type: 'patch',
+              id: item.id,
+              patch: { claimed_by: partnerId, status: partnerFoundOne ? 'open' : 'in_cart' },
+            });
+            partnerFoundOne = true;
+          }
+        }
+      }
+
+      dispatch({
+        type: 'set',
+        patch: {
+          trip: {
+            id: newId('trip'),
+            store,
+            shopperId: currentMemberId,
+            startedAt: new Date().toISOString(),
+            mode,
+            partnerId,
+            itemIds: open.map((i) => i.id),
+            addedIds: [],
+            skippedIds: [],
+            outcomes: [],
+          },
+          summary: null,
+          pendingSync: [],
+        },
+      });
+    },
+
+    toggleCart(id: string) {
+      const item = find(id);
+      if (!item) return;
+      const toCart = item.status === 'open';
+      dispatch({ type: 'patch', id, patch: { status: toCart ? 'in_cart' : 'open' } });
+      if (state.offline) {
+        dispatch({
+          type: 'set',
+          patch: { pendingSync: toCart ? [...state.pendingSync, id] : state.pendingSync.filter((p) => p !== id) },
+        });
+      }
+    },
+
+    // Split mode: take an unclaimed item
+    claimForTrip(id: string) {
+      const item = find(id);
+      if (!item) return;
+      dispatch({ type: 'patch', id, patch: { claimed_by: currentMemberId } });
+      showToast(t('toast.claimedTrip', { name: item.name }), undoFor(item));
+    },
+
+    // The shopper couldn't find something
+    notFound(id: string, choice: 'ask' | 'next' | 'remove', askTo: string | null) {
+      const item = find(id);
+      if (!item || !trip) return;
+
+      if (choice === 'remove') {
+        dispatch({ type: 'patch', id, patch: { status: 'removed' } });
+        dispatch({ type: 'trip', patch: { outcomes: withOutcome(trip.outcomes, outcome(item, 'removed')) } });
+        showToast(t('toast.removed', { name: item.name }), undoFor(item));
+        return;
+      }
+
+      const skippedIds = [...trip.skippedIds.filter((s) => s !== id), id];
+      if (choice === 'next') {
+        dispatch({ type: 'trip', patch: { skippedIds, outcomes: withOutcome(trip.outcomes, outcome(item, 'next')) } });
+        showToast(t('toast.skipped', { name: item.name }));
+        return;
+      }
+
+      if (!askTo) return;
+      const altId = findCatalogMatch(item.name)?.alternative;
+      const question: Question = {
+        id: newId('q'),
+        tripId: trip.id,
+        itemId: id,
+        from: currentMemberId,
+        to: askTo,
+        createdAt: new Date().toISOString(),
+        altName: (altId && catalogById(altId)?.name) || null,
+        answer: null,
+      };
+      dispatch({ type: 'trip', patch: { skippedIds, outcomes: withOutcome(trip.outcomes, outcome(item, 'asked')) } });
+      dispatch({ type: 'set', patch: { questions: [...state.questions, question] } });
+      showToast(t('toast.questionSent', { name: memberById(askTo)?.display_name ?? '' }));
+    },
+
+    // The family member replies (simulated on this phone)
+    answerQuestion(questionId: string, answer: QuestionAnswer, reply: string) {
+      const question = state.questions.find((q) => q.id === questionId);
+      const item = question && find(question.itemId);
+      if (!question || !item) return;
+
+      dispatch({
+        type: 'set',
+        patch: { questions: state.questions.map((q) => (q.id === questionId ? { ...q, answer } : q)) },
+      });
+
+      if (trip && trip.id === question.tripId) {
+        const answered = { answeredBy: question.to, reply };
+        if (answer === 'alt') {
+          // Back on the shopping list, as the replacement
+          const altName = question.altName ?? item.name;
+          dispatch({ type: 'patch', id: item.id, patch: { name: altName } });
+          dispatch({
+            type: 'trip',
+            patch: {
+              skippedIds: trip.skippedIds.filter((s) => s !== item.id),
+              outcomes: withOutcome(trip.outcomes, outcome(item, 'swapped', { ...answered, alt: altName })),
+            },
+          });
+        } else if (answer === 'no') {
+          dispatch({ type: 'patch', id: item.id, patch: { status: 'removed' } });
+          dispatch({ type: 'trip', patch: { outcomes: withOutcome(trip.outcomes, outcome(item, 'removed', answered)) } });
+        } else {
+          dispatch({ type: 'trip', patch: { outcomes: withOutcome(trip.outcomes, outcome(item, 'next', answered)) } });
+        }
+      }
+
+      showToast(t('toast.answerSent', { name: memberById(question.from)?.display_name ?? '' }));
+    },
+
+    // End the trip: cart → bought; anything left stays on the list
+    finishTrip(handoff: boolean) {
+      if (!trip) return;
+      const tripItems = state.items.filter((i) => trip.itemIds.includes(i.id));
+      const inCart = tripItems.filter((i) => i.status === 'in_cart');
+      // In a split trip, what the partner bought isn't counted as mine
+      const mine = trip.partnerId ? inCart.filter((i) => i.claimed_by !== trip.partnerId) : inCart;
+
+      for (const item of tripItems) {
+        if (item.status === 'in_cart') dispatch({ type: 'patch', id: item.id, patch: { status: 'bought', claimed_by: null } });
+        else if (item.claimed_by === currentMemberId) dispatch({ type: 'patch', id: item.id, patch: { claimed_by: null } });
+      }
+
+      const summary: TripSummary = {
+        shopperId: trip.shopperId,
+        store: trip.store,
+        startedAt: trip.startedAt,
+        endedAt: new Date().toISOString(),
+        boughtCount: mine.length,
+        notFound: trip.outcomes,
+        added: tripItems
+          .filter((i) => trip.addedIds.includes(i.id))
+          .map((i) => ({ name: i.name, bought: i.status === 'in_cart' })),
+      };
+      dispatch({ type: 'set', patch: { trip: null, summary, offline: false, pendingSync: [] } });
+      if (handoff) showToast(t('toast.handoff'));
+    },
+
+    // Leave shopping mode without a summary (nothing was bought)
+    leaveTrip() {
+      dispatch({ type: 'set', patch: { trip: null, offline: false, pendingSync: [] } });
+    },
+
+    clearSummary() {
+      dispatch({ type: 'set', patch: { summary: null } });
+    },
+
+    setOffline(offline: boolean) {
+      dispatch({ type: 'set', patch: { offline, pendingSync: offline ? state.pendingSync : [] } });
+      showToast(t(offline ? 'toast.offlineOn' : 'toast.synced'));
     },
 
     // Dev-only helpers to see the empty state and come back

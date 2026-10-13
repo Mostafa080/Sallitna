@@ -20,6 +20,11 @@ export const colors = {
   darkSurface: '#2E2A26', // voice screens cards
   darkLine: '#3A3530', // rings, skeletons and outlines on dark screens
   onDarkMuted: '#A39C91', // secondary text on dark screens
+  live: '#4CC38A', // "the family knows you're here" dot on dark
+  warningTint: '#FBF1D3', // offline banner background
+  warningLine: '#E8D48A', // offline banner border
+  warningInk: '#6B5310', // offline banner text and icon
+  scrim: 'rgba(29, 27, 24, 0.55)', // behind bottom sheets (ink at 55%)
 } as const;
 
 export const fonts = {
@@ -87,6 +92,11 @@ export const size = {
   spinnerStroke: 5,
   toggleWidth: 52,
   toggleHeight: 30,
+  progress: 10, // shopping progress bar
+  radio: 26,
+  sheetHandle: 40,
+  statTile: 104,
+  doneCheck: 112,
   border: 1,
   borderThick: 2,
 } as const;

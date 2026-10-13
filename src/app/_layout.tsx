@@ -46,6 +46,12 @@ export default function RootLayout() {
           <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.ground } }}>
             <Stack.Screen name="add" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
             <Stack.Screen name="voice" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
+            <Stack.Screen
+              name="start-trip"
+              options={{ presentation: 'transparentModal', animation: 'fade', contentStyle: { backgroundColor: 'transparent' } }}
+            />
+            <Stack.Screen name="shop" options={{ animation: 'fade' }} />
+            <Stack.Screen name="trip-done" options={{ animation: 'fade', gestureEnabled: false }} />
           </Stack>
         </ListProvider>
       </GestureHandlerRootView>
