@@ -218,3 +218,73 @@ Agreed split for "interactive flow for all screens": **(1) this session**, (2) t
 - «ردّ بصوتك» on the answer screen → «قريبًا».
 - Only one phone: the family's side (answer) is reached from the test menu, not a real notification.
 - Ending a trip early with "ask someone to finish" only shows a toast (no real notification yet).
+
+## Session 6 — 2026-10-14: Family (members, member detail, invite, expired invite, settings)
+
+### Done
+- **أهل البيت** (`src/app/members.tsx`) — opens by tapping the faces next to the household name on Home.
+  Each person with role · language (your own row also shows your dialect), «في السوق» while shopping,
+  the helper explainer, and **آخر نشاط** built from the list itself (who added what, by voice or typing, plus a fake
+  past trip «سارة اشترت 11 غرض»). Gear → settings, «ادعُ شخص» → invite.
+- **Member detail** (`src/app/member/[id].tsx`) — only the manager (مسؤولة) can open it; you can't open yourself.
+  Role (مسؤول / عضو / مساعد), «يشوف القائمة بـ» (pick one) and «يتكلّم بـ» (pick several) in bottom sheets,
+  «حفظ» with undo. Making someone مسؤول asks first, then hands it over (you become عضو).
+  «شيل … من البيت» asks first, removes them, undo brings them back. Their items stay on the list.
+- **Invite** (`src/app/invite.tsx`) — the Home «+person» button now opens it. «أرسل الدعوة على الواتساب» opens the
+  phone's share sheet with a ready message; «انسخ الرابط» copies `https://sallitna.app/j/8KD2` (fake).
+  List of who joined (green «انضم/انضمت») and who hasn't yet («بانتظاره» — a fake invite for «أبو خالد»).
+- **Expired invite** (`src/app/invite-expired.tsx`) — test menu → «رابط دعوة منتهي». «اطلب رابط جديد» opens the
+  share sheet; «ابدأ قائمة جديدة بدالها» → «قريبًا».
+- **Settings** (`src/app/settings.tsx`) — list name (tap to rename, manager only), my dialect, display language,
+  4 notification switches, 2 voice/privacy switches (remembered while the app is open),
+  help → «قريبًا», «اطلع من …» asks first → «قريبًا».
+- Store: members, pending invites, list name and settings now live in `ListStore`, so changes show everywhere
+  (Home faces, banner, list name). Members got `view_language`, `speaks`, `dialect`, `joined_at`.
+- Shared parts in `src/components/family/FamilyParts.tsx` (round header button, card rows, on/off switch,
+  status pill, pick-from-list sheet). New sizes `avatarLarge`, `avatarHero`. No new libraries.
+
+### Next
+- **Session 7: Helper view** — Rahul's side in English/Hindi (LTR), Noto Sans Devanagari, translated item names.
+  This is also when «لغة العرض» will really switch the app's language.
+- Then Supabase (tables + RLS, phone OTP sign-in), real invite links (Edge Function, 7-day expiry), notifications.
+
+### Known issues / open questions
+- **Display language** is saved but doesn't translate the app yet (comes with the helper view).
+- **Invite screen** in the design has onboarding bits (the 3-dash step indicator and «تقدر تدعوهم بعدين…» hint).
+  Opened from Home, I left those out and «ابدأ القائمة» just goes back. They'll return in the sign-up flow.
+- **Pending invites** aren't shown on «أهل البيت» (the design doesn't show them there). Should they be?
+- **«يتكلّم بـ» sheet** uses the same round radio circles even though you can pick several. Want checkboxes instead?
+- Leaving the household, help and «ابدأ قائمة جديدة» need real accounts → «قريبًا».
+- Everything resets when the app reloads (still in-memory).
+- The Expo Go gear button sits on top of «تراجع» on the members screen while testing — not part of the app.
+
+## Session 7 — 2026-10-14: Helper view
+
+### Done
+- **Helper's list** (`src/app/helper.tsx`) — test menu (long-press the household name) → «شوف القائمة كأنك Rahul».
+  - English and Hindi are **left-to-right**, Arabic right-to-left. Only this screen flips; the rest of the app stays RTL.
+  - «Show the list in» switch: English / हिन्दी / العربية — saved to Rahul's `view_language` (the members screen updates too).
+  - Each item: translated name (from the catalog), the Arabic original underneath for matching in the shop,
+    "added by Umm Khalid + Khalid" / "added by you", quantities in his language (2 kg, 6 pcs, ×2), "New" badge for fresh items.
+    Items without a translation show the Arabic name.
+  - Tick → bought, undo bar in his language; it disappears from the family's list too. «7 of 12 left to buy».
+  - «Speak» and «I'm going to the store» → "Coming soon" (agreed).
+  - Tap Rahul's face → back to the family's list (test only, no sign-in yet).
+- **Hindi font**: Noto Sans Devanagari (`@expo-google-fonts/noto-sans-devanagari`, approved). `AppText` picks it
+  automatically for any text written in Hindi script, so «हिन्दी» in pickers also looks right now.
+- `AppText` now follows the screen's reading direction (`LayoutDirectionContext` in `src/lib/direction.ts`).
+- i18n: `tIn(language, key)` translates into a chosen language; `formatQuantity` takes a language.
+  English units shortened (×2, 6 pcs) and real Hindi units added. Members and the household have English/Hindi name spellings.
+
+### Next
+- **Display language for the whole app** (settings «لغة العرض») — switching the app to English/Hindi needs the app
+  to restart left-to-right. Its own session.
+- Then Supabase (tables + RLS, phone OTP sign-in), real invite links, notifications.
+
+### Known issues / open questions
+- **Hindi text was written by me** — please have a Hindi speaker check it (`src/i18n/hi.json`, the `helper` and `units` parts).
+  The rest of `hi.json` is still the English placeholder.
+- **Eggs "Tray of 30"** in the design — still "1 carton" (no pack size in the data yet).
+- Toasts in the helper view: the "Coming soon" and "bought" ones are in his language; other toasts that can appear
+  there (e.g. something the family did) would still be Arabic.
+- Expo Go: screen open/close animations still slide like LTR (real builds are fine).

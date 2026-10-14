@@ -8,13 +8,19 @@ import { catalogById, catalogToDraft, findCatalogMatch } from '@/data/fakeCatalo
 import {
   activeShopperId,
   currentMemberId,
+  defaultSettings,
+  household,
   LIVE_ADD_DELAY_MS,
   liveAdderId,
   makeDemoItems,
-  members,
+  members as demoMembers,
+  pendingInvites,
   type Basic,
+  type HouseholdSettings,
   type Item,
   type ItemDraft,
+  type Member,
+  type PendingInvite,
   type StoreKey,
 } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
@@ -23,10 +29,12 @@ import { formatQuantity } from '@/lib/format';
 import type { ListChange } from '@/lib/voiceReview';
 import type { Question, QuestionAnswer, Trip, TripOutcome, TripSummary } from '@/store/tripTypes';
 
-// What "undo" reverses: items to put back as they were, and newly added items to take away
+// What "undo" reverses: items to put back as they were, and newly added items to take away.
+// Family changes undo by putting the whole member list back.
 export type Undo = {
   restore: Item[];
   discard: string[];
+  members?: Member[];
 };
 
 export type Toast = {
@@ -43,6 +51,10 @@ type State = {
   summary: TripSummary | null; // last finished trip, for the summary screen
   offline: boolean; // simulated
   pendingSync: string[]; // item ids put in the cart while offline
+  members: Member[];
+  invites: PendingInvite[];
+  householdName: string;
+  settings: HouseholdSettings;
 };
 
 type Action =
@@ -57,7 +69,19 @@ type Action =
   | { type: 'liveAdd'; item: Item };
 
 function initialState(): State {
-  return { items: makeDemoItems(), toast: null, trip: null, questions: [], summary: null, offline: false, pendingSync: [] };
+  return {
+    items: makeDemoItems(),
+    toast: null,
+    trip: null,
+    questions: [],
+    summary: null,
+    offline: false,
+    pendingSync: [],
+    members: demoMembers,
+    invites: pendingInvites,
+    householdName: household.name,
+    settings: defaultSettings,
+  };
 }
 
 function reducer(state: State, action: Action): State {
@@ -78,6 +102,7 @@ function reducer(state: State, action: Action): State {
         items: state.items
           .filter((item) => !action.undo.discard.includes(item.id))
           .map((item) => byId.get(item.id) ?? item),
+        members: action.undo.members ?? state.members,
         toast: null,
       };
     }
@@ -136,7 +161,7 @@ function useListState() {
     const timer = setTimeout(() => {
       const cardamom = catalogById('c20');
       if (!cardamom) return;
-      const adder = members.find((m) => m.id === liveAdderId);
+      const adder = demoMembers.find((m) => m.id === liveAdderId);
       dispatch({ type: 'liveAdd', item: newItem(catalogToDraft(cardamom), 'هيل كيس', liveAdderId) });
       if (adder) {
         dispatch({
@@ -150,7 +175,9 @@ function useListState() {
   }, [trip?.id]);
 
   const find = (id: string) => state.items.find((item) => item.id === id);
-  const memberById = (id: string) => members.find((m) => m.id === id);
+  // Removed members still resolve, so old items keep showing who added them
+  const memberById = (id: string) => state.members.find((m) => m.id === id) ?? demoMembers.find((m) => m.id === id);
+  const familyUndo = (): Undo => ({ restore: [], discard: [], members: state.members });
   const openItemNamed = (name: string) =>
     state.items.find((item) => item.status === 'open' && sameName(item.name, name));
 
@@ -179,15 +206,21 @@ function useListState() {
     summary: state.summary,
     offline: state.offline,
     pendingSync: state.pendingSync,
+    members: state.members,
+    invites: state.invites,
+    householdName: state.householdName,
+    settings: state.settings,
+    memberById,
 
     // Open item with this name (ignores أ/ا, ة/ه spelling differences)
     findOpenByName: openItemNamed,
 
-    markBought(id: string) {
+    // `message` lets a screen in another language (the helper's) word the toast itself
+    markBought(id: string, message?: string) {
       const item = find(id);
       if (!item) return;
       dispatch({ type: 'patch', id, patch: { status: 'bought' } });
-      showToast(t('toast.bought', { name: item.name }), undoFor(item));
+      showToast(message ?? t('toast.bought', { name: item.name }), undoFor(item));
     },
 
     removeItem(id: string) {
@@ -466,6 +499,43 @@ function useListState() {
     setOffline(offline: boolean) {
       dispatch({ type: 'set', patch: { offline, pendingSync: offline ? state.pendingSync : [] } });
       showToast(t(offline ? 'toast.offlineOn' : 'toast.synced'));
+    },
+
+    // --- Family -----------------------------------------------------------------
+
+    // Save a member's role and languages. Making someone the manager hands it over:
+    // the current manager becomes a member.
+    updateMember(id: string, patch: Partial<Pick<Member, 'role' | 'view_language' | 'speaks' | 'dialect'>>, silent = false) {
+      const member = memberById(id);
+      if (!member) return;
+      const undo = familyUndo();
+      const handover = patch.role === 'owner' && member.role !== 'owner';
+      const next = state.members.map((m) => {
+        if (m.id === id) return { ...m, ...patch };
+        if (handover && m.role === 'owner') return { ...m, role: 'member' as const };
+        return m;
+      });
+      dispatch({ type: 'set', patch: { members: next } });
+      if (!silent) showToast(t('toast.memberSaved', { name: member.display_name }), undo);
+    },
+
+    removeMember(id: string) {
+      const member = memberById(id);
+      if (!member || id === currentMemberId) return;
+      const undo = familyUndo();
+      dispatch({ type: 'set', patch: { members: state.members.filter((m) => m.id !== id) } });
+      showToast(t('toast.memberRemoved', { name: member.display_name }), undo);
+    },
+
+    setHouseholdName(name: string) {
+      const trimmed = name.trim();
+      if (!trimmed || trimmed === state.householdName) return;
+      dispatch({ type: 'set', patch: { householdName: trimmed } });
+      showToast(t('toast.listRenamed', { name: trimmed }));
+    },
+
+    setSetting(key: keyof HouseholdSettings, value: boolean) {
+      dispatch({ type: 'set', patch: { settings: { ...state.settings, [key]: value } } });
     },
 
     // Dev-only helpers to see the empty state and come back

@@ -66,27 +66,30 @@ export function Sheet({ visible, onClose, title, subtitle, children, footer }: P
 
 type RadioCardProps = {
   title: string;
-  body: string;
+  body?: string;
   selected: boolean;
   onPress: () => void;
+  multiple?: boolean; // part of a pick-several list (checkbox instead of radio)
 };
 
 // Option card with a radio circle on the start side
-export function RadioCard({ title, body, selected, onPress }: RadioCardProps) {
+export function RadioCard({ title, body, selected, onPress, multiple }: RadioCardProps) {
   return (
     <Pressable
       onPress={onPress}
       style={[styles.radioCard, selected ? styles.radioCardSelected : styles.radioCardIdle]}
-      accessibilityRole="radio"
-      accessibilityState={{ selected }}>
+      accessibilityRole={multiple ? 'checkbox' : 'radio'}
+      accessibilityState={multiple ? { checked: selected } : { selected }}>
       <View style={[styles.radio, selected && styles.radioSelected]}>{selected && <View style={styles.radioDot} />}</View>
       <View style={styles.flex}>
         <AppText variant="item" weight="bold">
           {title}
         </AppText>
-        <AppText variant="body" color="muted">
-          {body}
-        </AppText>
+        {body && (
+          <AppText variant="body" color="muted">
+            {body}
+          </AppText>
+        )}
       </View>
     </Pressable>
   );

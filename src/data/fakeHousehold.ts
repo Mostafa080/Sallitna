@@ -8,6 +8,8 @@ export type MemberRole = 'owner' | 'member' | 'helper';
 export type ItemStatus = 'open' | 'in_cart' | 'bought' | 'not_found' | 'removed';
 export type Unit = 'count' | 'kg' | 'piece' | 'box' | 'carton' | 'bag';
 export type CategoryKey = 'produce' | 'dairy' | 'bakery' | 'pantry' | 'cleaning' | 'other';
+export type LanguageKey = 'ar' | 'en' | 'hi';
+export type DialectKey = 'saudi' | 'egyptian' | 'gulf' | 'levantine';
 
 export type Member = {
   id: string;
@@ -16,6 +18,32 @@ export type Member = {
   gender: 'f' | 'm';
   role: MemberRole;
   avatar_color: keyof typeof colors;
+  view_language: LanguageKey; // the language the list is shown in
+  speaks: LanguageKey[]; // what voice input listens for
+  dialect: DialectKey;
+  joined_at: string; // ISO date
+  items_added: number; // all-time count (later: from item_events)
+  names?: { en: string; hi: string }; // how helpers see this name
+};
+
+// Someone invited who hasn't opened the link yet
+export type PendingInvite = {
+  id: string;
+  display_name: string;
+  initial: string;
+  gender: 'f' | 'm';
+  role: MemberRole;
+  avatar_color: keyof typeof colors;
+};
+
+// The household's own settings (later: households + per-member notification prefs)
+export type HouseholdSettings = {
+  notifyTripStarted: boolean;
+  notifyAddedWhileShopping: boolean;
+  notifyEveryAdd: boolean;
+  quietHours: boolean;
+  reviewBeforeAdd: boolean;
+  keepRecordings: boolean;
 };
 
 export type Item = {
@@ -40,6 +68,7 @@ export type Item = {
 export type Household = {
   id: string;
   name: string;
+  names: { en: string; hi: string }; // the family name for helpers ("Abu Khalid")
 };
 
 // What's needed to add an item (quick-add chips, type-to-add, pasted lists)
@@ -55,15 +84,55 @@ const daysAgo = (d: number) => {
   date.setHours(18, 30, 0, 0);
   return date.toISOString();
 };
+// Today at hh:mm, or yesterday if that time hasn't come yet
+const todayAt = (h: number, m: number) => {
+  const date = new Date();
+  date.setHours(h, m, 0, 0);
+  if (date.getTime() > Date.now()) date.setDate(date.getDate() - 1);
+  return date.toISOString();
+};
 
-export const household: Household = { id: 'h1', name: 'بيت أبو خالد' };
+export const household: Household = { id: 'h1', name: 'بيت أبو خالد', names: { en: 'Abu Khalid', hi: 'अबू ख़ालिद' } };
+
+const arabicSpeaker = { view_language: 'ar' as const, speaks: ['ar' as const], dialect: 'saudi' as const };
 
 export const members: Member[] = [
-  { id: 'm1', display_name: 'أم خالد', initial: 'أ', gender: 'f', role: 'owner', avatar_color: 'ink' },
-  { id: 'm2', display_name: 'خالد', initial: 'خ', gender: 'm', role: 'member', avatar_color: 'info' },
-  { id: 'm3', display_name: 'سارة', initial: 'س', gender: 'f', role: 'member', avatar_color: 'accent' },
-  { id: 'm4', display_name: 'Rahul', initial: 'R', gender: 'm', role: 'helper', avatar_color: 'line' },
+  { id: 'm1', display_name: 'أم خالد', initial: 'أ', gender: 'f', role: 'owner', avatar_color: 'ink', ...arabicSpeaker, joined_at: daysAgo(120), items_added: 212,
+    names: { en: 'Umm Khalid', hi: 'उम्म ख़ालिद' } },
+  { id: 'm2', display_name: 'خالد', initial: 'خ', gender: 'm', role: 'member', avatar_color: 'info', ...arabicSpeaker, joined_at: daysAgo(118), items_added: 64,
+    names: { en: 'Khalid', hi: 'ख़ालिद' } },
+  { id: 'm3', display_name: 'سارة', initial: 'س', gender: 'f', role: 'member', avatar_color: 'accent', ...arabicSpeaker, joined_at: daysAgo(90), items_added: 41,
+    names: { en: 'Sara', hi: 'सारा' } },
+  {
+    id: 'm4', display_name: 'Rahul', initial: 'R', gender: 'm', role: 'helper', avatar_color: 'line',
+    view_language: 'en', speaks: ['en', 'hi'], dialect: 'saudi', joined_at: daysAgo(21), items_added: 14,
+    names: { en: 'Rahul', hi: 'राहुल' },
+  },
 ];
+
+// Invited but not joined yet (shows "waiting" on the invite screen)
+export const pendingInvites: PendingInvite[] = [
+  { id: 'p1', display_name: 'أبو خالد', initial: 'أ', gender: 'm', role: 'member', avatar_color: 'success' },
+];
+
+export const languageOrder: LanguageKey[] = ['ar', 'en', 'hi'];
+export const dialectOrder: DialectKey[] = ['saudi', 'egyptian', 'gulf', 'levantine'];
+
+// Fake invite link. Later: a one-time code from an Edge Function, valid 7 days.
+export const inviteCode = '8KD2';
+export const INVITE_VALID_DAYS = 7;
+
+export const defaultSettings: HouseholdSettings = {
+  notifyTripStarted: true,
+  notifyAddedWhileShopping: true,
+  notifyEveryAdd: false,
+  quietHours: true,
+  reviewBeforeAdd: true,
+  keepRecordings: false,
+};
+
+// A past trip, so "recent activity" has something besides additions (later: trips table)
+export const pastTrips = [{ shopperId: 'm3', boughtCount: 11, endedAt: todayAt(19, 20) }];
 
 // The person using this phone
 export const currentMemberId = 'm1';

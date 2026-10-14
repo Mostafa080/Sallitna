@@ -10,7 +10,8 @@
     "inviteA11y": "Invite someone to the household",
     "markBoughtA11y": "Mark {{name}} as bought",
     "emptyFilter": "Nothing added today",
-    "openItemA11y": "Open {{name}}"
+    "openItemA11y": "Open {{name}}",
+    "membersA11y": "Household members"
   },
   "banner": {
     "atStore_f": "{{name}} is at the store now",
@@ -39,14 +40,14 @@
   },
   "units": {
     "count": {
-      "other": "{{n}}×"
+      "other": "×{{n}}"
     },
     "kg": {
       "other": "{{n}} kg"
     },
     "piece": {
-      "one": "1 piece",
-      "other": "{{n}} pieces"
+      "one": "1 pc",
+      "other": "{{n}} pcs"
     },
     "carton": {
       "one": "1 carton",
@@ -75,6 +76,14 @@
     "minutes": {
       "one": "1 minute",
       "other": "{{n}} minutes"
+    },
+    "weeksAgo": {
+      "one": "a week ago",
+      "other": "{{n}} weeks ago"
+    },
+    "monthsAgo": {
+      "one": "a month ago",
+      "other": "{{n}} months ago"
     }
   },
   "categories": {
@@ -136,7 +145,11 @@
     "askedFamily": "Asked the family: need anything?",
     "handoff": "Sent the rest to the family",
     "tripReported": "Family told · back to the list",
-    "claimedTrip": "“{{name}}” is yours now"
+    "claimedTrip": "“{{name}}” is yours now",
+    "memberSaved": "Saved {{name}}'s details",
+    "memberRemoved": "Removed {{name}} from the household",
+    "listRenamed": "List renamed to “{{name}}”",
+    "linkCopied": "Link copied"
   },
   "empty": {
     "title": "The basket is empty",
@@ -178,7 +191,9 @@
     "micDenied": "Mic blocked screen",
     "answer": "Answer the question (as {{name}})",
     "offline": "Go offline (test)",
-    "online": "Back online"
+    "online": "Back online",
+    "inviteExpired": "Expired invite link",
+    "helperView": "See the list as {{name}}"
   },
   "typeAdd": {
     "placeholder": "What does the house need?",
@@ -433,5 +448,156 @@
     "voice_m": "Reply by voice",
     "voice_f": "Reply by voice",
     "answered": "Answered: {{reply}}"
+  },
+  "roles": {
+    "owner_f": "Manager",
+    "owner_m": "Manager",
+    "member_f": "Member",
+    "member_m": "Member",
+    "helper_f": "Helper",
+    "helper_m": "Helper"
+  },
+  "languages": {
+    "ar": "العربية",
+    "en": "English",
+    "hi": "हिन्दी"
+  },
+  "languagesIn": {
+    "ar": "in Arabic",
+    "en": "in English",
+    "hi": "in Hindi"
+  },
+  "dialects": {
+    "saudi": "Saudi",
+    "egyptian": "Egyptian",
+    "gulf": "Gulf",
+    "levantine": "Levantine"
+  },
+  "members": {
+    "title": "Household",
+    "count": {
+      "one": "1 person",
+      "other": "{{n}} people"
+    },
+    "subtitle": "{{name}} · {{count}}",
+    "you": "{{name}} (you)",
+    "atStore": "At the store",
+    "helperTitle": "Helpers",
+    "helperBody": "see the list in their language, add and shop. They can't remove members or change settings.",
+    "activity": "Recent activity",
+    "noActivity": "No activity yet",
+    "bought_f": "bought {{what}}",
+    "bought_m": "bought {{what}}",
+    "added_f": "added {{what}}",
+    "added_m": "added {{what}}",
+    "addedVoice_f": "added {{what}} by voice",
+    "addedVoice_m": "added {{what}} by voice",
+    "invite": "Invite someone",
+    "settingsA11y": "Settings",
+    "openMemberA11y": "Open {{name}}"
+  },
+  "memberDetail": {
+    "joined_f": "Joined {{when}}",
+    "joined_m": "Joined {{when}}",
+    "itemsAdded_f": "added {{count}}",
+    "itemsAdded_m": "added {{count}}",
+    "role": "Role",
+    "ownerBody": "Manages members and settings · can hand it over",
+    "memberBody": "Adds, shops and deletes items",
+    "helperBody": "Adds and shops in their language · can't remove members",
+    "seesIn_f": "Sees the list in",
+    "seesIn_m": "Sees the list in",
+    "speaks_f": "Speaks",
+    "speaks_m": "Speaks",
+    "listSeparator": ", ",
+    "remove": "Remove {{name}} from the household",
+    "removeTitle": "Remove {{name}} from the household?",
+    "removeBody_f": "She won't see or add to the list anymore. Her items stay.",
+    "removeBody_m": "He won't see or add to the list anymore. His items stay.",
+    "removeConfirm": "Remove",
+    "handoverTitle": "Make {{name}} the manager?",
+    "handoverBody_f": "{{name}} will manage members and settings, and you'll become a member.",
+    "handoverBody_m": "{{name}} will manage members and settings, and you'll become a member.",
+    "handoverConfirm": "Hand over",
+    "cancel": "Cancel",
+    "done": "Done",
+    "save": "Save"
+  },
+  "invite": {
+    "title": "Invite your household",
+    "body": "Whoever adds and whoever shops, all on one list. Even the driver and housekeeper, in their language.",
+    "whatsapp": "Send invite on WhatsApp",
+    "copy": "Copy link",
+    "onList": "On the list · {{n}}",
+    "listOwner_f": "List manager",
+    "listOwner_m": "List manager",
+    "seesIn_f": "sees the list {{lang}}",
+    "seesIn_m": "sees the list {{lang}}",
+    "joined_f": "Joined",
+    "joined_m": "Joined",
+    "waiting_f": "Waiting",
+    "waiting_m": "Waiting",
+    "start": "Start the list",
+    "later": "You can invite them later from “Household”",
+    "message_f": "{{name}} invited you to “{{list}}” on Sallitna: {{link}}",
+    "message_m": "{{name}} invited you to “{{list}}” on Sallitna: {{link}}"
+  },
+  "inviteExpired": {
+    "appName": "Sallitna",
+    "title": "This invite link has expired",
+    "body": "Invite links only work for {{n}} days, to keep your family safe. Ask {{name}} for a new one.",
+    "ask": "Ask for a new link on WhatsApp",
+    "message": "The invite link for “{{list}}” expired. Can you send me a new one?",
+    "startNew": "Start a new list instead"
+  },
+  "settings": {
+    "title": "Settings",
+    "sectionList": "List",
+    "listName": "List name",
+    "dialect": "My dialect",
+    "language": "Display language",
+    "languageNote": "We'll save your choice · full app translation coming soon",
+    "sectionNotify": "Notify me when",
+    "tripStarted": "Someone goes shopping",
+    "tripStartedBody": "So you can add what's missing in time",
+    "addedWhileShopping": "Something is added while I shop",
+    "addedWhileShoppingBody": "Arrives right away, with sound",
+    "everyAdd": "Every new item",
+    "everyAddBody": "Could be a lot",
+    "quietHours": "Quiet hours",
+    "quietHoursBody": "No notifications from 11pm to 7am",
+    "sectionVoice": "Voice & privacy",
+    "reviewBeforeAdd": "Review before adding",
+    "reviewBeforeAddBody": "Recommended until we learn your dialect",
+    "keepRecordings": "Keep recordings for 7 days",
+    "keepRecordingsBody": "So you can hear exactly what was said",
+    "help": "Help & contact us",
+    "leave": "Leave {{name}}",
+    "leaveTitle_f": "Leave “{{name}}”?",
+    "leaveTitle_m": "Leave “{{name}}”?",
+    "leaveBody_f": "You won't see the list or get its notifications anymore.",
+    "leaveBody_m": "You won't see the list or get its notifications anymore.",
+    "leaveConfirm": "Leave",
+    "cancel": "Cancel"
+  },
+  "helper": {
+    "home": "{{name}}'s home",
+    "title": "Shopping list",
+    "showIn": "Show the list in",
+    "leftToBuy": "{{open}} of {{total}} left to buy",
+    "addedBy_f": "added by {{name}}",
+    "addedBy_m": "added by {{name}}",
+    "addedByYou": "added by you",
+    "plus": " + {{name}}",
+    "new": "New",
+    "empty": "Nothing left to buy",
+    "emptyBody": "Anything the family adds shows up here right away.",
+    "speak": "Speak",
+    "store_f": "I'm going to the store",
+    "store_m": "I'm going to the store",
+    "comingSoon": "Coming soon",
+    "bought": "Crossed off “{{name}}”",
+    "markBoughtA11y": "Mark {{name}} as bought",
+    "exitA11y": "Back to the family's list (test)"
   }
 }

@@ -4,16 +4,17 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
 
 import { AppText } from '@/components/AppText';
-import { t } from '@/i18n';
+import { getLanguage, tIn, type Language } from '@/i18n';
 import { useList } from '@/store/ListStore';
 import { colors, motion, radius, size, spacing } from '@/theme';
 
 type Props = {
   bottomOffset: number; // distance from the screen bottom (e.g. above the bottom bar)
+  language?: Language; // the helper's screen shows "Undo" in their language
 };
 
 // Dark bar that confirms the last change, with "undo" when it can be reversed.
-export function UndoToast({ bottomOffset }: Props) {
+export function UndoToast({ bottomOffset, language = getLanguage() }: Props) {
   const { toast, undo, dismissToast } = useList();
 
   useEffect(() => {
@@ -44,7 +45,7 @@ export function UndoToast({ bottomOffset }: Props) {
       {toast.undo && (
         <Pressable onPress={onUndo} style={styles.undo} accessibilityRole="button">
           <AppText variant="label" weight="bold" color="accent">
-            {t('toast.undo')}
+            {tIn(language, 'toast.undo')}
           </AppText>
         </Pressable>
       )}

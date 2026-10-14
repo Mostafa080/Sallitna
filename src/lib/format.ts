@@ -1,8 +1,8 @@
 import type { Unit } from '@/data/fakeHousehold';
-import { t } from '@/i18n';
+import { getLanguage, t, tIn, type Language } from '@/i18n';
 
-export function formatQuantity(qty: number, unit: Unit): string {
-  return t(`units.${unit}`, { n: qty });
+export function formatQuantity(qty: number, unit: Unit, language: Language = getLanguage()): string {
+  return tIn(language, `units.${unit}`, { n: qty });
 }
 
 const isSameDay = (a: Date, b: Date) =>
@@ -48,4 +48,12 @@ export function formatTimestamp(iso: string, now = new Date()): string {
   if (isSameDay(date, yesterday)) return t('time.yesterdayAt', { time });
 
   return t('time.dateAt', { date: `${date.getDate()}/${date.getMonth() + 1}`, time });
+}
+
+// "قبل 3 أسابيع" — for longer spans like "joined …"
+export function formatSince(iso: string, now = new Date()): string {
+  const days = (now.getTime() - new Date(iso).getTime()) / 86_400_000;
+  if (days < 7) return formatRelativeTime(iso, now);
+  if (days < 60) return t('time.weeksAgo', { n: Math.round(days / 7) });
+  return t('time.monthsAgo', { n: Math.round(days / 30) });
 }

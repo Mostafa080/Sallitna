@@ -56,14 +56,20 @@ function interpolate(template: string, params?: Params): string {
 }
 
 export function t(key: string, params?: Params): string {
-  const value = lookup(currentLanguage, key) ?? lookup('en', key);
+  return tIn(currentLanguage, key, params);
+}
+
+// Translate into a specific language, whatever the app's language is
+// (e.g. the helper's screen in English while the family's phone is in Arabic).
+export function tIn(language: Language, key: string, params?: Params): string {
+  const value = lookup(language, key) ?? lookup('en', key);
 
   if (typeof value === 'string') return interpolate(value, params);
 
   if (value && typeof value === 'object') {
     const forms = value as Partial<Record<PluralForm, string>>;
     const n = Number(params?.n ?? 0);
-    const template = forms[pluralForm(currentLanguage, n)] ?? forms.other;
+    const template = forms[pluralForm(language, n)] ?? forms.other;
     if (template) return interpolate(template, params);
   }
 

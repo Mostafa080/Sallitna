@@ -13,7 +13,8 @@
     "inviteA11y": "ادعُ أحد للبيت",
     "markBoughtA11y": "علّم {{name}} كمشترى",
     "emptyFilter": "ما أضيف شي اليوم",
-    "openItemA11y": "افتح {{name}}"
+    "openItemA11y": "افتح {{name}}",
+    "membersA11y": "أهل البيت"
   },
   "banner": {
     "atStore_f": "{{name}} في السوق الحين",
@@ -87,6 +88,18 @@
       "two": "دقيقتين",
       "few": "{{n}} دقايق",
       "other": "{{n}} دقيقة"
+    },
+    "weeksAgo": {
+      "one": "قبل أسبوع",
+      "two": "قبل أسبوعين",
+      "few": "قبل {{n}} أسابيع",
+      "other": "قبل {{n}} أسبوع"
+    },
+    "monthsAgo": {
+      "one": "قبل شهر",
+      "two": "قبل شهرين",
+      "few": "قبل {{n}} شهور",
+      "other": "قبل {{n}} شهر"
     }
   },
   "categories": {
@@ -151,7 +164,11 @@
     "askedFamily": "أرسلنا للعائلة: ناقصكم شي؟",
     "handoff": "أرسلنا الباقي للعائلة",
     "tripReported": "بلّغنا العائلة · رجعنا للقائمة",
-    "claimedTrip": "«{{name}}» عليك الحين"
+    "claimedTrip": "«{{name}}» عليك الحين",
+    "memberSaved": "انحفظت بيانات {{name}}",
+    "memberRemoved": "شلنا {{name}} من البيت",
+    "listRenamed": "صار اسم القائمة «{{name}}»",
+    "linkCopied": "نسخنا الرابط"
   },
   "empty": {
     "title": "السلة فاضية",
@@ -195,7 +212,9 @@
     "micDenied": "شاشة المايك المقفّل",
     "answer": "ردّ على السؤال (كأنك {{name}})",
     "offline": "بدون شبكة (تجربة)",
-    "online": "رجّع الشبكة"
+    "online": "رجّع الشبكة",
+    "inviteExpired": "رابط دعوة منتهي",
+    "helperView": "شوف القائمة كأنك {{name}}"
   },
   "typeAdd": {
     "placeholder": "وش ناقص البيت؟",
@@ -458,5 +477,159 @@
     "voice_m": "ردّ بصوتك",
     "voice_f": "ردّي بصوتك",
     "answered": "جاوبت: {{reply}}"
+  },
+  "roles": {
+    "owner_f": "مسؤولة",
+    "owner_m": "مسؤول",
+    "member_f": "عضو",
+    "member_m": "عضو",
+    "helper_f": "مساعدة",
+    "helper_m": "مساعد"
+  },
+  "languages": {
+    "ar": "العربية",
+    "en": "English",
+    "hi": "हिन्दी"
+  },
+  "languagesIn": {
+    "ar": "بالعربي",
+    "en": "بالإنجليزي",
+    "hi": "بالهندي"
+  },
+  "dialects": {
+    "saudi": "سعودية",
+    "egyptian": "مصرية",
+    "gulf": "خليجية",
+    "levantine": "شامية"
+  },
+  "members": {
+    "title": "أهل البيت",
+    "count": {
+      "one": "فرد واحد",
+      "two": "فردين",
+      "few": "{{n}} أفراد",
+      "many": "{{n}} فرد",
+      "other": "{{n}} فرد"
+    },
+    "subtitle": "{{name}} · {{count}}",
+    "you": "{{name}} (أنت)",
+    "atStore": "في السوق",
+    "helperTitle": "المساعد",
+    "helperBody": "يشوف القائمة بلغته، يضيف ويشتري. ما يقدر يحذف أعضاء أو يغيّر الإعدادات.",
+    "activity": "آخر نشاط",
+    "noActivity": "ما فيه نشاط للحين",
+    "bought_f": "اشترت {{what}}",
+    "bought_m": "اشترى {{what}}",
+    "added_f": "أضافت {{what}}",
+    "added_m": "أضاف {{what}}",
+    "addedVoice_f": "أضافت {{what}} بالصوت",
+    "addedVoice_m": "أضاف {{what}} بالصوت",
+    "invite": "ادعُ شخص",
+    "settingsA11y": "الإعدادات",
+    "openMemberA11y": "افتح {{name}}"
+  },
+  "memberDetail": {
+    "joined_f": "انضمت {{when}}",
+    "joined_m": "انضم {{when}}",
+    "itemsAdded_f": "أضافت {{count}}",
+    "itemsAdded_m": "أضاف {{count}}",
+    "role": "الدور",
+    "ownerBody": "يدير الأعضاء والإعدادات · ينقل المسؤولية",
+    "memberBody": "يضيف ويشتري ويحذف أغراض",
+    "helperBody": "يضيف ويشتري بلغته · ما يحذف أعضاء",
+    "seesIn_f": "تشوف القائمة بـ",
+    "seesIn_m": "يشوف القائمة بـ",
+    "speaks_f": "تتكلّم بـ",
+    "speaks_m": "يتكلّم بـ",
+    "listSeparator": "، ",
+    "remove": "شيل {{name}} من البيت",
+    "removeTitle": "تشيل {{name}} من البيت؟",
+    "removeBody_f": "ما عاد تشوف القائمة ولا تضيف لها. أغراضها تبقى.",
+    "removeBody_m": "ما عاد يشوف القائمة ولا يضيف لها. أغراضه تبقى.",
+    "removeConfirm": "شيل",
+    "handoverTitle": "تنقل المسؤولية لـ{{name}}؟",
+    "handoverBody_f": "إدارة الأعضاء والإعدادات تنتقل لـ{{name}}، وأنتِ تصيرين عضو.",
+    "handoverBody_m": "إدارة الأعضاء والإعدادات تنتقل لـ{{name}}، وأنت تصير عضو.",
+    "handoverConfirm": "انقل",
+    "cancel": "إلغاء",
+    "done": "تم",
+    "save": "حفظ"
+  },
+  "invite": {
+    "title": "ادعُ أهل البيت",
+    "body": "اللي يضيف واللي يشتري، كلهم على نفس القائمة. حتى السائق والعاملة بلغتهم.",
+    "whatsapp": "أرسل الدعوة على الواتساب",
+    "copy": "انسخ الرابط",
+    "onList": "في القائمة · {{n}}",
+    "listOwner_f": "مسؤولة القائمة",
+    "listOwner_m": "مسؤول القائمة",
+    "seesIn_f": "تشوف القائمة {{lang}}",
+    "seesIn_m": "يشوف القائمة {{lang}}",
+    "joined_f": "انضمت",
+    "joined_m": "انضم",
+    "waiting_f": "بانتظارها",
+    "waiting_m": "بانتظاره",
+    "start": "ابدأ القائمة",
+    "later": "تقدر تدعوهم بعدين من «أهل البيت»",
+    "message_f": "{{name}} تدعوك لقائمة «{{list}}» في سلّتنا: {{link}}",
+    "message_m": "{{name}} يدعوك لقائمة «{{list}}» في سلّتنا: {{link}}"
+  },
+  "inviteExpired": {
+    "appName": "سلّتنا",
+    "title": "رابط الدعوة انتهى",
+    "body": "روابط الدعوة تشتغل {{n}} أيام بس عشان أمان العائلة. اطلب من {{name}} رابط جديد.",
+    "ask": "اطلب رابط جديد على الواتساب",
+    "message": "رابط الدعوة لـ«{{list}}» انتهى. ممكن ترسل لي رابط جديد؟",
+    "startNew": "ابدأ قائمة جديدة بدالها"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "sectionList": "القائمة",
+    "listName": "اسم القائمة",
+    "dialect": "لهجتي",
+    "language": "لغة العرض",
+    "languageNote": "نحفظ اختيارك · ترجمة التطبيق كامل قريبًا",
+    "sectionNotify": "نبّهني لما",
+    "tripStarted": "أحد راح السوق",
+    "tripStartedBody": "عشان تلحق تضيف اللي ناقص",
+    "addedWhileShopping": "انضاف شي وأنا بالسوق",
+    "addedWhileShoppingBody": "يوصلك فورًا مع صوت",
+    "everyAdd": "كل إضافة جديدة",
+    "everyAddBody": "ممكن تكون كثيرة",
+    "quietHours": "وقت الهدوء",
+    "quietHoursBody": "بدون تنبيهات من 11م إلى 7ص",
+    "sectionVoice": "الصوت والخصوصية",
+    "reviewBeforeAdd": "راجع قبل الإضافة",
+    "reviewBeforeAddBody": "ننصح فيه لين نتعوّد على لهجتك",
+    "keepRecordings": "احفظ التسجيلات 7 أيام",
+    "keepRecordingsBody": "عشان تسمع وش قال الشخص بالضبط",
+    "help": "مساعدة وتواصل معنا",
+    "leave": "اطلع من {{name}}",
+    "leaveTitle_f": "تطلعين من «{{name}}»؟",
+    "leaveTitle_m": "تطلع من «{{name}}»؟",
+    "leaveBody_f": "ما عاد تشوفين القائمة ولا توصلك تنبيهاتها.",
+    "leaveBody_m": "ما عاد تشوف القائمة ولا توصلك تنبيهاتها.",
+    "leaveConfirm": "اطلع",
+    "cancel": "إلغاء"
+  },
+  "helper": {
+    "home": "{{name}}",
+    "title": "قائمة البيت",
+    "showIn": "اعرض القائمة بـ",
+    "leftToBuy": "باقي {{open}} من {{total}}",
+    "addedBy_f": "أضافتها {{name}}",
+    "addedBy_m": "أضافها {{name}}",
+    "addedByYou": "أنت أضفتها",
+    "plus": " + {{name}}",
+    "new": "جديد",
+    "empty": "ما فيه شي تشتريه",
+    "emptyBody": "أي شي تضيفه العائلة يطلع هنا فورًا.",
+    "speak": "تكلّم",
+    "store_f": "رايحة السوق",
+    "store_m": "رايح السوق",
+    "comingSoon": "قريبًا — نشتغل عليها",
+    "bought": "شطبنا «{{name}}» من القائمة",
+    "markBoughtA11y": "علّم {{name}} كمشترى",
+    "exitA11y": "ارجع لقائمة العائلة (تجربة)"
   }
 }

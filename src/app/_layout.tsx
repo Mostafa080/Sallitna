@@ -5,6 +5,12 @@ import {
   ReadexPro_700Bold,
   useFonts,
 } from '@expo-google-fonts/readex-pro';
+import {
+  NotoSansDevanagari_400Regular,
+  NotoSansDevanagari_500Medium,
+  NotoSansDevanagari_600SemiBold,
+  NotoSansDevanagari_700Bold,
+} from '@expo-google-fonts/noto-sans-devanagari';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -30,6 +36,10 @@ export default function RootLayout() {
     ReadexPro_500Medium,
     ReadexPro_600SemiBold,
     ReadexPro_700Bold,
+    NotoSansDevanagari_400Regular,
+    NotoSansDevanagari_500Medium,
+    NotoSansDevanagari_600SemiBold,
+    NotoSansDevanagari_700Bold,
   });
 
   useEffect(() => {
@@ -52,6 +62,8 @@ export default function RootLayout() {
             />
             <Stack.Screen name="shop" options={{ animation: 'fade' }} />
             <Stack.Screen name="trip-done" options={{ animation: 'fade', gestureEnabled: false }} />
+            <Stack.Screen name="invite-expired" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
+            <Stack.Screen name="helper" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
           </Stack>
         </ListProvider>
       </GestureHandlerRootView>

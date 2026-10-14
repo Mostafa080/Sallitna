@@ -34,6 +34,14 @@ export const fonts = {
   bold: 'ReadexPro_700Bold',
 } as const;
 
+// Hindi (Devanagari script) — same weights as above
+export const devanagariFonts = {
+  regular: 'NotoSansDevanagari_400Regular',
+  medium: 'NotoSansDevanagari_500Medium',
+  semibold: 'NotoSansDevanagari_600SemiBold',
+  bold: 'NotoSansDevanagari_700Bold',
+} as const;
+
 export const fontSize = {
   caption: 12,
   meta: 13,
@@ -67,6 +75,8 @@ export const size = {
   titleLine: 44, // line height for the big screen title
   avatar: 32,
   avatarSmall: 20,
+  avatarLarge: 44, // member lists
+  avatarHero: 64, // member detail header
   checkbox: 24,
   icon: 24,
   iconStroke: 2,

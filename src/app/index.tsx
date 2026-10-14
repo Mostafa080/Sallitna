@@ -18,7 +18,6 @@ import {
   activeShopperId,
   basics,
   categoryOrder,
-  household,
   members,
   NEW_ITEM_WINDOW_MINUTES,
   type Basic,
@@ -56,8 +55,9 @@ export default function HomeScreen() {
   }, [openItems.length]);
 
   // My own trip takes over the banner; otherwise show whoever else is shopping
-  const shopper = members.find((m) => m.id === (list.trip ? list.currentMemberId : activeShopperId));
+  const shopper = list.members.find((m) => m.id === (list.trip ? list.currentMemberId : activeShopperId));
   const pendingQuestion = list.questions.find((q) => !q.answer);
+  const helper = list.members.find((m) => m.role === 'helper');
   const sections = categoryOrder
     .map((category) => ({ category, items: visibleItems.filter((item) => item.category === category) }))
     .filter((section) => section.items.length > 0);
@@ -65,7 +65,6 @@ export default function HomeScreen() {
   const now = Date.now();
   const isNew = (createdAt: string) => now - new Date(createdAt).getTime() < NEW_ITEM_WINDOW_MINUTES * 60_000;
 
-  const comingSoon = () => list.notify(t('toast.comingSoon'));
   const openItem = (id: string) => router.push({ pathname: '/item/[id]', params: { id } });
 
   const onToggleBasic = (basic: Basic) => {
@@ -101,6 +100,8 @@ export default function HomeScreen() {
         },
       },
       { text: t('dev.micDenied'), onPress: () => router.push({ pathname: '/voice', params: { mode: 'denied' } }) },
+      { text: t('dev.inviteExpired'), onPress: () => router.push('/invite-expired') },
+      ...(helper ? [{ text: t('dev.helperView', { name: helper.display_name }), onPress: () => router.push('/helper') }] : []),
       ...(pendingQuestion
         ? [
             {
@@ -129,15 +130,21 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <Pressable style={styles.titleBlock} onLongPress={openDevMenu} accessible={false}>
             <AppText variant="label" color="muted">
-              {household.name}
+              {list.householdName}
             </AppText>
             <AppText variant="title" weight="bold" style={styles.title} accessibilityRole="header">
               {t('home.title')}
             </AppText>
           </Pressable>
-          <AvatarStack members={members} />
           <Pressable
-            onPress={comingSoon}
+            onPress={() => router.push('/members')}
+            hitSlop={spacing.sm}
+            accessibilityRole="button"
+            accessibilityLabel={t('home.membersA11y')}>
+            <AvatarStack members={list.members} />
+          </Pressable>
+          <Pressable
+            onPress={() => router.push('/invite')}
             style={styles.inviteButton}
             accessibilityRole="button"
             accessibilityLabel={t('home.inviteA11y')}>

@@ -7,16 +7,24 @@ import { colors, radius, size, spacing } from '@/theme';
 type Ring = keyof typeof colors;
 
 type Props = {
-  member: Member;
+  member: Pick<Member, 'display_name' | 'initial' | 'avatar_color'>;
   small?: boolean;
+  large?: 'list' | 'hero'; // bigger avatars on the family screens
   ring?: Ring; // outline color — match whatever the avatar sits on
 };
 
 // Light avatar backgrounds get dark text, everything else gets white text
 const LIGHT_BACKGROUNDS: (keyof typeof colors)[] = ['line', 'ground', 'surface', 'accentTint'];
 
-export function Avatar({ member, small, ring = 'ground' }: Props) {
-  const diameter = small ? size.avatarSmall : size.avatar;
+export function Avatar({ member, small, large, ring = 'ground' }: Props) {
+  const diameter = small
+    ? size.avatarSmall
+    : large === 'hero'
+      ? size.avatarHero
+      : large === 'list'
+        ? size.avatarLarge
+        : size.avatar;
+  const textVariant = small ? 'caption' : large === 'hero' ? 'title' : large === 'list' ? 'item' : 'body';
   const textColor = LIGHT_BACKGROUNDS.includes(member.avatar_color) ? 'ink' : 'onDark';
 
   return (
@@ -32,7 +40,7 @@ export function Avatar({ member, small, ring = 'ground' }: Props) {
           borderColor: colors[ring],
         },
       ]}>
-      <AppText variant={small ? 'caption' : 'body'} weight="bold" color={textColor} style={styles.initial}>
+      <AppText variant={textVariant} weight="bold" color={textColor} style={styles.initial}>
         {member.initial}
       </AppText>
     </View>
