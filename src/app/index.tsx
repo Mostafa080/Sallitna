@@ -102,6 +102,7 @@ export default function HomeScreen() {
         },
       },
       { text: t('dev.micDenied'), onPress: () => router.push({ pathname: '/voice', params: { mode: 'denied' } }) },
+      { text: t('dev.notifications'), onPress: () => router.push('/notifications') },
       { text: t('dev.startOver'), onPress: () => router.push('/welcome') },
       { text: t('dev.openInvite'), onPress: () => router.push('/join') },
       { text: t('dev.inviteExpired'), onPress: () => router.push('/invite-expired') },

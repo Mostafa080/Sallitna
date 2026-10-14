@@ -220,7 +220,8 @@
     "inviteExpired": "رابط دعوة منتهي",
     "helperView": "شوف القائمة كأنك {{name}}",
     "startOver": "ابدأ من جديد (تسجيل)",
-    "openInvite": "افتح رابط دعوة"
+    "openInvite": "افتح رابط دعوة",
+    "notifications": "شاشة التنبيهات"
   },
   "typeAdd": {
     "placeholder": "وش ناقص البيت؟",
@@ -746,5 +747,33 @@
     "tipStore_m": "لما تروح السوق، اضغط «أنا في السوق»",
     "enter_f": "ادخلي القائمة",
     "enter_m": "ادخل القائمة"
+  },
+  "notifications": {
+    "appName": "سلّتنا",
+    "asks_f": "{{name}} تسألك عن {{item}}",
+    "asks_m": "{{name}} يسألك عن {{item}}",
+    "yes_f": "إيه جيبيه",
+    "yes_m": "إيه جيبه",
+    "no": "لا خلاص",
+    "reply": "رد",
+    "shopping": "{{name}} في {{store}}",
+    "shoppingBody_f": "ناقصك شي؟ قوله الحين ويوصلها فورًا.",
+    "shoppingBody_m": "ناقصك شي؟ قوله الحين ويوصله فورًا.",
+    "addVoice": "أضف بالصوت",
+    "added_f": {
+      "one": "{{name}} أضافت «{{item}}»",
+      "two": "{{name}} أضافت غرضين",
+      "few": "{{name}} أضافت {{n}} أغراض",
+      "other": "{{name}} أضافت {{n}} غرض"
+    },
+    "added_m": {
+      "one": "{{name}} أضاف «{{item}}»",
+      "two": "{{name}} أضاف غرضين",
+      "few": "{{name}} أضاف {{n}} أغراض",
+      "other": "{{name}} أضاف {{n}} غرض"
+    },
+    "listSeparator": "، ",
+    "open": "افتح القائمة",
+    "empty": "ما فيه تنبيهات جديدة"
   }
 }

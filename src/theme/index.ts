@@ -25,6 +25,10 @@ export const colors = {
   warningLine: '#E8D48A', // offline banner border
   warningInk: '#6B5310', // offline banner text and icon
   scrim: 'rgba(29, 27, 24, 0.55)', // behind bottom sheets (ink at 55%)
+  lockScreen: '#2C3A34', // the phone's lock screen behind notifications (notifications.png)
+  notification: '#F2F0EB', // a new notification card
+  notificationOld: '#E7E5E0', // an older one, slightly greyer
+  onDarkSubtle: 'rgba(255, 255, 255, 0.12)', // pill button on the lock screen
 } as const;
 
 export const fonts = {

@@ -198,7 +198,8 @@
     "inviteExpired": "Expired invite link",
     "helperView": "See the list as {{name}}",
     "startOver": "Start over (sign-up)",
-    "openInvite": "Open an invite link"
+    "openInvite": "Open an invite link",
+    "notifications": "Notifications screen"
   },
   "typeAdd": {
     "placeholder": "What does the house need?",
@@ -711,5 +712,29 @@
     "tipStore_m": "When you go shopping, press “I'm at the store”",
     "enter_f": "Open the list",
     "enter_m": "Open the list"
+  },
+  "notifications": {
+    "appName": "Sallitna",
+    "asks_f": "{{name}} is asking about {{item}}",
+    "asks_m": "{{name}} is asking about {{item}}",
+    "yes_f": "Yes, get it",
+    "yes_m": "Yes, get it",
+    "no": "No, never mind",
+    "reply": "Reply",
+    "shopping": "{{name}} is at the {{store}}",
+    "shoppingBody_f": "Need anything? Say it now and she'll get it right away.",
+    "shoppingBody_m": "Need anything? Say it now and he'll get it right away.",
+    "addVoice": "Add by voice",
+    "added_f": {
+      "one": "{{name}} added “{{item}}”",
+      "other": "{{name}} added {{n}} items"
+    },
+    "added_m": {
+      "one": "{{name}} added “{{item}}”",
+      "other": "{{name}} added {{n}} items"
+    },
+    "listSeparator": ", ",
+    "open": "Open the list",
+    "empty": "No new notifications"
   }
 }

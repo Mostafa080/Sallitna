@@ -461,6 +461,36 @@ function useListState() {
       showToast(t('toast.questionSent', { name: memberById(askTo)?.display_name ?? '' }));
     },
 
+    // Simulated: whoever is shopping can't find cardamom and asks me (the notifications screen).
+    // Puts cardamom on the list as mine if it isn't there. Returns the question id.
+    receiveQuestion(): string | null {
+      const shopper = state.members.find((m) => m.id === activeShopperId && m.id !== me);
+      const cardamom = catalogById('c20');
+      if (!shopper || !cardamom) return null;
+      // Only once per demo session — after you reply, the card stays gone
+      const asked = state.questions.find((q) => q.from === shopper.id && q.to === me);
+      if (asked) return asked.id;
+
+      let item = openItemNamed(cardamom.name);
+      if (!item) {
+        item = { ...newItem(catalogToDraft(cardamom), me), created_at: new Date(Date.now() - 3 * 60 * 60_000).toISOString() };
+        dispatch({ type: 'add', items: [item] });
+      }
+      const altId = cardamom.alternative;
+      const question: Question = {
+        id: newId('q'),
+        tripId: 'shopper-trip', // the other person's trip — not tracked on this phone
+        itemId: item.id,
+        from: shopper.id,
+        to: me,
+        createdAt: new Date().toISOString(),
+        altName: (altId && catalogById(altId)?.name) || null,
+        answer: null,
+      };
+      dispatch({ type: 'set', patch: { questions: [...state.questions, question] } });
+      return question.id;
+    },
+
     // The family member replies (simulated on this phone)
     answerQuestion(questionId: string, answer: QuestionAnswer, reply: string) {
       const question = state.questions.find((q) => q.id === questionId);
@@ -491,6 +521,11 @@ function useListState() {
         } else {
           dispatch({ type: 'trip', patch: { outcomes: withOutcome(trip.outcomes, outcome(item, 'next', answered)) } });
         }
+      } else if (answer === 'alt' && question.altName) {
+        // Someone else's trip (e.g. replying from a notification): just update the list
+        dispatch({ type: 'patch', id: item.id, patch: { name: question.altName } });
+      } else if (answer === 'no') {
+        dispatch({ type: 'patch', id: item.id, patch: { status: 'removed' } });
       }
 
       showToast(t('toast.answerSent', { name: memberById(question.from)?.display_name ?? '' }));

@@ -328,3 +328,30 @@ Agreed split for "interactive flow for all screens": **(1) this session**, (2) t
 - «الشروط» and «سياسة الخصوصية» aren't links yet (no pages to open).
 - After 3 wrong codes the real wait isn't timed — restart the flow to try again.
 - The «+N» face on Home is drawn small — check it looks right on your phone.
+
+## Session 9 — 2026-10-15: Notifications (simulated lock screen)
+
+### Done
+- **notifications** (`src/app/notifications.tsx`) — test menu → «شاشة التنبيهات». A lock-screen look-alike
+  (dark green, as in notifications.png) built from what's happening in the app (agreed: simulated, no new library):
+  - **«سارة تسألك عن هيل»** — opening the screen makes Sara (who's shopping) ask about cardamom
+    («هيل خلصان. أجيب هيل مطحون؟»). Cardamom is put on the list as yours if it isn't there.
+    «إيه جيبيه» swaps it to هيل مطحون on the list, «لا خلاص» removes it, «رد» (or tapping the card) opens the
+    answer screen from session 5. The card goes away after replying, with «وصل ردّك لسارة».
+  - **«سارة في السوبرماركت»** — «أضف بالصوت» opens the voice screen.
+  - **«خالد أضاف غرضين»** — the latest person (not you) who added things in the last 24 hours, with the names.
+  - «افتح القائمة» → back to the list.
+- Replying to a question now updates the list even when it's someone else's trip (before, only your own trip did).
+- New colors: `lockScreen`, `notification`, `notificationOld`, `onDarkSubtle`.
+
+### Next
+- **Session 10: Display language for the whole app** (English/Hindi left-to-right after a restart).
+- Then Supabase: tables + RLS, phone OTP sign-in, live sync, real invite links and **real push notifications**
+  (expo-notifications — the buttons on these cards become notification actions).
+
+### Known issues / open questions
+- **«إيه جيبيه» vs «إيه جيبه»**: the design says «إيه جيبه» to Sara; I used the feminine «جيبيه» (and «جيبه» for a man). OK?
+- Sara asks only once per demo session — reload the app to see the question again.
+- The design shows «خالد أضاف 3 أغراض» (حليب ×2، خبز صامولي، رز بسمتي); the demo data has Khalid adding 2 recent things,
+  so it shows «خالد أضاف غرضين · بصل أحمر، خبز صامولي».
+- The design shows «الهيل الحب خلصان» — our catalog calls it «هيل», so it reads «هيل خلصان. أجيب هيل مطحون؟».
