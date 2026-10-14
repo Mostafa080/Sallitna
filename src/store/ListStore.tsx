@@ -7,7 +7,7 @@ import { createContext, useContext, useEffect, useReducer, type ReactNode } from
 import { catalogById, catalogToDraft, findCatalogMatch } from '@/data/fakeCatalog';
 import {
   activeShopperId,
-  currentMemberId,
+  currentMemberId as demoMeId,
   defaultSettings,
   household,
   LIVE_ADD_DELAY_MS,
@@ -18,7 +18,9 @@ import {
   type Basic,
   type HouseholdSettings,
   type Item,
+  type DialectKey,
   type ItemDraft,
+  type LanguageKey,
   type Member,
   type PendingInvite,
   type StoreKey,
@@ -55,6 +57,7 @@ type State = {
   invites: PendingInvite[];
   householdName: string;
   settings: HouseholdSettings;
+  meId: string; // the person using this phone
 };
 
 type Action =
@@ -66,7 +69,8 @@ type Action =
   | { type: 'toast'; toast: Toast | null }
   | { type: 'set'; patch: Partial<Omit<State, 'items' | 'toast'>> }
   | { type: 'trip'; patch: Partial<Trip> }
-  | { type: 'liveAdd'; item: Item };
+  | { type: 'liveAdd'; item: Item }
+  | { type: 'replace'; state: State };
 
 function initialState(): State {
   return {
@@ -81,6 +85,7 @@ function initialState(): State {
     invites: pendingInvites,
     householdName: household.name,
     settings: defaultSettings,
+    meId: demoMeId,
   };
 }
 
@@ -114,6 +119,8 @@ function reducer(state: State, action: Action): State {
       return { ...state, ...action.patch };
     case 'trip':
       return state.trip ? { ...state, trip: { ...state.trip, ...action.patch } } : state;
+    case 'replace':
+      return action.state;
     case 'liveAdd':
       // Only while still shopping, and only once
       if (!state.trip || state.items.some((i) => i.status === 'open' && sameName(i.name, action.item.name))) return state;
@@ -136,7 +143,7 @@ const sameName = (a: string, b: string) => normalizeArabic(a) === normalizeArabi
 
 const newId = (prefix: string) => `${prefix}-${Date.now()}-${++idCounter}`;
 
-function newItem(draft: ItemDraft, voiceTranscript?: string, addedBy = currentMemberId): Item {
+function newItem(draft: ItemDraft, addedBy: string, voiceTranscript?: string): Item {
   return {
     ...draft,
     id: newId('local'),
@@ -151,9 +158,36 @@ function newItem(draft: ItemDraft, voiceTranscript?: string, addedBy = currentMe
   };
 }
 
+// What sign-up asks for
+export type NewProfile = {
+  displayName: string;
+  gender: 'f' | 'm';
+  dialect: DialectKey;
+  viewLanguage?: LanguageKey;
+};
+
+function newMember(id: string, p: NewProfile, role: Member['role'], color: Member['avatar_color']): Member {
+  const name = p.displayName.trim();
+  const language = p.viewLanguage ?? 'ar';
+  return {
+    id,
+    display_name: name,
+    initial: name.charAt(0),
+    gender: p.gender,
+    role,
+    avatar_color: color,
+    view_language: language,
+    speaks: [language],
+    dialect: p.dialect,
+    joined_at: new Date().toISOString(),
+    items_added: 0,
+  };
+}
+
 function useListState() {
   const [state, dispatch] = useReducer(reducer, undefined, initialState);
   const { trip } = state;
+  const me = state.meId;
 
   // Simulated family: a few seconds into a trip, someone adds an item by voice
   useEffect(() => {
@@ -162,7 +196,7 @@ function useListState() {
       const cardamom = catalogById('c20');
       if (!cardamom) return;
       const adder = demoMembers.find((m) => m.id === liveAdderId);
-      dispatch({ type: 'liveAdd', item: newItem(catalogToDraft(cardamom), 'هيل كيس', liveAdderId) });
+      dispatch({ type: 'liveAdd', item: newItem(catalogToDraft(cardamom), liveAdderId, 'هيل كيس') });
       if (adder) {
         dispatch({
           type: 'toast',
@@ -178,6 +212,8 @@ function useListState() {
   // Removed members still resolve, so old items keep showing who added them
   const memberById = (id: string) => state.members.find((m) => m.id === id) ?? demoMembers.find((m) => m.id === id);
   const familyUndo = (): Undo => ({ restore: [], discard: [], members: state.members });
+  // Everyone who ever added something here — removed members too, so old items keep their names
+  const everyone = [...state.members, ...demoMembers.filter((d) => !state.members.some((m) => m.id === d.id))];
   const openItemNamed = (name: string) =>
     state.items.find((item) => item.status === 'open' && sameName(item.name, name));
 
@@ -200,7 +236,7 @@ function useListState() {
   return {
     items: state.items,
     toast: state.toast,
-    currentMemberId,
+    currentMemberId: me,
     trip,
     questions: state.questions,
     summary: state.summary,
@@ -210,6 +246,7 @@ function useListState() {
     invites: state.invites,
     householdName: state.householdName,
     settings: state.settings,
+    everyone,
     memberById,
 
     // Open item with this name (ignores أ/ا, ة/ه spelling differences)
@@ -229,7 +266,7 @@ function useListState() {
       dispatch({ type: 'patch', id, patch: { status: 'removed' } });
       const adder = memberById(item.added_by);
       const message =
-        adder && adder.id !== currentMemberId
+        adder && adder.id !== me
           ? t(`toast.removedSeen_${adder.gender}`, { name: item.name, who: adder.display_name })
           : t('toast.removed', { name: item.name });
       showToast(message, undoFor(item));
@@ -238,8 +275,8 @@ function useListState() {
     toggleClaim(id: string) {
       const item = find(id);
       if (!item) return;
-      const claiming = item.claimed_by !== currentMemberId;
-      dispatch({ type: 'patch', id, patch: { claimed_by: claiming ? currentMemberId : null } });
+      const claiming = item.claimed_by !== me;
+      dispatch({ type: 'patch', id, patch: { claimed_by: claiming ? me : null } });
       showToast(t(claiming ? 'toast.claimed' : 'toast.unclaimed', { name: item.name }), undoFor(item));
     },
 
@@ -265,7 +302,7 @@ function useListState() {
           undo.restore.push(existing);
           lastMessage = t('toast.addedMore', { name: existing.name, qty: formatQuantity(qty, existing.unit) });
         } else {
-          const item = newItem(draft);
+          const item = newItem(draft, me);
           fresh.push(item);
           undo.discard.push(item.id);
           lastMessage = t('toast.added', { name: item.name });
@@ -290,7 +327,7 @@ function useListState() {
           dispatch({ type: 'patch', id: change.id, patch: change.patch });
           undo.restore.push(item);
         } else {
-          const item = newItem(change.draft, transcript);
+          const item = newItem(change.draft, me, transcript);
           fresh.push(item);
           undo.discard.push(item.id);
         }
@@ -302,7 +339,7 @@ function useListState() {
 
     // Quick add (empty-state basics) — no toast; returns the id so it can be taken back
     addBasic(basic: Basic): string {
-      const item = newItem(basic);
+      const item = newItem(basic, me);
       dispatch({ type: 'add', items: [item] });
       return item.id;
     },
@@ -334,7 +371,7 @@ function useListState() {
       if (partnerId) {
         let partnerFoundOne = false;
         for (const item of open) {
-          if (item.category === 'produce') dispatch({ type: 'patch', id: item.id, patch: { claimed_by: currentMemberId } });
+          if (item.category === 'produce') dispatch({ type: 'patch', id: item.id, patch: { claimed_by: me } });
           if (item.category === 'dairy') {
             dispatch({
               type: 'patch',
@@ -352,7 +389,7 @@ function useListState() {
           trip: {
             id: newId('trip'),
             store,
-            shopperId: currentMemberId,
+            shopperId: me,
             startedAt: new Date().toISOString(),
             mode,
             partnerId,
@@ -384,7 +421,7 @@ function useListState() {
     claimForTrip(id: string) {
       const item = find(id);
       if (!item) return;
-      dispatch({ type: 'patch', id, patch: { claimed_by: currentMemberId } });
+      dispatch({ type: 'patch', id, patch: { claimed_by: me } });
       showToast(t('toast.claimedTrip', { name: item.name }), undoFor(item));
     },
 
@@ -413,7 +450,7 @@ function useListState() {
         id: newId('q'),
         tripId: trip.id,
         itemId: id,
-        from: currentMemberId,
+        from: me,
         to: askTo,
         createdAt: new Date().toISOString(),
         altName: (altId && catalogById(altId)?.name) || null,
@@ -469,7 +506,7 @@ function useListState() {
 
       for (const item of tripItems) {
         if (item.status === 'in_cart') dispatch({ type: 'patch', id: item.id, patch: { status: 'bought', claimed_by: null } });
-        else if (item.claimed_by === currentMemberId) dispatch({ type: 'patch', id: item.id, patch: { claimed_by: null } });
+        else if (item.claimed_by === me) dispatch({ type: 'patch', id: item.id, patch: { claimed_by: null } });
       }
 
       const summary: TripSummary = {
@@ -521,7 +558,7 @@ function useListState() {
 
     removeMember(id: string) {
       const member = memberById(id);
-      if (!member || id === currentMemberId) return;
+      if (!member || id === me) return;
       const undo = familyUndo();
       dispatch({ type: 'set', patch: { members: state.members.filter((m) => m.id !== id) } });
       showToast(t('toast.memberRemoved', { name: member.display_name }), undo);
@@ -536,6 +573,42 @@ function useListState() {
 
     setSetting(key: keyof HouseholdSettings, value: boolean) {
       dispatch({ type: 'set', patch: { settings: { ...state.settings, [key]: value } } });
+    },
+
+    // --- Sign-up (simulated) ------------------------------------------------------
+
+    // A brand-new household: just me, as manager, with an empty list
+    createHousehold(profile: NewProfile & { householdName: string }) {
+      const id = newId('member');
+      dispatch({
+        type: 'replace',
+        state: {
+          ...initialState(),
+          items: [],
+          members: [newMember(id, profile, 'owner', 'ink')],
+          invites: [],
+          householdName: profile.householdName.trim(),
+          meId: id,
+        },
+      });
+    },
+
+    // Join the demo household from an invite, as a new member
+    joinHousehold(profile: NewProfile) {
+      const id = newId('member');
+      const fresh = initialState();
+      dispatch({
+        type: 'replace',
+        state: {
+          ...fresh,
+          members: [...fresh.members, newMember(id, profile, 'member', 'success')],
+          meId: id,
+          toast: {
+            id: ++toastCounter,
+            message: t('toast.joined', { name: profile.displayName.trim(), list: fresh.householdName }),
+          },
+        },
+      });
     },
 
     // Dev-only helpers to see the empty state and come back

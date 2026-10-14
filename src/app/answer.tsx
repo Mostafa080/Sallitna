@@ -11,7 +11,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { SheetButton } from '@/components/shop/Sheet';
-import { members } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { isRTLLayout } from '@/lib/direction';
 import { formatQuantity, formatRelativeTime } from '@/lib/format';
@@ -36,8 +35,8 @@ export default function AnswerScreen() {
 
   if (!question || !item) return null;
 
-  const shopper = members.find((m) => m.id === question.from)!;
-  const replier = members.find((m) => m.id === question.to)!;
+  const shopper = list.memberById(question.from)!;
+  const replier = list.memberById(question.to)!;
   const store = list.trip ? t(`stores.${list.trip.store}`) : '';
   const questionText = question.altName
     ? t('notFound.questionAlt', { name: item.name, alt: question.altName })

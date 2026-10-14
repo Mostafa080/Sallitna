@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { UndoToast } from '@/components/UndoToast';
-import { commonUnits, members, type Unit } from '@/data/fakeHousehold';
+import { commonUnits, type Unit } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { isRTLLayout } from '@/lib/direction';
 import { formatQuantity, formatTimestamp } from '@/lib/format';
@@ -36,9 +36,9 @@ export default function ItemDetailScreen() {
 
   if (!item) return null;
 
-  const memberById = (memberId: string) => members.find((m) => m.id === memberId);
+  const memberById = (memberId: string) => list.memberById(memberId);
   const adder = memberById(item.added_by);
-  const helper = members.find((m) => m.role === 'helper');
+  const helper = list.members.find((m) => m.role === 'helper');
   const lastBuyer = item.purchase_stats ? memberById(item.purchase_stats.last_bought_by) : undefined;
   const unitOptions = commonUnits.includes(item.unit) ? commonUnits : [...commonUnits, item.unit];
 

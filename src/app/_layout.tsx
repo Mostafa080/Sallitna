@@ -64,6 +64,10 @@ export default function RootLayout() {
             <Stack.Screen name="trip-done" options={{ animation: 'fade', gestureEnabled: false }} />
             <Stack.Screen name="invite-expired" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
             <Stack.Screen name="helper" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
+            {/* Sign-up and joining: each step opens over the last, and finishing closes them all */}
+            {['welcome', 'verify', 'household-setup', 'setup-invite', 'join', 'join-setup'].map((name) => (
+              <Stack.Screen key={name} name={name} options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
+            ))}
           </Stack>
         </ListProvider>
       </GestureHandlerRootView>

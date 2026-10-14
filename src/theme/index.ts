@@ -106,9 +106,16 @@ export const size = {
   radio: 26,
   sheetHandle: 40,
   statTile: 104,
+  codeBox: 64, // one digit of the sign-in code
+  stepDash: 28, // onboarding progress dashes
   doneCheck: 112,
   border: 1,
   borderThick: 2,
+} as const;
+
+export const layout = {
+  heroCardWidth: '78%', // the example list card on the welcome screen
+  twoColumnBasis: '45%', // cards that sit two per row (they grow to fill, the gap does the rest)
 } as const;
 
 export const opacity = {

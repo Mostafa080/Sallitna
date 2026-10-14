@@ -9,7 +9,7 @@ export type ItemStatus = 'open' | 'in_cart' | 'bought' | 'not_found' | 'removed'
 export type Unit = 'count' | 'kg' | 'piece' | 'box' | 'carton' | 'bag';
 export type CategoryKey = 'produce' | 'dairy' | 'bakery' | 'pantry' | 'cleaning' | 'other';
 export type LanguageKey = 'ar' | 'en' | 'hi';
-export type DialectKey = 'saudi' | 'egyptian' | 'gulf' | 'levantine';
+export type DialectKey = 'saudi' | 'emirati' | 'kuwaiti' | 'egyptian' | 'levantine' | 'other'; // 'other' = Fusha / other
 
 export type Member = {
   id: string;
@@ -116,10 +116,18 @@ export const pendingInvites: PendingInvite[] = [
 ];
 
 export const languageOrder: LanguageKey[] = ['ar', 'en', 'hi'];
-export const dialectOrder: DialectKey[] = ['saudi', 'egyptian', 'gulf', 'levantine'];
+export const dialectOrder: DialectKey[] = ['saudi', 'emirati', 'kuwaiti', 'egyptian', 'levantine', 'other'];
 
 // Fake invite link. Later: a one-time code from an Edge Function, valid 7 days.
 export const inviteCode = '8KD2';
+
+// Simulated sign-in: the code "sent" by text message, attempts before a wait, resend timer
+export const DEMO_OTP = '1234';
+export const OTP_LENGTH = 4;
+export const OTP_MAX_ATTEMPTS = 3;
+export const OTP_LOCK_MINUTES = 10;
+export const OTP_RESEND_SECONDS = 30;
+export const PHONE_PREFIX = '+966';
 export const INVITE_VALID_DAYS = 7;
 
 export const defaultSettings: HouseholdSettings = {

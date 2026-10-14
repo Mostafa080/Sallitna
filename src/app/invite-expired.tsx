@@ -25,11 +25,7 @@ export default function InviteExpiredScreen() {
     Share.share({ message: t('inviteExpired.message', { list: list.householdName }) });
   };
 
-  // Creating a household needs sign-in (Supabase) — for now, go back to the list
-  const onStartNew = () => {
-    if (router.canGoBack()) router.back();
-    list.notify(t('toast.comingSoon'));
-  };
+  const onStartNew = () => router.replace('/welcome');
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + spacing.sm }]}>

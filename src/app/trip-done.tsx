@@ -9,7 +9,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { SheetButton } from '@/components/shop/Sheet';
-import { members } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { toWesternDigits } from '@/lib/arabic';
 import { isRTLLayout } from '@/lib/direction';
@@ -33,7 +32,7 @@ export default function TripDoneScreen() {
 
   if (!summary) return null;
 
-  const memberById = (id?: string) => members.find((m) => m.id === id);
+  const memberById = (id?: string) => (id ? list.memberById(id) : undefined);
   const shopper = memberById(summary.shopperId);
   const minutes = Math.max(1, Math.round((new Date(summary.endedAt).getTime() - new Date(summary.startedAt).getTime()) / 60_000));
 

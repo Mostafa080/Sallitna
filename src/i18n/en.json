@@ -149,7 +149,11 @@
     "memberSaved": "Saved {{name}}'s details",
     "memberRemoved": "Removed {{name}} from the household",
     "listRenamed": "List renamed to “{{name}}”",
-    "linkCopied": "Link copied"
+    "linkCopied": "Link copied",
+    "joined": "Welcome {{name}} to “{{list}}”",
+    "codeSent": "Code sent by text (demo: {{code}})",
+    "codeSentWhatsapp": "Code sent on WhatsApp (demo: {{code}})",
+    "listReady": "Your list is ready · say it or type it"
   },
   "empty": {
     "title": "The basket is empty",
@@ -193,7 +197,9 @@
     "offline": "Go offline (test)",
     "online": "Back online",
     "inviteExpired": "Expired invite link",
-    "helperView": "See the list as {{name}}"
+    "helperView": "See the list as {{name}}",
+    "startOver": "Start over (sign-up)",
+    "openInvite": "Open an invite link"
   },
   "typeAdd": {
     "placeholder": "What does the house need?",
@@ -469,9 +475,11 @@
   },
   "dialects": {
     "saudi": "Saudi",
+    "emirati": "Emirati",
+    "kuwaiti": "Kuwaiti",
     "egyptian": "Egyptian",
-    "gulf": "Gulf",
-    "levantine": "Levantine"
+    "levantine": "Levantine",
+    "other": "Fusha / other"
   },
   "members": {
     "title": "Household",
@@ -599,5 +607,110 @@
     "bought": "Crossed off “{{name}}”",
     "markBoughtA11y": "Mark {{name}} as bought",
     "exitA11y": "Back to the family's list (test)"
+  },
+  "dialectsShort": {
+    "saudi": "Saudi",
+    "emirati": "Emirati",
+    "kuwaiti": "Kuwaiti",
+    "egyptian": "Egyptian",
+    "levantine": "Levantine",
+    "other": "Other"
+  },
+  "dialectExamples": {
+    "saudi": "“nabi, wesh, zain”",
+    "emirati": "“naba, shu, wayed”",
+    "kuwaiti": "“abi, shino, wayed”",
+    "egyptian": "“ayzeen, eh, awi”",
+    "levantine": "“badna, shu, kteer”",
+    "other": "We understand Fusha too"
+  },
+  "onboarding": {
+    "appName": "Sallitna",
+    "back": "Back",
+    "stepA11y": "Step {{n}} of {{total}}",
+    "gender": "I am",
+    "male": "a man",
+    "female": "a woman"
+  },
+  "welcome": {
+    "quote": "“We need two milks, and rice”",
+    "milk": "Full-fat milk",
+    "rice": "Basmati rice",
+    "heroA11y": "Example: say “we need two milks, and rice” and milk and rice are added to the list",
+    "title": "One list\nfor the whole home",
+    "body": "Say it in your dialect, and the whole family sees it right away. No more WhatsApp group chaos.",
+    "chipDialect": "In your dialect",
+    "chipFamily": "For the whole family",
+    "chipLanguage": "In any language",
+    "start": "Start a new list",
+    "haveInvite": "I have an invite from my family"
+  },
+  "verify": {
+    "phoneTitle": "Your phone number",
+    "phoneBody": "We'll text you a 4-digit code. No password, no email.",
+    "phoneLabel": "Phone number",
+    "phonePlaceholder": "5X XXX XXXX",
+    "phoneHint": "A Saudi number starting with 5, 9 digits",
+    "edit": "Edit",
+    "send": "Send code",
+    "codeLabel": "Enter the code",
+    "codeA11y": "4-digit code",
+    "sentSms": "We sent the code by text",
+    "resendIn": "Resend in {{time}}",
+    "resend": "Resend",
+    "whatsappInstead": "Send the code on WhatsApp instead",
+    "confirm": "Confirm",
+    "terms": "By continuing you agree to the Terms and Privacy Policy",
+    "codeTitle": "Enter the code",
+    "sentTo": "We sent it to {{phone}}",
+    "wrong": {
+      "one": "Wrong code. 1 try left.",
+      "other": "Wrong code. {{n}} tries left."
+    },
+    "locked": "No tries left. Try again in {{n}} minutes.",
+    "newCode": "Send a new code",
+    "sendWhatsapp": "Send it on WhatsApp",
+    "wrongNumber": "Wrong number? Edit it",
+    "lockNote": "After {{attempts}} wrong tries we wait {{minutes}} minutes before sending a new code"
+  },
+  "setup": {
+    "title": "Name your home",
+    "listName": "List name",
+    "listPlaceholder": "e.g. Abu Khalid's home",
+    "yourName": "What name should the family see?",
+    "namePlaceholder": "e.g. Umm Khalid",
+    "dialect": "Your dialect?",
+    "dialectBody": "So we understand you. Everyone picks their own.",
+    "next": "Next"
+  },
+  "join": {
+    "invites_f": "{{name}} invited you",
+    "invites_m": "{{name}} invited you",
+    "title": "Join the list\n“{{list}}”",
+    "body": "{{count}} add by voice and shop from the same list",
+    "phoneLabel": "Your phone number",
+    "language": "Which language should the list be in?",
+    "send": "Send verification code",
+    "note": "No password. Your number is just so the family knows you.",
+    "facesA11y": "Household members"
+  },
+  "joinSetup": {
+    "hello": "Welcome {{name}}",
+    "helloEmpty": "Welcome",
+    "joined_f": "You joined {{list}}",
+    "joined_m": "You joined {{list}}",
+    "nameLabel": "Your name on the list",
+    "namePlaceholder": "e.g. Sara",
+    "dialect": "Your dialect",
+    "seesIn_f": "See the list in",
+    "seesIn_m": "See the list in",
+    "howTitle_f": "How to use the list",
+    "howTitle_m": "How to use the list",
+    "tipVoice_f": "Press the button and say what's missing",
+    "tipVoice_m": "Press the button and say what's missing",
+    "tipStore_f": "When you go shopping, press “I'm at the store”",
+    "tipStore_m": "When you go shopping, press “I'm at the store”",
+    "enter_f": "Open the list",
+    "enter_m": "Open the list"
   }
 }

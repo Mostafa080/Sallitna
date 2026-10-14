@@ -288,3 +288,43 @@ Agreed split for "interactive flow for all screens": **(1) this session**, (2) t
 - Toasts in the helper view: the "Coming soon" and "bought" ones are in his language; other toasts that can appear
   there (e.g. something the family did) would still be Arabic.
 - Expo Go: screen open/close animations still slide like LTR (real builds are fine).
+
+## Session 8 — 2026-10-14: Sign-up and joining (simulated)
+
+### Done
+- **Start a new list** (path A): test menu → «ابدأ من جديد (تسجيل)», or «ابدأ قائمة جديدة بدالها» on the expired-invite screen.
+  - **welcome** (`src/app/welcome.tsx`) — voice → list example, three chips, «ابدأ قائمة جديدة» / «عندي دعوة من العائلة».
+  - **verify** (`src/app/verify.tsx`) — +966 Saudi number (9 digits, starts with 5, formatted as you type) →
+    4 code boxes (phone can auto-fill from the text message), 0:30 resend countdown, «أرسل الرمز على الواتساب بدلها».
+    **The test code is 1234** (a toast shows it). Wrong code → code-error look: red boxes, «باقي لك محاولتين»,
+    new code / WhatsApp / wrong number. After 3 wrong tries: «خلصت المحاولات» and the boxes lock.
+  - **household-setup** (`src/app/household-setup.tsx`) — «سمّ بيتك»: list name, your name, «أنا: امرأة / رجل», dialect cards.
+  - **setup-invite** — the invite screen with all 3 dashes and «تقدر تدعوهم بعدين من أهل البيت».
+    «ابدأ القائمة» → your new, empty household (you're the manager) with «قائمتك جاهزة».
+- **Join from an invite** (path B): test menu → «افتح رابط دعوة», or «عندي دعوة من العائلة» on welcome.
+  - **join** (`src/app/join.tsx`) — «أم خالد تدعوك», the family's faces + a dashed "+", phone, list language → code.
+  - **join-setup** (`src/app/join-setup.tsx`) — «أهلًا …», name, «أنا», dialect chips, list language, tips card.
+    The wording switches to feminine once «امرأة» is picked (انضميتي، تشوفين، اضغطي، ادخلي).
+    «ادخل القائمة» → the demo household with you as a new member and «أهلًا … في بيت أبو خالد».
+- **Who "you" are** now lives in the shared store (was fixed to أم خالد), so a new person can sign up.
+  Screens now look people up from the store, not the fixed demo list.
+- **6 dialects** everywhere (agreed): سعودية، إماراتية، كويتية، مصرية، شامية، فصحى / أخرى. CLAUDE.md updated.
+- **Filipino** left out for now (agreed) — only العربية / English / हिन्दी.
+- Home shows at most 4 faces, then «+N», so the title stays on one line.
+- Shared parts: `src/components/onboarding/OnboardingParts.tsx` (logo, step dashes, field, phone field, code boxes,
+  chips, dialect cards). New theme sizes `codeBox`, `stepDash`, `layout.heroCardWidth`, `layout.twoColumnBasis`.
+  No new libraries.
+
+### Next
+- **Session 9: Notifications screen** (notifications.png).
+- **Session 10: Display language for the whole app** (English/Hindi left-to-right after a restart).
+- Then Supabase: tables + Row Level Security, phone OTP sign-in (replaces the 1234 code), real invite links, live sync.
+
+### Known issues / open questions
+- The app still **opens on the demo list**, not on welcome — sign-up is reached from the test menu until there are
+  real accounts (Supabase). Then: new phone → welcome; signed-in phone → the list.
+- The design numbers the invite as step 3 of 3, and «سمّ بيتك» as step 3 too — I show «سمّ بيتك» as step 3
+  (current) and the invite with all 3 dashes done. Which steps should the 3 dashes be?
+- «الشروط» and «سياسة الخصوصية» aren't links yet (no pages to open).
+- After 3 wrong codes the real wait isn't timed — restart the flow to try again.
+- The «+N» face on Home is drawn small — check it looks right on your phone.

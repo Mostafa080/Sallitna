@@ -1,4 +1,5 @@
 // "ادعُ أهل البيت" — share the invite link, see who joined and who we're waiting for.
+// Also the last screen of starting a new household (setup-invite.tsx): progress dashes + "invite later" hint.
 
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
@@ -10,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { BackIcon, Card, CircleButton, SectionLabel, StatusPill } from '@/components/family/FamilyParts';
+import { StepDashes } from '@/components/onboarding/OnboardingParts';
 import { SheetButton } from '@/components/shop/Sheet';
 import { UndoToast } from '@/components/UndoToast';
 import { inviteCode, type Member, type PendingInvite } from '@/data/fakeHousehold';
@@ -21,7 +23,7 @@ const INVITE_HOST = 'sallitna.app/j/';
 
 type Person = (Member | PendingInvite) & { joined: boolean };
 
-export default function InviteScreen() {
+export default function InviteScreen({ setup = false }: { setup?: boolean }) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const list = useList();
@@ -48,6 +50,17 @@ export default function InviteScreen() {
     list.notify(t('toast.linkCopied'));
   };
 
+  // Setup: the household is ready — close the whole sign-up flow and land on the (empty) list
+  const onStart = () => {
+    if (!setup) {
+      router.back();
+      return;
+    }
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    router.dismissAll();
+    list.notify(t('toast.listReady'));
+  };
+
   const subtitleFor = (p: Person) => {
     if (p.role === 'owner') return t(`invite.listOwner_${p.gender}`);
     const role = t(`roles.${p.role}_${p.gender}`);
@@ -64,11 +77,15 @@ export default function InviteScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          { paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + size.button + spacing.xxxl },
+          {
+            paddingTop: insets.top + spacing.md,
+            paddingBottom: insets.bottom + size.button + spacing.xxxl + (setup ? spacing.xxxl : 0),
+          },
         ]}
         showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <CircleButton icon={BackIcon} label={t('detail.back')} onPress={() => router.back()} />
+          {setup && <StepDashes current={3} total={3} done />}
         </View>
 
         <View style={styles.intro}>
@@ -129,10 +146,15 @@ export default function InviteScreen() {
 
       <View style={[styles.statusBarCover, { height: insets.top }]} />
 
-      <UndoToast bottomOffset={insets.bottom + size.button + spacing.xxl} />
+      <UndoToast bottomOffset={insets.bottom + size.button + (setup ? spacing.xxxl * 2 : spacing.xxl)} />
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
-        <SheetButton label={t('invite.start')} tone="accent" onPress={() => router.back()} />
+        <SheetButton label={t('invite.start')} tone="accent" onPress={onStart} />
+        {setup && (
+          <AppText variant="body" color="muted" style={styles.center}>
+            {t('invite.later')}
+          </AppText>
+        )}
       </View>
     </View>
   );
@@ -152,6 +174,11 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  center: {
+    textAlign: 'center',
   },
   intro: {
     gap: spacing.sm,
@@ -219,6 +246,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
+    gap: spacing.xs,
     backgroundColor: colors.ground,
   },
 });

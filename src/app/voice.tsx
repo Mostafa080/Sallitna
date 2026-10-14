@@ -14,7 +14,6 @@ import { NotUnderstoodView } from '@/components/voice/NotUnderstoodView';
 import { ProcessingView } from '@/components/voice/ProcessingView';
 import { ReviewView } from '@/components/voice/ReviewView';
 import { findCatalogMatch } from '@/data/fakeCatalog';
-import { members } from '@/data/fakeHousehold';
 import {
   demoDurationSeconds,
   demoIntents,
@@ -46,7 +45,7 @@ export default function VoiceScreen() {
 
   const phrases = noisy ? noisyTranscript : demoTranscript;
   const transcript = textOf(demoTranscript);
-  const speaker = members.find((m) => m.id === list.currentMemberId);
+  const speaker = list.memberById(list.currentMemberId);
 
   const close = () => router.back();
 

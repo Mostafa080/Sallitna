@@ -2,7 +2,7 @@
 
 ## What this app is
 A shared family grocery list. Arabic-first, add items by voice in dialect
-(Saudi first, then Egyptian/Gulf/Levantine). One list per household, live sync,
+(Saudi first, then Emirati/Kuwaiti/Egyptian/Levantine, plus Fusha/other). One list per household, live sync,
 "I'm at the store" shopper mode, helpers (driver/maid) see the list in their language.
 
 ## About me

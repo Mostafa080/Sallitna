@@ -10,7 +10,7 @@ import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { FilterPill } from '@/components/FilterPill';
 import { RadioCard, Sheet, SheetButton } from '@/components/shop/Sheet';
-import { activeShopperId, activeShopperSinceMinutes, members, storeOrder, type StoreKey } from '@/data/fakeHousehold';
+import { activeShopperId, activeShopperSinceMinutes, storeOrder, type StoreKey } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { useList } from '@/store/ListStore';
 import { colors, radius, size, spacing } from '@/theme';
@@ -18,8 +18,9 @@ import { colors, radius, size, spacing } from '@/theme';
 export default function StartTripScreen() {
   const router = useRouter();
   const list = useList();
-  const me = members.find((m) => m.id === list.currentMemberId);
-  const other = activeShopperId && activeShopperId !== list.currentMemberId ? members.find((m) => m.id === activeShopperId) : undefined;
+  const me = list.memberById(list.currentMemberId);
+  // Only someone who's actually in this household (a brand-new household has nobody shopping)
+  const other = activeShopperId && activeShopperId !== list.currentMemberId ? list.members.find((m) => m.id === activeShopperId) : undefined;
   const g = me?.gender ?? 'm';
 
   const [store, setStore] = useState<StoreKey>('supermarket');

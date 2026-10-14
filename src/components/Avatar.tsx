@@ -51,19 +51,33 @@ type StackProps = {
   members: Member[];
   small?: boolean;
   ring?: Ring;
+  max?: number; // show this many, then a "+N" circle
 };
 
 // Overlapping row of avatars; the first member sits on top.
-export function AvatarStack({ members, small, ring }: StackProps) {
+export function AvatarStack({ members, small, ring, max }: StackProps) {
   const overlap = small ? spacing.xs + spacing.xxs : spacing.sm + spacing.xxs;
+  // Keep room for the "+N" circle inside the limit
+  const shown = max && members.length > max ? members.slice(0, max - 1) : members;
+  const hidden = members.length - shown.length;
 
   return (
     <View style={styles.stack}>
-      {members.map((member, index) => (
+      {shown.map((member, index) => (
         <View key={member.id} style={{ zIndex: members.length - index, marginStart: index === 0 ? 0 : -overlap }}>
           <Avatar member={member} small={small} ring={ring} />
         </View>
       ))}
+      {hidden > 0 && (
+        <View style={{ marginStart: -overlap }}>
+          {/* Left-to-right marks keep it "+2", not "2+", in Arabic */}
+          <Avatar
+            member={{ display_name: `+${hidden}`, initial: `\u2066+${hidden}\u2069`, avatar_color: 'surface' }}
+            small={small}
+            ring={ring}
+          />
+        </View>
+      )}
     </View>
   );
 }

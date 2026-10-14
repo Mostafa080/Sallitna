@@ -23,7 +23,7 @@ import {
 } from '@/components/shop/ShopParts';
 import { EndEarlySheet, NotFoundSheet, PickItemSheet } from '@/components/shop/TripSheets';
 import { UndoToast } from '@/components/UndoToast';
-import { categoryOrder, members, type Item, type Member } from '@/data/fakeHousehold';
+import { categoryOrder, type Item, type Member } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { formatClock, formatQuantity } from '@/lib/format';
 import { useList } from '@/store/ListStore';
@@ -50,7 +50,7 @@ export default function ShopScreen() {
 
   if (!trip) return null;
 
-  const memberById = (id: string | null) => members.find((m) => m.id === id);
+  const memberById = (id: string | null) => (id ? list.memberById(id) : undefined);
   const me = memberById(list.currentMemberId)!;
   const g = me.gender;
   const partner = memberById(trip.partnerId);
@@ -76,7 +76,7 @@ export default function ShopScreen() {
   // Who to ask about a missing item: whoever added it, unless that's the shopper
   const askTargetFor = (item: Item): Member | undefined => {
     if (item.added_by !== me.id) return memberById(item.added_by);
-    return members.find((m) => m.id !== me.id && m.role !== 'helper');
+    return list.members.find((m) => m.id !== me.id && m.role !== 'helper');
   };
 
   const onDone = () => {

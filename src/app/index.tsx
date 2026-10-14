@@ -18,7 +18,6 @@ import {
   activeShopperId,
   basics,
   categoryOrder,
-  members,
   NEW_ITEM_WINDOW_MINUTES,
   type Basic,
 } from '@/data/fakeHousehold';
@@ -28,6 +27,9 @@ import { useList } from '@/store/ListStore';
 import { colors, motion, radius, size, spacing } from '@/theme';
 
 type Filter = 'all' | 'today';
+
+// More faces than this would squeeze the title onto two lines
+const MAX_HEADER_AVATARS = 4;
 
 const rowLayout = LinearTransition.duration(motion.normal);
 const rowExit = FadeOut.duration(motion.fast);
@@ -100,12 +102,14 @@ export default function HomeScreen() {
         },
       },
       { text: t('dev.micDenied'), onPress: () => router.push({ pathname: '/voice', params: { mode: 'denied' } }) },
+      { text: t('dev.startOver'), onPress: () => router.push('/welcome') },
+      { text: t('dev.openInvite'), onPress: () => router.push('/join') },
       { text: t('dev.inviteExpired'), onPress: () => router.push('/invite-expired') },
       ...(helper ? [{ text: t('dev.helperView', { name: helper.display_name }), onPress: () => router.push('/helper') }] : []),
       ...(pendingQuestion
         ? [
             {
-              text: t('dev.answer', { name: members.find((m) => m.id === pendingQuestion.to)?.display_name ?? '' }),
+              text: t('dev.answer', { name: list.memberById(pendingQuestion.to)?.display_name ?? '' }),
               onPress: () => router.push({ pathname: '/answer', params: { id: pendingQuestion.id } }),
             },
           ]
@@ -141,7 +145,7 @@ export default function HomeScreen() {
             hitSlop={spacing.sm}
             accessibilityRole="button"
             accessibilityLabel={t('home.membersA11y')}>
-            <AvatarStack members={list.members} />
+            <AvatarStack members={list.members} max={MAX_HEADER_AVATARS} />
           </Pressable>
           <Pressable
             onPress={() => router.push('/invite')}
@@ -203,7 +207,7 @@ export default function HomeScreen() {
                       style={index > 0 && styles.divider}>
                       <ItemRow
                         item={item}
-                        members={members}
+                        members={list.everyone}
                         currentMemberId={list.currentMemberId}
                         isNew={isNew(item.created_at)}
                         isOpen={openRowId === item.id}
