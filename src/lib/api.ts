@@ -1,11 +1,13 @@
 // Everything the app asks the database for, in one place.
 // Shapes are converted to the app's own types (src/data/fakeHousehold.ts) here.
 
+import { findCatalogMatch } from '@/data/fakeCatalog';
 import {
   defaultSettings,
   PHONE_PREFIX,
   type DialectKey,
   type HouseholdSettings,
+  type Item,
   type LanguageKey,
   type Member,
   type MemberRole,
@@ -281,4 +283,169 @@ export async function restoreMember(id: string) {
 
 export async function renameHousehold(householdId: string, name: string) {
   check(await supabase.from('households').update({ name: name.trim() }).eq('id', householdId));
+}
+
+// --- List items ----------------------------------------------------------------------------------
+
+export type ItemRow = {
+  id: string;
+  household_id: string;
+  catalog_id: string | null;
+  name: string;
+  qty: number | string; // numeric comes back as text
+  unit: Item['unit'];
+  category: Item['category'];
+  status: Item['status'];
+  note: string;
+  added_by: string | null;
+  added_via: Item['added_via'];
+  voice_transcript: string | null;
+  requested_by: string[];
+  claimed_by: string | null;
+  created_at: string;
+};
+
+export const toItem = (row: ItemRow): Item => {
+  const match = findCatalogMatch(row.name);
+  return {
+    id: row.id,
+    name: row.name,
+    qty: Number(row.qty),
+    unit: row.unit,
+    category: row.category,
+    status: row.status,
+    note: row.note,
+    added_by: row.added_by ?? '',
+    added_via: row.added_via,
+    voice_transcript: row.voice_transcript ?? undefined,
+    requested_by: row.requested_by,
+    claimed_by: row.claimed_by,
+    created_at: row.created_at,
+    translations: match?.translations, // helper names come from the catalog
+  };
+};
+
+// The fields anyone in the household may change (see the column grants in the database)
+export type ItemPatch = Partial<Pick<Item, 'name' | 'qty' | 'unit' | 'category' | 'status' | 'note' | 'requested_by' | 'claimed_by'>>;
+
+const pickPatch = (patch: Partial<Item>): ItemPatch => {
+  const keys = ['name', 'qty', 'unit', 'category', 'status', 'note', 'requested_by', 'claimed_by'] as const;
+  const out: Record<string, unknown> = {};
+  for (const k of keys) if (patch[k] !== undefined) out[k] = patch[k];
+  return out as ItemPatch;
+};
+
+// Items still worth showing or counting: open, in a cart, or done in the last 60 days
+export async function loadItems(householdId: string): Promise<Item[]> {
+  const since = new Date(Date.now() - 60 * 24 * 60 * 60_000).toISOString();
+  const rows = check(
+    await supabase
+      .from('items')
+      .select('*')
+      .eq('household_id', householdId)
+      .or(`status.in.(open,in_cart),updated_at.gte.${since}`)
+      .order('created_at'),
+  ) as ItemRow[];
+  return rows.map(toItem);
+}
+
+export async function insertItems(householdId: string, items: Item[]) {
+  if (items.length === 0) return;
+  check(
+    await supabase.from('items').insert(
+      items.map((i) => ({
+        id: i.id,
+        household_id: householdId,
+        catalog_id: findCatalogMatch(i.name)?.id ?? null,
+        name: i.name,
+        qty: i.qty,
+        unit: i.unit,
+        category: i.category,
+        status: i.status,
+        note: i.note,
+        added_by: i.added_by,
+        added_via: i.added_via,
+        voice_transcript: i.voice_transcript ?? null,
+        requested_by: i.requested_by,
+        claimed_by: i.claimed_by,
+      })),
+    ),
+  );
+}
+
+export async function updateItem(id: string, patch: Partial<Item>) {
+  const fields = pickPatch(patch);
+  if (Object.keys(fields).length === 0) return;
+  check(await supabase.from('items').update(fields).eq('id', id));
+}
+
+// Live changes to this household's list. Returns a function that stops listening.
+export function watchItems(
+  householdId: string,
+  onChange: (change: { type: 'upsert'; item: Item; isNew: boolean } | { type: 'delete'; id: string }) => void,
+) {
+  const channel = supabase
+    .channel(`items:${householdId}`)
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'items', filter: `household_id=eq.${householdId}` },
+      (payload) => {
+        if (payload.eventType === 'DELETE') onChange({ type: 'delete', id: (payload.old as ItemRow).id });
+        else onChange({ type: 'upsert', item: toItem(payload.new as ItemRow), isNew: payload.eventType === 'INSERT' });
+      },
+    )
+    .subscribe();
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}
+
+// A real database id for a new item, made on the phone so it shows instantly and matches the live echo
+export function newItemId(): string {
+  const bytes = new Uint8Array(16);
+  const c = (globalThis as { crypto?: { getRandomValues?: (a: Uint8Array) => Uint8Array } }).crypto;
+  if (c?.getRandomValues) c.getRandomValues(bytes);
+  else for (let i = 0; i < 16; i++) bytes[i] = Math.floor(Math.random() * 256);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40; // version 4
+  bytes[8] = (bytes[8] & 0x3f) | 0x80; // variant
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
+// --- Activity («آخر نشاط») -------------------------------------------------------------------------
+
+export type ActivityEvent = {
+  memberId: string;
+  kind: 'added' | 'bought';
+  voice: boolean;
+  name: string;
+  at: string;
+};
+
+// Recent additions and purchases, from the item history the database writes by itself
+export async function loadActivity(householdId: string, limit = 200): Promise<ActivityEvent[]> {
+  const rows = check(
+    await supabase
+      .from('item_events')
+      .select('member_id, kind, before, after, created_at')
+      .eq('household_id', householdId)
+      .order('created_at', { ascending: false })
+      .limit(limit),
+  ) as {
+    member_id: string | null;
+    kind: 'added' | 'changed';
+    before: Partial<ItemRow> | null;
+    after: Partial<ItemRow> | null;
+    created_at: string;
+  }[];
+  const events: ActivityEvent[] = [];
+  for (const r of rows) {
+    if (!r.member_id || !r.after) continue;
+    if (r.kind === 'added') {
+      events.push({ memberId: r.member_id, kind: 'added', voice: r.after.added_via === 'voice', name: r.after.name ?? '', at: r.created_at });
+    } else if (r.after.status === 'bought' && r.before?.status !== 'bought') {
+      events.push({ memberId: r.member_id, kind: 'bought', voice: false, name: r.after.name ?? '', at: r.created_at });
+    }
+  }
+  return events;
 }

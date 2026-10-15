@@ -3,7 +3,7 @@
 // and 'demo' — the fake household from earlier sessions (long-press the logo on welcome).
 // Undo will map to item_events.
 
-import { createContext, useContext, useEffect, useReducer, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useReducer, useRef, type ReactNode } from 'react';
 
 import { catalogById, catalogToDraft, findCatalogMatch } from '@/data/fakeCatalog';
 import {
@@ -82,7 +82,10 @@ type Action =
   | { type: 'set'; patch: Partial<Omit<State, 'items' | 'toast'>> }
   | { type: 'trip'; patch: Partial<Trip> }
   | { type: 'liveAdd'; item: Item }
-  | { type: 'replace'; state: State };
+  | { type: 'replace'; state: State }
+  | { type: 'remoteUpsert'; item: Item }
+  | { type: 'remoteDelete'; id: string }
+  | { type: 'loadedItems'; householdId: string; items: Item[] };
 
 function initialState(mode: Mode = 'loading'): State {
   return {
@@ -171,6 +174,20 @@ function reducer(state: State, action: Action): State {
       return state.trip ? { ...state, trip: { ...state.trip, ...action.patch } } : state;
     case 'replace':
       return action.state;
+    case 'remoteUpsert': {
+      const exists = state.items.some((i) => i.id === action.item.id);
+      return {
+        ...state,
+        items: exists
+          ? state.items.map((i) => (i.id === action.item.id ? action.item : i))
+          : [...state.items, action.item],
+      };
+    }
+    case 'remoteDelete':
+      return { ...state, items: state.items.filter((i) => i.id !== action.id) };
+    case 'loadedItems':
+      // Ignore a slow answer for a list we already left
+      return state.householdId === action.householdId ? { ...state, items: action.items } : state;
     case 'liveAdd':
       // Only while still shopping, and only once
       if (!state.trip || state.items.some((i) => i.status === 'open' && sameName(i.name, action.item.name)))
@@ -199,7 +216,7 @@ const newId = (prefix: string) => `${prefix}-${Date.now()}-${++idCounter}`;
 function newItem(draft: ItemDraft, addedBy: string, voiceTranscript?: string): Item {
   return {
     ...draft,
-    id: newId('local'),
+    id: api.newItemId(), // a real database id, also fine for the demo
     status: 'open',
     note: '',
     added_by: addedBy,
@@ -261,6 +278,62 @@ function useListState() {
     };
   }, []);
 
+  // Live list: load this household's items and keep them in sync while it's open
+  const householdId = state.mode === 'live' ? state.householdId : null;
+  const meRef = useRef(me);
+  meRef.current = me;
+  const membersRef = useRef(state.members);
+  membersRef.current = state.members;
+  const itemsRef = useRef(state.items);
+  itemsRef.current = state.items;
+  useEffect(() => {
+    if (!householdId) return;
+    let cancelled = false;
+    api
+      .loadItems(householdId)
+      .then((items) => !cancelled && dispatch({ type: 'loadedItems', householdId, items }))
+      .catch((error) => __DEV__ && console.warn('[loadItems]', error));
+
+    const stop = api.watchItems(householdId, (change) => {
+      if (change.type === 'delete') {
+        dispatch({ type: 'remoteDelete', id: change.id });
+        return;
+      }
+      const { item, isNew } = change;
+      const known = itemsRef.current.some((i) => i.id === item.id);
+      dispatch({ type: 'remoteUpsert', item });
+      // Someone else added something: a small note (ticks and edits update quietly)
+      if (isNew && !known && item.added_by !== meRef.current && item.status === 'open') {
+        const note = (adder: Member) =>
+          dispatch({
+            type: 'toast',
+            toast: {
+              id: ++toastCounter,
+              message: t(`toast.othersAdded_${adder.gender}`, { name: adder.display_name, item: item.name }),
+            },
+          });
+        const adder = membersRef.current.find((m) => m.id === item.added_by);
+        if (adder) note(adder);
+        else {
+          // Someone who joined after the list was opened: fetch the people again, then say who it was
+          api
+            .loadMembership(householdId)
+            .then((m) => {
+              if (!m || m.householdId !== householdId) return;
+              dispatch({ type: 'set', patch: { members: m.members, formerMembers: m.formerMembers } });
+              const found = m.members.find((x) => x.id === item.added_by);
+              if (found) note(found);
+            })
+            .catch(() => {});
+        }
+      }
+    });
+    return () => {
+      cancelled = true;
+      stop();
+    };
+  }, [householdId]);
+
   // Simulated family (demo only): a few seconds into a trip, someone adds an item by voice
   useEffect(() => {
     if (!trip || state.mode !== 'demo') return;
@@ -306,6 +379,30 @@ function useListState() {
       );
   };
   const familyUndo = (): Undo => ({ restore: [], discard: [], members: state.members });
+
+  // Item changes: on screen right away, then saved (live lists only). A failed save reloads the real list.
+  const itemsFailed = (error: unknown) => {
+    if (__DEV__) console.warn('[items]', error);
+    showToast(t('toast.saveFailed'));
+    const hh = state.householdId;
+    if (hh) api.loadItems(hh).then((items) => dispatch({ type: 'loadedItems', householdId: hh, items })).catch(() => {});
+  };
+  const patchItem = (id: string, patch: Partial<Item>) => {
+    dispatch({ type: 'patch', id, patch });
+    if (live) api.updateItem(id, patch).catch(itemsFailed);
+  };
+  const addNewItems = (items: Item[]) => {
+    if (items.length === 0) return;
+    dispatch({ type: 'add', items });
+    if (live && state.householdId) api.insertItems(state.householdId, items).catch(itemsFailed);
+  };
+  // Taking back a fresh addition: gone from the screen; in the database it's marked 'removed'
+  // (never deleted — delete events would reach anyone listening, see the realtime migration)
+  const discardItems = (ids: string[]) => {
+    if (ids.length === 0) return;
+    dispatch({ type: 'discard', ids });
+    if (live) for (const id of ids) api.updateItem(id, { status: 'removed' }).catch(itemsFailed);
+  };
   // Everyone who ever added something here — removed members too, so old items keep their names
   const everyone = live
     ? [...state.members, ...state.formerMembers]
@@ -381,14 +478,14 @@ function useListState() {
     markBought(id: string, message?: string) {
       const item = find(id);
       if (!item) return;
-      dispatch({ type: 'patch', id, patch: { status: 'bought' } });
+      patchItem(id, { status: 'bought' });
       showToast(message ?? t('toast.bought', { name: item.name }), undoFor(item));
     },
 
     removeItem(id: string) {
       const item = find(id);
       if (!item) return;
-      dispatch({ type: 'patch', id, patch: { status: 'removed' } });
+      patchItem(id, { status: 'removed' });
       const adder = memberById(item.added_by);
       const message =
         adder && adder.id !== me
@@ -401,14 +498,14 @@ function useListState() {
       const item = find(id);
       if (!item) return;
       const claiming = item.claimed_by !== me;
-      dispatch({ type: 'patch', id, patch: { claimed_by: claiming ? me : null } });
+      patchItem(id, { claimed_by: claiming ? me : null });
       showToast(t(claiming ? 'toast.claimed' : 'toast.unclaimed', { name: item.name }), undoFor(item));
     },
 
     saveItem(id: string, patch: Pick<Item, 'qty' | 'unit' | 'note'>) {
       const item = find(id);
       if (!item) return;
-      dispatch({ type: 'patch', id, patch });
+      patchItem(id, patch);
       showToast(t('toast.saved', { name: item.name }), undoFor(item));
     },
 
@@ -423,7 +520,8 @@ function useListState() {
         const existing = openItemNamed(draft.name);
         if (existing) {
           const qty = existing.qty + draft.qty;
-          dispatch({ type: 'patch', id: existing.id, patch: { qty } });
+          const requested_by = existing.requested_by.includes(me) ? existing.requested_by : [...existing.requested_by, me];
+          patchItem(existing.id, { qty, requested_by });
           undo.restore.push(existing);
           lastMessage = t('toast.addedMore', { name: existing.name, qty: formatQuantity(qty, existing.unit) });
         } else {
@@ -434,7 +532,7 @@ function useListState() {
         }
       }
 
-      if (fresh.length > 0) dispatch({ type: 'add', items: fresh });
+      addNewItems(fresh);
       if (drafts.length === 0) return;
       showToast(drafts.length === 1 ? lastMessage : t('toast.addedMany', { n: drafts.length }), undo);
     },
@@ -449,7 +547,7 @@ function useListState() {
         if (change.kind === 'patch') {
           const item = find(change.id);
           if (!item) continue;
-          dispatch({ type: 'patch', id: change.id, patch: change.patch });
+          patchItem(change.id, change.patch);
           undo.restore.push(item);
         } else {
           const item = newItem(change.draft, me, transcript);
@@ -458,26 +556,31 @@ function useListState() {
         }
       }
 
-      if (fresh.length > 0) dispatch({ type: 'add', items: fresh });
+      addNewItems(fresh);
       showToast(t('toast.voiceApplied', { n: changes.length }), undo);
     },
 
     // Quick add (empty-state basics) — no toast; returns the id so it can be taken back
     addBasic(basic: Basic): string {
       const item = newItem(basic, me);
-      dispatch({ type: 'add', items: [item] });
+      addNewItems([item]);
       return item.id;
     },
 
     // Take back a quick add — it never really happened, so no undo needed
     discardItem(id: string) {
-      dispatch({ type: 'discard', ids: [id] });
+      discardItems([id]);
     },
 
     undo() {
       const undo = state.toast?.undo;
       if (!undo) return;
       dispatch({ type: 'undo', undo });
+      // Live: put the items back as they were, take back fresh additions
+      if (live) {
+        for (const before of undo.restore) api.updateItem(before.id, before).catch(itemsFailed);
+        for (const id of undo.discard) api.updateItem(id, { status: 'removed' }).catch(itemsFailed);
+      }
       // Live family changes are undone in the database too
       if (live && undo.members) {
         for (const before of undo.members) {
@@ -518,7 +621,7 @@ function useListState() {
       if (partnerId) {
         let partnerFoundOne = false;
         for (const item of open) {
-          if (item.category === 'produce') dispatch({ type: 'patch', id: item.id, patch: { claimed_by: me } });
+          if (item.category === 'produce') patchItem(item.id, { claimed_by: me });
           if (item.category === 'dairy') {
             dispatch({
               type: 'patch',
@@ -555,7 +658,7 @@ function useListState() {
       const item = find(id);
       if (!item) return;
       const toCart = item.status === 'open';
-      dispatch({ type: 'patch', id, patch: { status: toCart ? 'in_cart' : 'open' } });
+      patchItem(id, { status: toCart ? 'in_cart' : 'open' });
       if (state.offline) {
         dispatch({
           type: 'set',
@@ -568,7 +671,7 @@ function useListState() {
     claimForTrip(id: string) {
       const item = find(id);
       if (!item) return;
-      dispatch({ type: 'patch', id, patch: { claimed_by: me } });
+      patchItem(id, { claimed_by: me });
       showToast(t('toast.claimedTrip', { name: item.name }), undoFor(item));
     },
 
@@ -578,7 +681,7 @@ function useListState() {
       if (!item || !trip) return;
 
       if (choice === 'remove') {
-        dispatch({ type: 'patch', id, patch: { status: 'removed' } });
+        patchItem(id, { status: 'removed' });
         dispatch({ type: 'trip', patch: { outcomes: withOutcome(trip.outcomes, outcome(item, 'removed')) } });
         showToast(t('toast.removed', { name: item.name }), undoFor(item));
         return;
@@ -657,7 +760,7 @@ function useListState() {
         if (answer === 'alt') {
           // Back on the shopping list, as the replacement
           const altName = question.altName ?? item.name;
-          dispatch({ type: 'patch', id: item.id, patch: { name: altName } });
+          patchItem(item.id, { name: altName });
           dispatch({
             type: 'trip',
             patch: {
@@ -666,7 +769,7 @@ function useListState() {
             },
           });
         } else if (answer === 'no') {
-          dispatch({ type: 'patch', id: item.id, patch: { status: 'removed' } });
+          patchItem(item.id, { status: 'removed' });
           dispatch({
             type: 'trip',
             patch: { outcomes: withOutcome(trip.outcomes, outcome(item, 'removed', answered)) },
@@ -676,9 +779,9 @@ function useListState() {
         }
       } else if (answer === 'alt' && question.altName) {
         // Someone else's trip (e.g. replying from a notification): just update the list
-        dispatch({ type: 'patch', id: item.id, patch: { name: question.altName } });
+        patchItem(item.id, { name: question.altName });
       } else if (answer === 'no') {
-        dispatch({ type: 'patch', id: item.id, patch: { status: 'removed' } });
+        patchItem(item.id, { status: 'removed' });
       }
 
       showToast(t('toast.answerSent', { name: memberById(question.from)?.display_name ?? '' }));
@@ -694,8 +797,8 @@ function useListState() {
 
       for (const item of tripItems) {
         if (item.status === 'in_cart')
-          dispatch({ type: 'patch', id: item.id, patch: { status: 'bought', claimed_by: null } });
-        else if (item.claimed_by === me) dispatch({ type: 'patch', id: item.id, patch: { claimed_by: null } });
+          patchItem(item.id, { status: 'bought', claimed_by: null });
+        else if (item.claimed_by === me) patchItem(item.id, { claimed_by: null });
       }
 
       const summary: TripSummary = {

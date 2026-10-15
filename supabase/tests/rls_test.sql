@@ -109,6 +109,8 @@ select pg_temp.check_('member: cannot change who added an item',
     pg_temp.get('khalidMember'), pg_temp.get('itemA'))));
 select pg_temp.check_('member: cannot delete someone else''s item',
   pg_temp.affected(format($q$ delete from public.items where id = %L $q$, pg_temp.get('itemA'))) <= 0);
+select pg_temp.check_('member: cannot delete even an item he added himself (undo marks it removed instead)',
+  pg_temp.affected(format($q$ delete from public.items where household_id = %L $q$, pg_temp.get('hhA'))) <= 0);
 select pg_temp.check_('member: cannot write history directly',
   pg_temp.blocked(format($q$ insert into public.item_events (household_id, item_id, kind) values (%L, %L, 'added') $q$,
     pg_temp.get('hhA'), pg_temp.get('itemA'))));
@@ -179,6 +181,13 @@ update public.invites set expires_at = now() - interval '1 day' where code = pg_
 select pg_temp.act('eve');
 select pg_temp.check_('expired invite: cannot join',
   pg_temp.blocked(format($q$ select public.join_household(%L, 'Eve', 'f') $q$, pg_temp.get('codeMember'))));
+
+-- ---------- Deleting an account that added items ----------
+reset role;
+select pg_temp.check_('deleting Rahul''s account works even though he added items',
+  not pg_temp.blocked($q$ delete from auth.users where id = '00000000-0000-4000-a000-000000000003' $q$));
+select pg_temp.check_('his items stay on the list (who-added cleared)',
+  (select count(*) from public.items where name = 'Eggs' and added_by is null) = 1);
 
 reset role;
 select

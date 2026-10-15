@@ -167,7 +167,9 @@
     "saveFailed": "Couldn't save — check your connection and try again",
     "welcomeBack": "Welcome back to “{{list}}”",
     "signedOut": "Signed out",
-    "profileSaved": "Profile saved"
+    "profileSaved": "Profile saved",
+    "othersAdded_f": "{{name}} added “{{item}}”",
+    "othersAdded_m": "{{name}} added “{{item}}”"
   },
   "empty": {
     "title": "The basket is empty",

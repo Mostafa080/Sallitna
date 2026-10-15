@@ -2,7 +2,7 @@
 
 import { useRouter } from 'expo-router';
 import { UserPlus } from 'lucide-react-native';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -12,6 +12,7 @@ import { BackIcon, Card, CircleButton, ForwardIcon, SectionLabel, StatusPill } f
 import { UndoToast } from '@/components/UndoToast';
 import { activeShopperId, pastTrips, type Member } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
+import * as api from '@/lib/api';
 import { formatClock, formatRelativeTime, isToday } from '@/lib/format';
 import { useList } from '@/store/ListStore';
 import { colors, radius, size, spacing } from '@/theme';
@@ -40,7 +41,14 @@ export default function MembersScreen() {
       .filter(Boolean)
       .join(t('item.metaSeparator'));
 
-  const activity = buildActivity(list.items, list.memberById);
+  // Live: real history (who added / bought what). Demo: built from the fake list + a fake past trip.
+  const [events, setEvents] = useState<api.ActivityEvent[] | null>(null);
+  useEffect(() => {
+    if (list.mode !== 'live' || !list.householdId) return;
+    api.loadActivity(list.householdId).then(setEvents).catch(() => setEvents([]));
+  }, [list.householdId, list.items.length]);
+
+  const activity = list.mode === 'live' ? groupEvents(events ?? [], list.memberById) : buildActivity(list.items, list.memberById);
 
   return (
     <View style={styles.screen}>
@@ -140,7 +148,27 @@ export default function MembersScreen() {
   );
 }
 
-// Recent activity from the list itself: additions grouped by who / how / day, plus past trips.
+// Live history → «أم خالد أضافت 3 أغراض», «سارة اشترت حليب»: grouped by person, what they did and day
+function groupEvents(events: api.ActivityEvent[], memberById: (id: string) => Member | undefined): Activity[] {
+  const groups = new Map<string, { e: api.ActivityEvent; names: string[]; at: string }>();
+  for (const e of events) {
+    const key = `${e.memberId}|${e.kind}|${e.voice}|${new Date(e.at).toDateString()}`;
+    const group = groups.get(key);
+    if (group) group.names.push(e.name);
+    else groups.set(key, { e, names: [e.name], at: e.at });
+  }
+  const entries: Activity[] = [];
+  for (const [key, { e, names, at }] of groups) {
+    const member = memberById(e.memberId);
+    if (!member) continue;
+    const what = names.length === 1 ? names[0] : t('home.itemCount', { n: names.length });
+    const verb = e.kind === 'bought' ? 'bought' : e.voice ? 'addedVoice' : 'added';
+    entries.push({ key, memberId: e.memberId, text: t(`members.${verb}_${member.gender}`, { what }), at });
+  }
+  return entries.sort((a, b) => (a.at < b.at ? 1 : -1)).slice(0, ACTIVITY_LIMIT);
+}
+
+// Demo: recent activity from the list itself: additions grouped by who / how / day, plus past trips.
 // Later this comes from item_events.
 function buildActivity(items: ReturnType<typeof useList>['items'], memberById: (id: string) => Member | undefined) {
   const groups = new Map<string, { memberId: string; voice: boolean; names: string[]; at: string }>();

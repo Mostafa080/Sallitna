@@ -504,3 +504,40 @@ Plan: **10 database** → 11 sign-in (phone, create/join household) → 12 live 
 ### Known issues
 - The list items are still not saved (session 12).
 - Supabase had two short outages today (522); the app now retries while signed in.
+
+## Session 12 — 2026-10-15: The live list
+
+### Done
+- **List items are saved in the database** and load when a list opens: add (type, basics chips, pasted list,
+  voice review), tick «bought», delete (→ status «removed», kept for history), edit qty/unit/note, «أنا أجيبه».
+  Each change shows on screen immediately, then saves; a failed save says «ما انحفظ…» and reloads the real list.
+  New items get their real database id on the phone, so the live echo never duplicates them.
+- **Live sync** (Supabase Realtime): others' changes appear by themselves. Others' additions show a small note
+  «خالد أضاف «حليب»» (agreed); ticks and edits update quietly. Someone who joined after the list was opened is
+  fetched automatically (name on the row + face in the header).
+- **Undo** puts the old version back in the database; undoing a brand-new addition marks it «removed».
+- **«آخر نشاط»** on «أهل البيت» now comes from the real item history (`item_events`): who added / bought what.
+- «أضيف اليوم», «جديد» badges use the real times. Bought items are kept (agreed) — needed later for habits.
+- Trip actions (cart, bought at the end of a trip, claims) also save the item changes; the trip itself
+  (questions, summary) is still simulated until session 13.
+- **Database changes** (`supabase/migrations/`):
+  - `…120000_items_realtime.sql` — live updates for items.
+  - `…121000_items_realtime_no_old_rows.sql` + `…121500_items_no_delete.sql` — **security fix found in testing**:
+    realtime sends *delete* events without checking permissions, so a stranger listening could see a deleted
+    item's name. Now delete events carry no data, and items can't be deleted at all (undo marks them removed).
+  - `…122000_item_refs_check_changed_only.sql` — **bug fix found in testing**: deleting an account that had added
+    items failed. Now works; their items stay with «who added» cleared.
+- **Tests:** security tests now **41 / 41** (new: nobody can delete items; deleting an account with items works).
+  Live test with three sessions: a member sees additions / ticks / undo live; a stranger receives nothing and
+  can't read the list. In the app (simulator): items survive a restart; another person's additions appear live
+  with their name; tick and undo saved. Test accounts 500000003/4 deleted afterwards.
+
+### Next
+- **Session 13: trips, questions and push notifications** — «أنا في السوق» saved as a real trip (others see
+  «سارة في السوق»), «ما لقيته» questions between phones, trip summary, real notifications (needs `expo-notifications`
+  and a development build — will ask).
+
+### Known issues
+- In Expo Go the floating Expo tools button (gear) sits on top of «تراجع» — drag it away; not in the real app.
+- Type-to-add's catalog and dialect words still come from the app's built-in copy (same data as the database).
+- Items with no translation show the Arabic name in the helper view (as before).

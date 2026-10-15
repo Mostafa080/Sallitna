@@ -187,7 +187,9 @@
     "saveFailed": "ما انحفظ التغيير — تأكد من الشبكة وجرّب مرة ثانية",
     "welcomeBack": "أهلًا من جديد في «{{list}}»",
     "signedOut": "طلعت من حسابك",
-    "profileSaved": "انحفظ ملفك"
+    "profileSaved": "انحفظ ملفك",
+    "othersAdded_f": "{{name}} أضافت «{{item}}»",
+    "othersAdded_m": "{{name}} أضاف «{{item}}»"
   },
   "empty": {
     "title": "السلة فاضية",
