@@ -719,8 +719,7 @@ Agreed: phone numbers Egypt only (+20).
    typing the local 0 («010…») or pasting «+20 …» works. Trip summary shows «ج.م» (EGP in en/hi).
    **New test numbers** (no SMS, code 123456): **+20 1000000001 … 1000000004** — pushed to Supabase
    (`supabase/config.toml`), checked by signing in once from a script.
-   ⚠️ The old Saudi test accounts (منى 500000001, Sara 500000002) **can't sign in anymore**; their data is still in
-   the database (can be cleaned up later).
+   (Cleaned up 2026-10-16: the old Saudi test accounts منى and Sara and their 5 lists were deleted.)
 4. **Product names in Egyptian:** لبن كامل/خالي الدسم (was حليب), عيش فينو / عيش توست (was خبز), مياه, زبادي,
    بن, جبنة, مسحوق غسيل, حبهان. Old names still find them in search. «عيش» = bread in Egypt (and still rice for
    Gulf dialects); «لبن» = milk in Egypt (yogurt for Gulf/Levant). Quick-add chips: لبن، عيش، مياه….
