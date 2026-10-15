@@ -11,6 +11,7 @@ import { AvatarStack } from '@/components/Avatar';
 import { EmptyState } from '@/components/EmptyState';
 import { BackIcon, CircleButton } from '@/components/family/FamilyParts';
 import { ItemRow } from '@/components/ItemRow';
+import { NotFoundCard } from '@/components/NotFoundCard';
 import { QuestionCard } from '@/components/QuestionCard';
 import { ShopperBanner } from '@/components/ShopperBanner';
 import { UndoToast } from '@/components/UndoToast';
@@ -259,6 +260,13 @@ export default function ListScreen() {
             onOpen={() => router.push({ pathname: '/answer', params: { id: q.id } })}
           />
         ))}
+
+        {/* What the helper (or anyone) couldn't find in the shop */}
+        <NotFoundCard
+          items={list.items.filter((item) => item.status === 'not_found')}
+          onReopen={list.reopenItem}
+          onRemove={list.removeItem}
+        />
 
         {starterMode ? (
           <EmptyState basics={basics} added={addedBasics} onToggleBasic={onToggleBasic} onShowList={leaveStarterMode} />

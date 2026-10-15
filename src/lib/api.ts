@@ -108,74 +108,64 @@ export async function clearStaleSession(): Promise<boolean> {
 export type Face = Pick<Member, 'id' | 'display_name' | 'initial' | 'avatar_color'>;
 export type ListSummary = { householdId: string; name: string; memberCount: number; members: Face[]; myRole: MemberRole };
 
-// All my lists, newest first, each with its current people
-export async function listMyHouseholds(): Promise<ListSummary[]> {
+// Everything about my lists in ONE request (the database is far away, so every round trip counts):
+// all my lists with their people (for «قوايمي»), and the one to open — the one asked for, else the last one
+// opened, else the newest. membership is null when I'm in no list yet.
+export async function loadMyLists(householdId?: string): Promise<{ membership: Membership | null; lists: ListSummary[] }> {
   const { data: session } = await supabase.auth.getSession();
   const uid = session.session?.user.id;
-  if (!uid) return [];
-  const rows = check(
-    await supabase
+  if (!uid) return { membership: null, lists: [] };
+
+  const [rowsResult, remembered] = await Promise.all([
+    supabase
       .from('members')
-      .select('household_id, role, joined_at, households(name, members(id, display_name, avatar_color, joined_at))')
+      .select('*, households(name, members(*))')
       .eq('user_id', uid)
       .is('left_at', null)
-      .is('households.members.left_at', null)
       .order('joined_at', { ascending: false }),
-  ) as unknown as {
-    household_id: string;
-    role: MemberRole;
-    households: {
-      name: string;
-      members: { id: string; display_name: string; avatar_color: Member['avatar_color']; joined_at: string }[];
-    } | null;
-  }[];
-  return rows.map((r) => {
-    const members = [...(r.households?.members ?? [])]
-      .sort((a, b) => a.joined_at.localeCompare(b.joined_at))
-      .map((m) => ({ id: m.id, display_name: m.display_name, initial: m.display_name.trim().charAt(0), avatar_color: m.avatar_color }));
+    householdId ? Promise.resolve(null) : rememberedHousehold(),
+  ]);
+  const mineAll = check(rowsResult) as (MemberRow & { households: { name: string; members: MemberRow[] } | null })[];
+  const byJoined = (a: MemberRow, b: MemberRow) => a.joined_at.localeCompare(b.joined_at);
+
+  const lists: ListSummary[] = mineAll.map((r) => {
+    const current = (r.households?.members ?? []).filter((m) => !m.left_at).sort(byJoined);
     return {
       householdId: r.household_id,
       name: r.households?.name ?? '',
-      memberCount: Math.max(1, members.length),
-      members,
+      memberCount: Math.max(1, current.length),
+      members: current.map((m) => ({
+        id: m.id,
+        display_name: m.display_name,
+        initial: m.display_name.trim().charAt(0),
+        avatar_color: m.avatar_color,
+      })),
       myRole: r.role,
     };
   });
-}
+  if (mineAll.length === 0) return { membership: null, lists };
 
-// One of my households: the one asked for, else the last one opened, else the newest (null if none yet)
-export async function loadMembership(householdId?: string): Promise<Membership | null> {
-  const { data: session } = await supabase.auth.getSession();
-  const uid = session.session?.user.id;
-  if (!uid) return null;
-
-  const mineAll = check(
-    await supabase
-      .from('members')
-      .select('*, households(name)')
-      .eq('user_id', uid)
-      .is('left_at', null)
-      .order('joined_at', { ascending: false }),
-  ) as (MemberRow & { households: { name: string } | null })[];
-  if (mineAll.length === 0) return null;
-
-  const wanted = householdId ?? (await rememberedHousehold());
+  const wanted = householdId ?? remembered;
   const mine = mineAll.find((m) => m.household_id === wanted) ?? mineAll[0];
   rememberHousehold(mine.household_id);
-
-  const rows = check(
-    await supabase.from('members').select('*').eq('household_id', mine.household_id).order('joined_at'),
-  ) as MemberRow[];
+  const rows = [...(mine.households?.members ?? [])].sort(byJoined);
 
   return {
-    householdId: mine.household_id,
-    householdName: mine.households?.name ?? '',
-    meId: mine.id,
-    members: rows.filter((r) => !r.left_at).map(toMember),
-    formerMembers: rows.filter((r) => r.left_at).map(toMember),
-    settings: { ...defaultSettings, ...(mine.settings ?? {}) },
+    lists,
+    membership: {
+      householdId: mine.household_id,
+      householdName: mine.households?.name ?? '',
+      meId: mine.id,
+      members: rows.filter((r) => !r.left_at).map(toMember),
+      formerMembers: rows.filter((r) => r.left_at).map(toMember),
+      settings: { ...defaultSettings, ...(mine.settings ?? {}) },
+    },
   };
 }
+
+// Shortcuts for callers that need just one half
+export const listMyHouseholds = async () => (await loadMyLists()).lists;
+export const loadMembership = async (householdId?: string) => (await loadMyLists(householdId)).membership;
 
 export type Profile = { displayName: string; gender: 'f' | 'm'; dialect: DialectKey; viewLanguage: LanguageKey };
 

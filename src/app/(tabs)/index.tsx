@@ -4,7 +4,7 @@
 
 import * as Haptics from 'expo-haptics';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Ellipsis, LogOut, Plus, Trash2 } from 'lucide-react-native';
+import { Ellipsis, LogOut, Pencil, Plus, Trash2 } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -13,8 +13,8 @@ import { AppText } from '@/components/AppText';
 import { AvatarStack } from '@/components/Avatar';
 import { ForwardIcon } from '@/components/family/FamilyParts';
 import { HelperHome } from '@/components/helper/HelperHome';
-import { Brand } from '@/components/onboarding/OnboardingParts';
-import { Sheet } from '@/components/shop/Sheet';
+import { Brand, Field } from '@/components/onboarding/OnboardingParts';
+import { Sheet, SheetButton } from '@/components/shop/Sheet';
 import { UndoToast } from '@/components/UndoToast';
 import { t } from '@/i18n';
 import type { ListSummary } from '@/lib/api';
@@ -34,10 +34,22 @@ export default function MyListsScreen() {
   // The card whose «…» menu is open
   const [menuFor, setMenuFor] = useState<ListSummary | null>(null);
   useHideTabBar(!!menuFor); // the floating tab bar would cover the sheet
+  // «غيّر الاسم»: the new name being typed (null = showing the menu)
+  const [newName, setNewName] = useState<string | null>(null);
+  const closeMenu = () => {
+    setMenuFor(null);
+    setNewName(null);
+  };
+  const onSaveName = async () => {
+    if (!menuFor || !newName?.trim()) return;
+    const id = menuFor.householdId;
+    closeMenu();
+    if (await list.renameList(id, newName)) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  };
 
   const onRemove = (l: ListSummary) => {
     const how = l.myRole === 'owner' ? 'delete' : 'leave';
-    setMenuFor(null);
+    closeMenu();
     Alert.alert(
       t(how === 'delete' ? 'lists.deleteTitle' : 'lists.leaveTitle', { name: l.name }),
       how === 'delete'
@@ -165,12 +177,9 @@ export default function MyListsScreen() {
               )}
             </View>
 
-            {/* The list's people + «+» to invite more */}
+            {/* The list's people, «+» right next to them to invite more, and the count when there's more than one */}
             <View style={styles.cardBottom}>
               {l.members.length > 0 && <AvatarStack members={l.members} ring="surface" max={MAX_CARD_AVATARS} />}
-              <AppText variant="body" color="muted" style={styles.flex} numberOfLines={1}>
-                {t('lists.members', { n: l.memberCount })}
-              </AppText>
               <Pressable
                 onPress={() => onInvite(l)}
                 style={styles.invite}
@@ -179,6 +188,11 @@ export default function MyListsScreen() {
                 accessibilityLabel={t('lists.inviteA11y', { name: l.name })}>
                 <Plus size={size.iconSmall + spacing.xxs} color={colors.ink} strokeWidth={size.iconStroke + 0.5} />
               </Pressable>
+              {l.memberCount > 1 && (
+                <AppText variant="body" color="muted" style={styles.flex} numberOfLines={1}>
+                  {t('lists.members', { n: l.memberCount })}
+                </AppText>
+              )}
             </View>
           </Pressable>
         ))}
@@ -198,8 +212,45 @@ export default function MyListsScreen() {
 
       <UndoToast bottomOffset={insets.bottom + size.tabBar + spacing.sm} />
 
-      <Sheet visible={!!menuFor} onClose={() => setMenuFor(null)} title={menuFor?.name ?? ''}>
-        {menuFor && (
+      <Sheet
+        visible={!!menuFor}
+        onClose={closeMenu}
+        title={newName !== null ? t('lists.renameTitle') : (menuFor?.name ?? '')}
+        footer={
+          newName !== null ? (
+            <SheetButton label={t('lists.renameSave')} onPress={onSaveName} disabled={!newName.trim()} />
+          ) : undefined
+        }>
+        {menuFor && newName !== null && (
+          <Field
+            label={t('lists.nameLabel')}
+            value={newName}
+            onChangeText={setNewName}
+            autoFocus
+            maxLength={60}
+            returnKeyType="done"
+            onSubmitEditing={onSaveName}
+          />
+        )}
+        {menuFor && newName === null && menuFor.myRole === 'owner' && (
+          <Pressable
+            onPress={() => setNewName(menuFor.name)}
+            style={({ pressed }) => [styles.menuRow, pressed && styles.pressed]}
+            accessibilityRole="button">
+            <View style={styles.menuIcon}>
+              <Pencil size={size.icon - spacing.xs} color={colors.ink} strokeWidth={size.iconStroke} />
+            </View>
+            <View style={styles.flex}>
+              <AppText variant="item" weight="semibold">
+                {t('lists.rename')}
+              </AppText>
+              <AppText variant="body" color="muted">
+                {t('lists.renameBody')}
+              </AppText>
+            </View>
+          </Pressable>
+        )}
+        {menuFor && newName === null && (
           <Pressable
             onPress={() => onRemove(menuFor)}
             style={({ pressed }) => [styles.menuRow, pressed && styles.pressed]}

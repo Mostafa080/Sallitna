@@ -5,21 +5,14 @@
 import * as Haptics from 'expo-haptics';
 import { Check, Plus } from 'lucide-react-native';
 import { useState } from 'react';
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { FadeOut, LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
+import { SwipeActions } from '@/components/SwipeActions';
 import { UndoToast } from '@/components/UndoToast';
 import { catalogToDraft, searchCatalogIn, type CatalogItem } from '@/data/fakeCatalog';
 import { household, NEW_ITEM_WINDOW_MINUTES, type Item, type LanguageKey, type Member } from '@/data/fakeHousehold';
@@ -202,43 +195,61 @@ export function HelperHome({ helper, live, onExit }: Props) {
                 const checked = checking.includes(item.id);
                 return (
                   <Animated.View key={item.id} layout={rowLayout} exiting={rowExit} style={index > 0 && styles.divider}>
-                    <View style={styles.row}>
-                      <Pressable
-                        onPress={() => !checked && onCheck(item)}
-                        hitSlop={CHECKBOX_HIT_SLOP}
-                        accessibilityRole="checkbox"
-                        accessibilityState={{ checked }}
-                        accessibilityLabel={tr('helper.markBoughtA11y', { name: itemName(item) })}
-                        style={[styles.checkbox, checked && styles.checkboxChecked]}>
-                        {checked && (
-                          <Check size={size.iconSmall} color={colors.onDark} strokeWidth={size.iconStroke + 1} />
-                        )}
-                      </Pressable>
-
-                      <View style={styles.body}>
-                        <View style={styles.nameLine}>
-                          <AppText variant="item" weight="semibold" numberOfLines={1} style={styles.name}>
-                            {itemName(item)}
-                          </AppText>
-                          {isNew(item) && (
-                            <View style={styles.newBadge}>
-                              <AppText variant="meta" weight="medium" color="accentInk">
-                                {tr('helper.new')}
-                              </AppText>
-                            </View>
+                    {/* Swipe left = bought, right = not found (same as the family's shopping screen) */}
+                    <SwipeActions
+                      boughtLabel={tr('helper.swipeBought')}
+                      notFoundLabel={tr('helper.swipeNotFound')}
+                      onBought={() => list.markBought(item.id, tr('helper.bought', { name: itemName(item) }))}
+                      onNotFound={() => list.markNotFound(item.id, tr('helper.notFound', { name: itemName(item) }))}>
+                      <View
+                        style={styles.row}
+                        accessibilityActions={[
+                          { name: 'bought', label: tr('helper.swipeBought') },
+                          { name: 'notFound', label: tr('helper.swipeNotFound') },
+                        ]}
+                        onAccessibilityAction={(e) => {
+                          if (e.nativeEvent.actionName === 'bought')
+                            list.markBought(item.id, tr('helper.bought', { name: itemName(item) }));
+                          if (e.nativeEvent.actionName === 'notFound')
+                            list.markNotFound(item.id, tr('helper.notFound', { name: itemName(item) }));
+                        }}>
+                        <Pressable
+                          onPress={() => !checked && onCheck(item)}
+                          hitSlop={CHECKBOX_HIT_SLOP}
+                          accessibilityRole="checkbox"
+                          accessibilityState={{ checked }}
+                          accessibilityLabel={tr('helper.markBoughtA11y', { name: itemName(item) })}
+                          style={[styles.checkbox, checked && styles.checkboxChecked]}>
+                          {checked && (
+                            <Check size={size.iconSmall} color={colors.onDark} strokeWidth={size.iconStroke + 1} />
                           )}
-                        </View>
-                        <AppText variant="meta" color="muted">
-                          {metaFor(item)}
-                        </AppText>
-                      </View>
+                        </Pressable>
 
-                      <View style={styles.qtyPill}>
-                        <AppText variant="body" weight="bold">
-                          {formatQuantity(item.qty, item.unit, language)}
-                        </AppText>
+                        <View style={styles.body}>
+                          <View style={styles.nameLine}>
+                            <AppText variant="item" weight="semibold" numberOfLines={1} style={styles.name}>
+                              {itemName(item)}
+                            </AppText>
+                            {isNew(item) && (
+                              <View style={styles.newBadge}>
+                                <AppText variant="meta" weight="medium" color="accentInk">
+                                  {tr('helper.new')}
+                                </AppText>
+                              </View>
+                            )}
+                          </View>
+                          <AppText variant="meta" color="muted">
+                            {metaFor(item)}
+                          </AppText>
+                        </View>
+
+                        <View style={styles.qtyPill}>
+                          <AppText variant="body" weight="bold">
+                            {formatQuantity(item.qty, item.unit, language)}
+                          </AppText>
+                        </View>
                       </View>
-                    </View>
+                    </SwipeActions>
                   </Animated.View>
                 );
               })}
@@ -372,6 +383,7 @@ const styles = StyleSheet.create({
     minHeight: size.touch + spacing.xl,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
+    backgroundColor: colors.surface, // covers the swipe colors until the row moves
   },
   checkbox: {
     width: size.checkbox,

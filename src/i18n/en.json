@@ -178,7 +178,10 @@
     "askedYou_f": "{{name}} is asking about “{{item}}”",
     "askedYou_m": "{{name}} is asking about “{{item}}”",
     "answerArrived_f": "{{name}} replied: {{reply}}",
-    "answerArrived_m": "{{name}} replied: {{reply}}"
+    "answerArrived_m": "{{name}} replied: {{reply}}",
+    "notFoundMarked": "“{{name}}” not found · the family will see it",
+    "reopened": "“{{name}}” is back on the list",
+    "othersNotFound": "“{{item}}” wasn’t found in the shop"
   },
   "empty": {
     "title": "The basket is empty",
@@ -653,7 +656,10 @@
     "signOut": "Sign out",
     "signOutTitle": "Sign out on this phone?",
     "signOutBody": "The list stays. Come back with your phone number.",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "swipeBought": "Got it",
+    "swipeNotFound": "Not found",
+    "notFound": "“{{name}}” not found · the family will know"
   },
   "dialectsShort": {
     "saudi": "Saudi",
@@ -864,7 +870,11 @@
     "failed": "Couldn't create the list. Check your connection and try again.",
     "demoTitle": "New lists need an account",
     "demoBody": "Leave the demo and sign in with your phone number to make your own lists.",
-    "switched": "Opened “{{name}}”"
+    "switched": "Opened “{{name}}”",
+    "rename": "Rename",
+    "renameBody": "Everyone sees the new name",
+    "renameTitle": "List name",
+    "renameSave": "Save"
   },
   "firstList": {
     "title": "Create your first list",
@@ -881,5 +891,12 @@
     "whichList": "Which list are you shopping for?",
     "more": " · ⁦+{{n}}⁩",
     "emptyHint": "The list is empty. Start and we’ll ask the family if they need anything."
+  },
+  "notFoundCard": {
+    "title": "Not found in the shop · {{n}}",
+    "reopen": "Back on list",
+    "remove": "Remove",
+    "reopenA11y": "Put {{name}} back on the list",
+    "removeA11y": "Remove {{name}}"
   }
 }

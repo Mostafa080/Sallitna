@@ -1,18 +1,15 @@
 import * as Haptics from 'expo-haptics';
-import { Check, SearchX, WifiOff } from 'lucide-react-native';
-import { useState, type ReactNode } from 'react';
+import { Check, WifiOff } from 'lucide-react-native';
+import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View, type AccessibilityActionEvent } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { scheduleOnRN } from 'react-native-worklets';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { SwipeActions } from '@/components/SwipeActions';
 import type { Item } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
-import { isRTLLayout } from '@/lib/direction';
 import { formatQuantity } from '@/lib/format';
-import { colors, motion, opacity, radius, size, spacing } from '@/theme';
+import { colors, radius, size, spacing } from '@/theme';
 
 const CHECK_HIT_SLOP = (size.touch - size.checkbox) / 2;
 
@@ -69,10 +66,7 @@ export function ProgressBar({ done, total }: { done: number; total: number }) {
           {t('shop.left', { n: total - done })}
         </AppText>
       </View>
-      <View
-        style={styles.track}
-        accessibilityRole="progressbar"
-        accessibilityValue={{ min: 0, max: total, now: done }}>
+      <View style={styles.track} accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: total, now: done }}>
         <View style={[styles.fill, { width: `${Math.round(ratio * 100)}%` }]} />
       </View>
     </View>
@@ -132,7 +126,11 @@ export function ShopRow({
           numberOfLines={1}>
           {item.name}
         </AppText>
-        <AppText variant="meta" weight={highlight ? 'medium' : 'regular'} color={highlight ? 'accentInk' : 'muted'} numberOfLines={1}>
+        <AppText
+          variant="meta"
+          weight={highlight ? 'medium' : 'regular'}
+          color={highlight ? 'accentInk' : 'muted'}
+          numberOfLines={1}>
           {subtitle}
         </AppText>
       </View>
@@ -147,17 +145,7 @@ export function ShopRow({
   );
 }
 
-// --- Swipe a row while shopping ------------------------------------------------
-// Physical directions (as agreed): swipe LEFT → «اشتريتها» (into the cart), swipe RIGHT → «ملقتهاش».
-// Let go past the threshold to act; a short drag springs back.
-
-const SWIPE_THRESHOLD = size.swipeAction * 1.5; // how far to drag before letting go acts
-const SWIPE_ACTIVATE = spacing.xl; // sideways travel before a row swipe starts
-const SCROLL_WINS = spacing.sm; // vertical travel that hands the touch to the list scroll
-const FLING_VELOCITY = 800;
-// Where each label sits: the side the row moves away from
-const BOUGHT_SIDE = isRTLLayout ? 'flex-start' : 'flex-end'; // right edge (revealed by a left swipe)
-const NOT_FOUND_SIDE = isRTLLayout ? 'flex-end' : 'flex-start'; // left edge (revealed by a right swipe)
+// --- Swipe a row while shopping (left = «اشتريتها», right = «ملقتهاش») -----------------
 
 type SwipeRowProps = Omit<RowProps, 'accessibilityActions' | 'onAccessibilityAction'> & {
   onBought: () => void;
@@ -165,46 +153,6 @@ type SwipeRowProps = Omit<RowProps, 'accessibilityActions' | 'onAccessibilityAct
 };
 
 export function SwipeShopRow({ onBought, onNotFound, ...rowProps }: SwipeRowProps) {
-  const offset = useSharedValue(0); // physical: negative = moved left
-  const [armed, setArmed] = useState<'bought' | 'notFound' | null>(null);
-
-  // A light tap on the finger when the action is ready (and again if it's backed off)
-  const onArmedChange = (next: 'bought' | 'notFound' | null) => {
-    setArmed(next);
-    if (next) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-  };
-  const act = (action: 'bought' | 'notFound') => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    if (action === 'bought') onBought();
-    else onNotFound();
-  };
-
-  const armedNow = useSharedValue<0 | 1 | -1>(0);
-  const pan = Gesture.Pan()
-    .activeOffsetX([-SWIPE_ACTIVATE, SWIPE_ACTIVATE])
-    .failOffsetY([-SCROLL_WINS, SCROLL_WINS])
-    .onUpdate((e) => {
-      offset.value = e.translationX;
-      const next = e.translationX <= -SWIPE_THRESHOLD ? -1 : e.translationX >= SWIPE_THRESHOLD ? 1 : 0;
-      if (next !== armedNow.value) {
-        armedNow.value = next;
-        scheduleOnRN(onArmedChange, next === -1 ? 'bought' : next === 1 ? 'notFound' : null);
-      }
-    })
-    .onEnd((e) => {
-      const left = e.translationX <= -SWIPE_THRESHOLD || (e.translationX < 0 && e.velocityX < -FLING_VELOCITY);
-      const right = e.translationX >= SWIPE_THRESHOLD || (e.translationX > 0 && e.velocityX > FLING_VELOCITY);
-      offset.value = withTiming(0, { duration: motion.fast });
-      armedNow.value = 0;
-      scheduleOnRN(onArmedChange, null);
-      if (left) scheduleOnRN(act, 'bought');
-      else if (right) scheduleOnRN(act, 'notFound');
-    });
-
-  const rowStyle = useAnimatedStyle(() => ({ transform: [{ translateX: offset.value }] }));
-  const boughtStyle = useAnimatedStyle(() => ({ opacity: offset.value < 0 ? 1 : 0 }));
-  const notFoundStyle = useAnimatedStyle(() => ({ opacity: offset.value > 0 ? 1 : 0 }));
-
   // Screen readers can't swipe — same two actions through the actions menu
   const accessibilityActions = [
     { name: 'bought', label: t('shop.swipeBought') },
@@ -214,31 +162,18 @@ export function SwipeShopRow({ onBought, onNotFound, ...rowProps }: SwipeRowProp
     if (e.nativeEvent.actionName === 'bought') onBought();
     if (e.nativeEvent.actionName === 'notFound') onNotFound();
   };
-
   return (
-    <View style={styles.swipeWrap}>
-      <Animated.View style={[styles.swipePanel, styles.swipeBought, { justifyContent: BOUGHT_SIDE }, boughtStyle]}>
-        <View style={[styles.swipeLabel, armed === 'bought' && styles.swipeLabelArmed]}>
-          <Check size={size.icon} color={colors.onDark} strokeWidth={size.iconStroke + 1} />
-          <AppText variant="body" weight="bold" color="onDark">
-            {t('shop.swipeBought')}
-          </AppText>
-        </View>
-      </Animated.View>
-      <Animated.View style={[styles.swipePanel, styles.swipeNotFound, { justifyContent: NOT_FOUND_SIDE }, notFoundStyle]}>
-        <View style={[styles.swipeLabel, armed === 'notFound' && styles.swipeLabelArmed]}>
-          <SearchX size={size.icon} color={colors.onDark} strokeWidth={size.iconStroke} />
-          <AppText variant="body" weight="bold" color="onDark">
-            {t('shop.swipeNotFound')}
-          </AppText>
-        </View>
-      </Animated.View>
-      <GestureDetector gesture={pan}>
-        <Animated.View style={rowStyle}>
-          <ShopRow {...rowProps} accessibilityActions={accessibilityActions} onAccessibilityAction={onAccessibilityAction} />
-        </Animated.View>
-      </GestureDetector>
-    </View>
+    <SwipeActions
+      boughtLabel={t('shop.swipeBought')}
+      notFoundLabel={t('shop.swipeNotFound')}
+      onBought={onBought}
+      onNotFound={onNotFound}>
+      <ShopRow
+        {...rowProps}
+        accessibilityActions={accessibilityActions}
+        onAccessibilityAction={onAccessibilityAction}
+      />
+    </SwipeActions>
   );
 }
 
@@ -355,34 +290,6 @@ const styles = StyleSheet.create({
   },
   qtyPillLight: {
     backgroundColor: colors.surface,
-  },
-  swipeWrap: {
-    overflow: 'hidden',
-  },
-  swipePanel: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    start: 0,
-    end: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.xl,
-  },
-  swipeBought: {
-    backgroundColor: colors.success,
-  },
-  swipeNotFound: {
-    backgroundColor: colors.accent,
-  },
-  swipeLabel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    opacity: opacity.skeleton,
-  },
-  swipeLabelArmed: {
-    opacity: 1,
   },
   sectionHeader: {
     paddingHorizontal: spacing.lg,

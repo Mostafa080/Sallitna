@@ -322,12 +322,12 @@ function useListState() {
   useEffect(() => {
     let cancelled = false;
     let retry: ReturnType<typeof setTimeout> | undefined;
+    // The stale-sign-in check and the lists load at the same time (one wait instead of three)
     const load = () =>
-      api
-        .clearStaleSession()
-        .then(() => Promise.all([api.loadMembership(), api.listMyHouseholds()]))
-        .then(async ([membership, lists]) => {
+      Promise.all([api.clearStaleSession(), api.loadMyLists()])
+        .then(async ([gone, { membership, lists }]) => {
           if (cancelled) return;
+          if (gone) return dispatch({ type: 'set', patch: { mode: 'signedOut' } });
           if (membership) dispatch({ type: 'replace', state: liveState(membership, [], lists) });
           else if (await api.isSignedIn()) {
             const profile = await api.getSignupProfile();
@@ -412,7 +412,12 @@ function useListState() {
       }
       const { item, isNew } = change;
       const known = itemsRef.current.some((i) => i.id === item.id);
+      const before = itemsRef.current.find((i) => i.id === item.id);
       dispatch({ type: 'remoteUpsert', item });
+      // Someone (usually the helper) couldn't find it — my own changes are already local, so no note for those
+      if (before && before.status !== 'not_found' && item.status === 'not_found') {
+        dispatch({ type: 'toast', toast: { id: ++toastCounter, message: t('toast.othersNotFound', { item: item.name }) } });
+      }
       // Someone else added something: a small note (ticks and edits update quietly)
       if (isNew && !known && item.added_by !== meRef.current && item.status === 'open') {
         const note = (adder: Member) =>
@@ -547,10 +552,7 @@ function useListState() {
   // Reload a household from the database (after creating/joining/switching, or to see who joined).
   // Without an id: the one already open (or the last one opened). Keeps the items if it's the same list.
   const refreshHousehold = async (welcome?: string, householdId?: string): Promise<boolean> => {
-    const [membership, lists] = await Promise.all([
-      api.loadMembership(householdId ?? state.householdId ?? undefined),
-      api.listMyHouseholds(),
-    ]);
+    const { membership, lists } = await api.loadMyLists(householdId ?? state.householdId ?? undefined);
     if (!membership) {
       const profile = await api.getSignupProfile();
       dispatch({ type: 'set', patch: { mode: 'needsHousehold', lists, hasSignupProfile: !!profile } });
@@ -617,6 +619,22 @@ function useListState() {
       if (!item) return;
       patchItem(id, { status: 'bought' });
       showToast(message ?? t('toast.bought', { name: item.name }), undoFor(item));
+    },
+
+    // A helper couldn't find it in the shop: the family sees it on top of their list (back on the list / remove)
+    markNotFound(id: string, message?: string) {
+      const item = find(id);
+      if (!item) return;
+      patchItem(id, { status: 'not_found' });
+      showToast(message ?? t('toast.notFoundMarked', { name: item.name }), undoFor(item));
+    },
+
+    // «رجّعها للقائمة» on something nobody found
+    reopenItem(id: string) {
+      const item = find(id);
+      if (!item) return;
+      patchItem(id, { status: 'open' });
+      showToast(t('toast.reopened', { name: item.name }), undoFor(item));
     },
 
     removeItem(id: string) {
@@ -1051,6 +1069,25 @@ function useListState() {
       dispatch({ type: 'set', patch: { householdName: trimmed } });
       if (live && state.householdId) api.renameHousehold(state.householdId, trimmed).catch(failed);
       showToast(t('toast.listRenamed', { name: trimmed }));
+    },
+
+    // Rename any of my lists (from «…» on its card in «قوايمي»); the card and the open list update right away
+    async renameList(householdId: string, name: string): Promise<boolean> {
+      const trimmed = name.trim();
+      if (!trimmed || !live) return false;
+      const lists = state.lists.map((l) => (l.householdId === householdId ? { ...l, name: trimmed } : l));
+      dispatch({
+        type: 'set',
+        patch: { lists, ...(householdId === state.householdId ? { householdName: trimmed } : {}) },
+      });
+      try {
+        await api.renameHousehold(householdId, trimmed);
+        showToast(t('toast.listRenamed', { name: trimmed }));
+        return true;
+      } catch (error) {
+        failed(error);
+        return false;
+      }
     },
 
     setSetting(key: keyof HouseholdSettings, value: boolean) {

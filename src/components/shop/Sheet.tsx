@@ -1,5 +1,13 @@
 import type { ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -24,7 +32,10 @@ export function Sheet({ visible, onClose, title, subtitle, children, footer }: P
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-      <Animated.View entering={FadeIn.duration(motion.normal)} exiting={FadeOut.duration(motion.fast)} style={StyleSheet.absoluteFill}>
+      <Animated.View
+        entering={FadeIn.duration(motion.normal)}
+        exiting={FadeOut.duration(motion.fast)}
+        style={StyleSheet.absoluteFill}>
         <Pressable
           style={styles.scrim}
           onPress={onClose}
@@ -33,33 +44,42 @@ export function Sheet({ visible, onClose, title, subtitle, children, footer }: P
         />
       </Animated.View>
 
-      <Animated.View
-        entering={SlideInDown.duration(motion.normal)}
-        exiting={SlideOutDown.duration(motion.fast)}
-        style={[styles.sheet, { maxHeight: height - insets.top - spacing.xl, paddingBottom: insets.bottom + spacing.sm }]}
-        accessibilityViewIsModal>
-        <View style={styles.handle} />
-        <ScrollView
-          style={styles.scroll}
-          contentContainerStyle={styles.content}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled">
-          {title && (
-            <View>
-              <AppText variant="title" weight="bold" accessibilityRole="header">
-                {title}
-              </AppText>
-              {subtitle && (
-                <AppText variant="label" color="muted">
-                  {subtitle}
+      {/* Rises above the keyboard when the sheet has a text field (e.g. renaming a list) */}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.keyboardArea}
+        pointerEvents="box-none">
+        <Animated.View
+          entering={SlideInDown.duration(motion.normal)}
+          exiting={SlideOutDown.duration(motion.fast)}
+          style={[
+            styles.sheet,
+            { maxHeight: height - insets.top - spacing.xl, paddingBottom: insets.bottom + spacing.sm },
+          ]}
+          accessibilityViewIsModal>
+          <View style={styles.handle} />
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={styles.content}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled">
+            {title && (
+              <View>
+                <AppText variant="title" weight="bold" accessibilityRole="header">
+                  {title}
                 </AppText>
-              )}
-            </View>
-          )}
-          {children}
-        </ScrollView>
-        {footer && <View style={styles.footer}>{footer}</View>}
-      </Animated.View>
+                {subtitle && (
+                  <AppText variant="label" color="muted">
+                    {subtitle}
+                  </AppText>
+                )}
+              </View>
+            )}
+            {children}
+          </ScrollView>
+          {footer && <View style={styles.footer}>{footer}</View>}
+        </Animated.View>
+      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -80,7 +100,9 @@ export function RadioCard({ title, body, selected, onPress, multiple }: RadioCar
       style={[styles.radioCard, selected ? styles.radioCardSelected : styles.radioCardIdle]}
       accessibilityRole={multiple ? 'checkbox' : 'radio'}
       accessibilityState={multiple ? { checked: selected } : { selected }}>
-      <View style={[styles.radio, selected && styles.radioSelected]}>{selected && <View style={styles.radioDot} />}</View>
+      <View style={[styles.radio, selected && styles.radioSelected]}>
+        {selected && <View style={styles.radioDot} />}
+      </View>
       <View style={styles.flex}>
         <AppText variant="item" weight="bold">
           {title}
@@ -119,6 +141,10 @@ export function SheetButton({ label, onPress, tone = 'ink', disabled }: ButtonPr
 }
 
 const styles = StyleSheet.create({
+  keyboardArea: {
+    ...StyleSheet.absoluteFill,
+    justifyContent: 'flex-end',
+  },
   flex: {
     flex: 1,
   },
@@ -127,10 +153,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.scrim,
   },
   sheet: {
-    position: 'absolute',
-    start: 0,
-    end: 0,
-    bottom: 0,
+    // Sits at the bottom of the keyboard-aware area (which rises when the keyboard opens)
     paddingTop: spacing.md,
     borderTopStartRadius: radius.card * 2,
     borderTopEndRadius: radius.card * 2,

@@ -177,7 +177,10 @@
     "askedYou_f": "{{name}} is asking about “{{item}}”",
     "askedYou_m": "{{name}} is asking about “{{item}}”",
     "answerArrived_f": "{{name}} replied: {{reply}}",
-    "answerArrived_m": "{{name}} replied: {{reply}}"
+    "answerArrived_m": "{{name}} replied: {{reply}}",
+    "notFoundMarked": "“{{name}}” नहीं मिला · परिवार को दिखेगा",
+    "reopened": "“{{name}}” फिर से लिस्ट में",
+    "othersNotFound": "“{{item}}” दुकान में नहीं मिला"
   },
   "empty": {
     "title": "The basket is empty",
@@ -652,7 +655,10 @@
     "signOut": "साइन आउट",
     "signOutTitle": "इस फ़ोन पर साइन आउट करें?",
     "signOutBody": "लिस्ट बनी रहेगी। अपने फ़ोन नंबर से वापस आएँ।",
-    "cancel": "रद्द करें"
+    "cancel": "रद्द करें",
+    "swipeBought": "ले लिया",
+    "swipeNotFound": "नहीं मिला",
+    "notFound": "“{{name}}” नहीं मिला · परिवार को पता चल जाएगा"
   },
   "dialectsShort": {
     "saudi": "Saudi",
@@ -863,7 +869,11 @@
     "failed": "Couldn't create the list. Check your connection and try again.",
     "demoTitle": "New lists need an account",
     "demoBody": "Leave the demo and sign in with your phone number to make your own lists.",
-    "switched": "Opened “{{name}}”"
+    "switched": "Opened “{{name}}”",
+    "rename": "Rename",
+    "renameBody": "Everyone sees the new name",
+    "renameTitle": "List name",
+    "renameSave": "Save"
   },
   "firstList": {
     "title": "Create your first list",
@@ -880,5 +890,12 @@
     "whichList": "Which list are you shopping for?",
     "more": " · ⁦+{{n}}⁩",
     "emptyHint": "The list is empty. Start and we’ll ask the family if they need anything."
+  },
+  "notFoundCard": {
+    "title": "दुकान में नहीं मिला · {{n}}",
+    "reopen": "वापस लिस्ट में",
+    "remove": "हटाएँ",
+    "reopenA11y": "{{name}} वापस लिस्ट में डालें",
+    "removeA11y": "{{name}} हटाएँ"
   }
 }

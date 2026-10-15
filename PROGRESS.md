@@ -777,3 +777,54 @@ Agreed: join steps in the helper's language; helpers can tick «bought» and add
 - The family side shows a helper's items as normal (no change needed), but a helper can't yet edit quantity or say
   «not found»; no voice (paused).
 - Test data left for you to try: list «بيت التجربة» (owner 1000000003, helper 1000000004, code 123456).
+
+## Session 15 — 2026-10-16: Admin dashboard (part 1: users)
+
+Agreed: a web page on the computer; see new sign-ups, block / unblock, delete users; a small admin team.
+Part 2 (later): editing the product list (needs the app to read products from the database first).
+
+### Done
+- **New folder `dashboard/`** — a small website (Vite + React + TypeScript + supabase-js, installed inside
+  `dashboard/` only). Arabic, right-to-left, the app's colors and Norsal font. Start it with `npm run dashboard`,
+  open http://localhost:5199. It reads the app's `.env` (public key only — no secret keys anywhere).
+- **Sign in** with phone + code (same as the app). Only people on the admin list get in; others see «الحساب ده مش مسؤول».
+- **نظرة عامة**: users (total · today · 7 days · 30 days · active · blocked), lists (active · with a helper), helpers,
+  items added (today · week), trips this week, money spent this week, a 14-day sign-up chart, the 10 most-added items.
+  «Today» counts in Egypt time.
+- **المستخدمين**: everyone, newest first — name, phone partly hidden («+20 10•• ••• 0001»), signed up, last sign-in,
+  lists + role, items added; search, filters «جداد (7 أيام)» / «محظورين»; **block / unblock** (signed out
+  everywhere, «User is banned» on sign-in) and **delete** (account + lists only they're in), each asks first.
+- **المسؤولين**: the team; add by phone (must have used the app once), remove. First admin: +20 1000000001.
+- Database: `migrations/20261016090000_admin_dashboard.sql` (+ `…091000` Egypt time & phone format,
+  `…092000` block date). Admin list lives in the private schema; every admin door checks the caller first.
+  **Tests 78/78** (17 new: signed-out and normal users are refused everything; admins can; can't block/delete
+  yourself; phones hidden). Checked live: block → «User is banned», unblock → signs in again.
+- App `tsconfig.json` excludes `dashboard/`; `.claude/launch.json` has a «dashboard» entry.
+
+### Known issues
+- Runs only on this computer for now (putting it online, e.g. Vercel, is a later step).
+- Delete is permanent; blocked users still appear in their lists for the family (they just can't sign in).
+
+## Session 16 — 2026-10-16: Quick polish
+
+Agreed: (1) faster opening, (2) helper «Not found» by swipe (same as shopping), (3) rename a list.
+
+### Done
+1. **Faster opening of lists.** Main cause found: **the database is in Seoul (`ap-northeast-2`)**, so every request
+   takes ~0.3–1 s from Egypt. Opening a list made 3 requests in a row; now `api.loadMyLists()` gets my lists, their
+   people and the open list in **one** request (measured 309–427 ms instead of 663–1412 ms), and the stale-sign-in
+   check runs at the same time instead of first. (`loadMembership` / `listMyHouseholds` are now shortcuts to it.)
+2. **Helper «Not found».** On the helper's list: swipe left = «Got it» (bought), swipe right = «Not found».
+   The swipe is now one shared piece (`src/components/SwipeActions.tsx`) used by both the shopping screen and the
+   helper. The family sees an orange card at the top of their list — «ملقوهاش في المحل · N» with «رجّعها» (back on
+   the list) / «شيلها» (remove) per item (`src/components/NotFoundCard.tsx`) — and a live note «"X" ملقوهاش في المحل».
+   No database change (the `not_found` status already existed).
+3. **Rename a list**: «…» on a card → «غيّر الاسم» (manager only) → name field + «حفظ»; the card and the open list
+   update at once (`renameList` in the store). Sheets now rise above the keyboard (`Sheet.tsx`).
+- Checked: typecheck; rename sheet on the simulator (opened, not saved — the simulator was on your account);
+  not-found → family sees it live → put back, and rename (helper refused) with the test accounts.
+
+### Known issues / decision for you
+- **Move the database closer to Egypt** (e.g. Frankfurt `eu-central-1`) would make *everything* 2–3× faster.
+  Supabase can't move a project: it means a new project + copying the data (a session of its own).
+- The helper's swipe and the family's «ملقوهاش» card weren't tried on the simulator screen (only the data side).

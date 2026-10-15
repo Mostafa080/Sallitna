@@ -197,7 +197,10 @@
     "askedYou_f": "{{name}} بتسألك عن «{{item}}»",
     "askedYou_m": "{{name}} بيسألك عن «{{item}}»",
     "answerArrived_f": "{{name}} ردّت: {{reply}}",
-    "answerArrived_m": "{{name}} ردّ: {{reply}}"
+    "answerArrived_m": "{{name}} ردّ: {{reply}}",
+    "notFoundMarked": "«{{name}}» مش موجود · العيلة هتشوفها",
+    "reopened": "«{{name}}» رجعت للقائمة",
+    "othersNotFound": "«{{item}}» ملقوهاش في المحل"
   },
   "empty": {
     "title": "السلة فاضية",
@@ -685,7 +688,10 @@
     "signOut": "تسجيل الخروج",
     "signOutTitle": "تخرج من حسابك على الموبايل ده؟",
     "signOutBody": "القائمة هتفضل. ترجعلها برقم موبايلك.",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "swipeBought": "اشتريتها",
+    "swipeNotFound": "مش موجودة",
+    "notFound": "«{{name}}» مش موجودة · العيلة هتعرف"
   },
   "dialectsShort": {
     "saudi": "سعودية",
@@ -905,7 +911,11 @@
     "failed": "معرفناش نعمل القائمة. اتأكد من النت وجرّب تاني.",
     "demoTitle": "القوايم الجديدة محتاجة حساب",
     "demoBody": "اخرج من التجربة وسجّل برقم موبايلك عشان تعمل قوايمك.",
-    "switched": "فتحنا «{{name}}»"
+    "switched": "فتحنا «{{name}}»",
+    "rename": "غيّر الاسم",
+    "renameBody": "الكل هيشوف الاسم الجديد",
+    "renameTitle": "اسم القائمة",
+    "renameSave": "حفظ"
   },
   "firstList": {
     "title": "اعمل أول قائمة ليك",
@@ -922,5 +932,12 @@
     "whichList": "أنهي قائمة؟",
     "more": " · ⁦+{{n}}⁩",
     "emptyHint": "القائمة فاضية دلوقتي — العيلة تقدر تضيف وإنت في السوق."
+  },
+  "notFoundCard": {
+    "title": "ملقوهاش في المحل · {{n}}",
+    "reopen": "رجّعها",
+    "remove": "شيلها",
+    "reopenA11y": "رجّع {{name}} للقائمة",
+    "removeA11y": "شيل {{name}}"
   }
 }
