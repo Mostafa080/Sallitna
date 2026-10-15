@@ -32,10 +32,10 @@ export const colors = {
 } as const;
 
 export const fonts = {
-  regular: 'ReadexPro_400Regular',
-  medium: 'ReadexPro_500Medium',
-  semibold: 'ReadexPro_600SemiBold',
-  bold: 'ReadexPro_700Bold',
+  regular: 'Norsal-Regular',
+  medium: 'Norsal-Medium',
+  semibold: 'Norsal-SemiBold',
+  bold: 'Norsal-Bold',
 } as const;
 
 // Hindi (Devanagari script) — same weights as above
@@ -90,6 +90,7 @@ export const size = {
   bannerIcon: 40,
   liveDot: 12,
   micButton: 76,
+  tabBar: 64, // room for the floating iOS tab bar (above the home-indicator inset)
   micRing: 88,
   control: 48, // inputs, steppers, unit buttons
   button: 56, // full-width primary button
@@ -124,6 +125,7 @@ export const layout = {
 export const opacity = {
   disabled: 0.35,
   skeleton: 0.6,
+  pressed: 0.7, // a card while it's being tapped
 } as const;
 
 export const motion = {

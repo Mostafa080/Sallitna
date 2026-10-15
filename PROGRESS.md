@@ -600,3 +600,107 @@ Real voice (speech → items) was planned, then cancelled before any code was wr
 
 ### Known issues
 - Items that were added by voice in the demo still show a small mic next to the name.
+
+## Session 13c — 2026-10-15: App text in Egyptian dialect (your request)
+
+Agreed: replace the Saudi wording everywhere (one Arabic version for everyone).
+
+### Done
+- `src/i18n/ar.json` rewritten in Egyptian: 462 of 718 lines changed, same keys, same `{{placeholders}}`,
+  plural and ـf/ـm forms kept. Examples: «وش ناقص البيت؟» → «البيت ناقصه إيه؟», «الحين» → «دلوقتي»,
+  «أنا أجيبه» → «أنا هجيبه», «ما فيه» → «مفيش», «أمس» → «امبارح», «غرض» → «حاجة», «جوال» → «موبايل»,
+  «رابط/رمز» → «لينك/كود», «العائلة» → «العيلة», «السائق والعاملة» → «السواق والمساعدة».
+- List suggestions: «الأصدقاء» → «الصحاب», «الاستراحة» → «المصيف».
+- Checked on the simulator (welcome + demo list).
+
+### Known issues / decisions needed
+- **Still Saudi-specific (left on purpose, they're not wording):** phone numbers must be Saudi (+966, «رقم سعودي
+  يبدأ بـ5»), and the trip amount is in «ر.س». Switching to Egyptian numbers (+20) and «ج.م» is a separate change.
+- **Product names** come from the catalog, not the text file: «حليب» (Egyptians say «لبن»), «خبز» («عيش»), etc.
+  The Egyptian dialect words are already in the catalog for search; the display names are still Gulf-style.
+- The paused voice demo sentence is still Saudi («نبي حليب ثنتين…»), hidden while voice is off.
+
+## Session 13d — 2026-10-15: Norsal font (your request)
+
+### Done
+- **Norsal replaces Readex Pro** for Arabic + Latin. Hindi still uses Noto Sans Devanagari.
+- Your file `Resources/Fonts/norsal/norsal.ttf` is a *variable* font whose default is the heaviest weight (Black 900);
+  React Native can't reliably pick weights from it. So four fixed weights were cut from it (same 4 the app uses):
+  `assets/fonts/Norsal-Regular.ttf` (400), `-Medium` (500), `-SemiBold` (600), `-Bold` (700), ~90 KB each.
+  New folder: `assets/fonts/`. Loaded in `src/app/_layout.tsx`; names in `src/theme/index.ts` (`fonts`).
+- The font tool (fontTools) ran in a temporary folder only — nothing new in the app's libraries.
+
+### Known issues / decisions
+- **Final «ي» sometimes shows without dots on iPhone** («فى», «تانى», «عندى»), mostly in medium/bold text.
+  Same as with Readex Pro before (see session 1). The font files themselves are fine: drawn directly by macOS, every
+  weight shows the dots. Needs its own investigation (likely how iOS shapes the text, not the font).
+- `@expo-google-fonts/readex-pro` is still installed but unused — can be uninstalled (will ask).
+- CLAUDE.md still says "Fonts: Readex Pro" — update it if Norsal is the final choice.
+- Please check Norsal's license (by Baianat) allows embedding in an app.
+
+## Session 13e — 2026-10-15: Three tabs with Apple's native tab bar (your request)
+
+Agreed: «بالسوق» shows a start-shopping page before a trip; «قوايمي» opens straight to the current list.
+
+### Done
+- **Native iOS tab bar** (Liquid Glass on iOS 26) via expo-router's built-in `NativeTabs` — no new library.
+  Apple icons (SF Symbols): list · cart (filled when selected) · person. Orange tint. Shrinks while scrolling down.
+  Hidden while signed out / loading (welcome and sign-up open over it).
+- **Project structure:** `src/app/(tabs)/` with `_layout.tsx` (the tab bar), `index.tsx` (list, moved),
+  `market.tsx` (new), `account.tsx` (moved, no back button now).
+- **«قوايمي»**: the list screen without the avatar (now the «حسابي» tab) and without the round cart button
+  (now the «بالسوق» tab). The «… في السوق دلوقتي» banner opens «بالسوق».
+- **«بالسوق»**: before a trip → full page «رايحة السوق؟» (store, split with whoever's shopping, «ابدأ التسوق»);
+  during my trip → the live shopping screen (`src/components/shop/ShopView.tsx`, was `app/shop.tsx`).
+  «رجوع للقائمة» switches to «قوايمي». A badge dot shows while anyone in the family is shopping.
+  The old start-trip sheet became `src/components/shop/StartTripView.tsx`; routes `/shop` and `/start-trip` are gone.
+- After the trip summary («بلّغ العيلة وارجع للقائمة») the app returns to «قوايمي».
+- Theme: `size.tabBar` (64) — room kept above the tab bar for footers, toasts and the list's last row.
+- Tab names in ar/en/hi: «قوايمي · بالسوق · حسابي».
+- Tab bar is forced right-to-left (works in Expo Go too): «قوايمي» on the right. Labels use Norsal
+  (medium, semibold + orange when selected). Apple mirrors the list/cart icons for RTL by itself.
+
+### Known issues
+- Starting/finishing a trip from the new tab wasn't run end-to-end on the simulator (it was signed in to your
+  «البيت» list and I didn't want to start a real trip there). Typecheck passes; please try it in the demo.
+- The empty list still says «دوس الزرار وقول…» (talk to the mic) although voice is paused.
+
+## Session 13f — 2026-10-15: «قوايمي» overview (your request)
+
+Agreed: the «+» on a card invites someone to that list.
+
+### Done
+- **«قوايمي» tab opens on an overview** (`src/app/(tabs)/index.tsx`): title «قوايمي», one card per list with
+  its name, its people's faces (up to 5, then «+N»), «N أفراد», a dashed «+» (invite to that list) and a chevron;
+  then a dashed «قائمة جديدة» card (→ name a new list → invite). Demo: «قائمة جديدة» explains it needs an account.
+- **Tap a card → that list** opens full screen over the tabs (`src/app/list.tsx`, the old list screen); the tab bar
+  is hidden there (it has a back arrow; swipe back works too). The list loads first (small spinner on the card).
+  Header is one row: back arrow · list name · up to 3 faces (then «+N») · dashed «+» to invite.
+- The overview is now the app's gate (logo while loading, welcome when signed out, sign-up without a list).
+- The old list-switcher sheet (`app/lists.tsx`) is gone; «قوايمي» in «حسابي» opens the tab.
+  «رجوع للقائمة» while shopping and the end of a trip go to the open list.
+- Lists now load with their members (names + colors) for the faces — same tables and security rules, no migration.
+- Fixes: the hidden «بالسوق» tab turned the clock white during a trip; the tab badge is orange now.
+- New text (ar/en/hi): `lists.cardA11y`, `lists.inviteA11y`, `lists.backA11y`. Theme: `opacity.pressed`.
+
+### Known issues
+- Faces on the cards refresh when lists reload (opening / switching a list), not live when someone joins.
+- Your «الشغل» list (Sara) has a shopping trip running — started earlier on your phone, not by me.
+- **«بالسوق» shopping screen restyled like the list screen** (your request: no black header): light page background,
+  big dark title «إنتي في السوق», muted line under it, a small white «● العيلة عارفة إنك هنا» pill (green dot),
+  progress bar on light colors (gray track, orange fill). No back arrow (it's a tab). `ShopHeader` / `LivePill` /
+  `ProgressBar` in `src/components/shop/ShopParts.tsx`; the shop screen no longer switches the status bar to white.
+  Checked in the demo (start a trip → tick an item → bar fills).
+- The simulator is now in the demo (I signed Sara out to try a pretend trip without touching your real lists).
+- **Swipe items while shopping** (your request; agreed: only the «بالسوق» screen). Physical directions:
+  swipe **left** → green «✓ اشتريتها» (into the cart); swipe **right** → orange «ملقتهاش» (opens «… مش موجود؟»:
+  ask / next time / remove). Let go past ~1.5 row-actions (or flick) to act; a short drag springs back; a light
+  vibration when it's far enough. Works on my items and on «محدش أخده» items (left = take it + in the cart).
+  Tapping the circle still works; screen readers get both actions. `SwipeShopRow` in `ShopParts.tsx`.
+  The shop list now uses the gesture-friendly ScrollView. New text: `shop.swipeBought`, `shop.swipeNotFound`.
+- **Fix:** the floating tab bar covered the bottom of the shopping sheets («ابعت السؤال»). It now hides while a
+  sheet is open on «بالسوق» (`src/lib/tabBar.tsx`, `useHideTabBar`).
+- **Shopping footer removed** (your request): no more «خلصت التسوق» / «حاجة ملقتهاش» buttons at the bottom.
+  Agreed replacement: a small dark **«خلصت»** pill next to the title (same as before: asks «ماشية قبل ما تخلصي؟»
+  if items are left, otherwise opens the summary). «ملقتهاش» = swipe right. The «● العيلة عارفة إنك هنا» pill and
+  the «إيه اللي ملقتهوش؟» picker sheet were removed (unused now). New text: `shop.doneShort`.

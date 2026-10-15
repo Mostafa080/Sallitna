@@ -92,6 +92,7 @@ export default function TripDoneScreen() {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     if (cleanAmount) list.saveTripAmount(Number(cleanAmount));
     router.dismissAll();
+    router.navigate('/list'); // back to the list in «قوايمي»
     list.clearSummary();
     list.notify(t('toast.tripReported'));
   };

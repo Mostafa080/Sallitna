@@ -1,54 +1,52 @@
-// "أنتي في السوق" — shopper mode.
+// "أنتي في السوق" — shopper mode, shown in the «بالسوق» tab during my trip.
 // Dev: long-press the title to simulate losing / getting back the connection.
 
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { Check, Clock, ShoppingBasket } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { AvatarStack } from '@/components/Avatar';
 import { SheetButton } from '@/components/shop/Sheet';
 import {
-  LivePill,
   OfflineBanner,
   ProgressBar,
   RowCard,
   SectionHeader,
   ShopHeader,
   ShopRow,
+  SwipeShopRow,
 } from '@/components/shop/ShopParts';
-import { EndEarlySheet, NotFoundSheet, PickItemSheet } from '@/components/shop/TripSheets';
+import { EndEarlySheet, NotFoundSheet } from '@/components/shop/TripSheets';
 import { UndoToast } from '@/components/UndoToast';
 import { categoryOrder, type Item, type Member } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { formatClock, formatQuantity } from '@/lib/format';
+import { useHideTabBar } from '@/lib/tabBar';
 import { useList } from '@/store/ListStore';
-import { colors, opacity, radius, size, spacing } from '@/theme';
+import { colors, radius, size, spacing } from '@/theme';
 
-const FOOTER_HEIGHT = size.button + spacing.md + spacing.lg * 2;
 const byAisle = (a: Item, b: Item) => categoryOrder.indexOf(a.category) - categoryOrder.indexOf(b.category);
 
-export default function ShopScreen() {
+export function ShopView() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const list = useList();
   const { trip } = list;
 
-  const [picking, setPicking] = useState(false);
   const [notFoundItem, setNotFoundItem] = useState<Item | null>(null);
   const [endingEarly, setEndingEarly] = useState(false);
-
-  // Trip ended (or never started) — nothing to show here
-  useEffect(() => {
-    // Only when the screen is still on top (finishing a trip navigates away by itself)
-    if (!trip && !list.summary && router.canGoBack()) router.back();
-  }, [trip, list.summary, router]);
+  // The floating tab bar would cover a sheet's buttons — hide it while one is open
+  useHideTabBar(!!notFoundItem || endingEarly);
 
   if (!trip) return null;
+
+  // Footers and toasts sit above the tab bar
+  const bottomSpace = insets.bottom + size.tabBar;
 
   const memberById = (id: string | null) => (id ? list.memberById(id) : undefined);
   const me = memberById(list.currentMemberId)!;
@@ -88,7 +86,7 @@ export default function ShopScreen() {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setEndingEarly(false);
     list.finishTrip(handoff);
-    router.replace('/trip-done');
+    router.push('/trip-done');
   };
 
   const toggleOffline = () => {
@@ -101,8 +99,7 @@ export default function ShopScreen() {
   if (tripItems.length === 0) {
     return (
       <View style={styles.screen}>
-        <StatusBar style="light" />
-        <ShopHeader title={t(`shop.title_${g}`)} subtitle={t('shop.familyKnows')} onBack={() => router.back()} />
+        <ShopHeader title={t(`shop.title_${g}`)} subtitle={t('shop.familyKnows')} />
         <ScrollView contentContainerStyle={styles.emptyContent}>
           <View style={styles.emptyIcon}>
             <ShoppingBasket size={size.icon * 2} color={colors.success} strokeWidth={size.iconStroke} />
@@ -122,7 +119,7 @@ export default function ShopScreen() {
             </AppText>
           </View>
         </ScrollView>
-        <View style={[styles.emptyFooter, { paddingBottom: insets.bottom + spacing.sm }]}>
+        <View style={[styles.emptyFooter, { paddingBottom: bottomSpace + spacing.sm }]}>
           <SheetButton
             label={t('shopEmpty.ask')}
             tone="accent"
@@ -136,11 +133,10 @@ export default function ShopScreen() {
             tone="link"
             onPress={() => {
               list.leaveTrip();
-              router.back();
             }}
           />
         </View>
-        <UndoToast bottomOffset={insets.bottom + size.button * 2 + spacing.xxl} />
+        <UndoToast bottomOffset={bottomSpace + size.button * 2 + spacing.xxl} />
       </View>
     );
   }
@@ -148,7 +144,7 @@ export default function ShopScreen() {
   // --- Sections ----------------------------------------------------------------
   const remainingRows = (items: Item[]) =>
     items.map((item) => (
-      <ShopRow
+      <SwipeShopRow
         key={item.id}
         item={item}
         subtitle={subtitleFor(item)}
@@ -156,6 +152,8 @@ export default function ShopScreen() {
         checked={false}
         onToggle={() => list.toggleCart(item.id)}
         onLongPress={() => setNotFoundItem(item)}
+        onBought={() => list.toggleCart(item.id)}
+        onNotFound={() => setNotFoundItem(item)}
       />
     ));
 
@@ -172,7 +170,6 @@ export default function ShopScreen() {
 
   return (
     <View style={styles.screen}>
-      <StatusBar style="light" />
       <ShopHeader
         title={split ? t(`shop.splitTitle_${g}`, { name: partner!.display_name }) : t(`shop.title_${g}`)}
         subtitle={
@@ -180,14 +177,23 @@ export default function ShopScreen() {
             ? t(`shop.splitSubtitle_${g}`, { name: partner!.display_name })
             : t('shop.started', { time: formatClock(new Date(trip.startedAt)) })
         }
-        onBack={() => router.back()}
         onTitleLongPress={toggleOffline}
-        badge={split ? <AvatarStack members={[me, partner!]} ring="onDark" /> : <LivePill />}>
+        badge={
+          <View style={styles.headerEnd}>
+            {split && <AvatarStack members={[me, partner!]} ring="ground" />}
+            {/* «خلصت» — finish the trip (asks first if something's left) */}
+            <Pressable onPress={onDone} style={styles.doneButton} accessibilityRole="button" accessibilityLabel={t('shop.done')}>
+              <AppText variant="label" weight="bold" color="onDark">
+                {t('shop.doneShort')}
+              </AppText>
+            </Pressable>
+          </View>
+        }>
         {!split && <ProgressBar done={inCart.length} total={mineOrShared.length} />}
       </ShopHeader>
 
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: FOOTER_HEIGHT + insets.bottom + spacing.xl }]}
+        contentContainerStyle={[styles.content, { paddingBottom: bottomSpace + spacing.xl }]}
         showsVerticalScrollIndicator={false}>
         {list.offline && <OfflineBanner body={t(`offline.body_${g}`)} />}
 
@@ -196,12 +202,18 @@ export default function ShopScreen() {
             <SectionHeader label={t('shop.unclaimedHeader', { n: unclaimed.length })} />
             <RowCard>
               {unclaimed.map((item) => (
-                <ShopRow
+                <SwipeShopRow
                   key={item.id}
                   item={item}
                   subtitle={formatQuantity(item.qty, item.unit)}
                   checked={false}
                   onLongPress={() => setNotFoundItem(item)}
+                  // Swipe left on an unclaimed item: take it and it's in my cart
+                  onBought={() => {
+                    list.claimForTrip(item.id);
+                    list.toggleCart(item.id);
+                  }}
+                  onNotFound={() => setNotFoundItem(item)}
                   trailing={
                     <Pressable
                       onPress={() => {
@@ -316,34 +328,7 @@ export default function ShopScreen() {
         )}
       </ScrollView>
 
-      <UndoToast bottomOffset={FOOTER_HEIGHT + insets.bottom + spacing.sm} />
-
-      <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
-        <Pressable
-          onPress={() => (open.length > 0 ? setPicking(true) : undefined)}
-          disabled={open.length === 0}
-          style={[styles.outlineButton, open.length === 0 && styles.disabled]}
-          accessibilityRole="button">
-          <AppText variant="label" weight="bold">
-            {t('shop.notFound')}
-          </AppText>
-        </Pressable>
-        <Pressable onPress={onDone} style={styles.doneButton} accessibilityRole="button">
-          <AppText variant="item" weight="bold" color="onDark">
-            {t('shop.done')}
-          </AppText>
-        </Pressable>
-      </View>
-
-      <PickItemSheet
-        visible={picking}
-        items={remaining}
-        onPick={(item) => {
-          setPicking(false);
-          setNotFoundItem(item);
-        }}
-        onClose={() => setPicking(false)}
-      />
+      <UndoToast bottomOffset={bottomSpace + spacing.sm} />
 
       {/* A fresh sheet per item, so it opens at its final size (with the «اسأل» preview already showing) */}
       <NotFoundSheet
@@ -425,39 +410,18 @@ const styles = StyleSheet.create({
     borderRadius: radius.card,
     backgroundColor: colors.surface,
   },
-  footer: {
-    position: 'absolute',
-    start: 0,
-    end: 0,
-    bottom: 0,
+  headerEnd: {
     flexDirection: 'row',
-    gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-    borderTopWidth: size.border,
-    borderTopColor: colors.line,
-    backgroundColor: colors.ground,
-  },
-  outlineButton: {
-    minHeight: size.button + spacing.md,
-    paddingHorizontal: spacing.xl,
-    borderRadius: radius.pill,
-    borderWidth: size.border,
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: spacing.sm,
   },
   doneButton: {
-    flex: 1,
-    minHeight: size.button + spacing.md,
+    minHeight: size.touch,
+    paddingHorizontal: spacing.lg,
     borderRadius: radius.pill,
     backgroundColor: colors.ink,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  disabled: {
-    opacity: opacity.disabled,
   },
   emptyContent: {
     alignItems: 'stretch',

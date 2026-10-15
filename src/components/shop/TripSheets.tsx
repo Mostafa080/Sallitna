@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { RadioCard, Sheet, SheetButton } from '@/components/shop/Sheet';
@@ -8,34 +8,6 @@ import type { Item, Member } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { formatQuantity } from '@/lib/format';
 import { colors, radius, size, spacing } from '@/theme';
-
-// --- Pick which item wasn't found ---------------------------------------------
-
-type PickProps = {
-  visible: boolean;
-  items: Item[];
-  onPick: (item: Item) => void;
-  onClose: () => void;
-};
-
-export function PickItemSheet({ visible, items, onPick, onClose }: PickProps) {
-  return (
-    <Sheet visible={visible} onClose={onClose} title={t('shop.pickTitle')}>
-      <View style={styles.pickList}>
-        {items.map((item) => (
-          <Pressable key={item.id} onPress={() => onPick(item)} style={styles.pickRow} accessibilityRole="button">
-            <AppText variant="item" weight="semibold" style={styles.flex}>
-              {item.name}
-            </AppText>
-            <AppText variant="body" color="muted">
-              {formatQuantity(item.qty, item.unit)}
-            </AppText>
-          </Pressable>
-        ))}
-      </View>
-    </Sheet>
-  );
-}
 
 // --- "الهيل مو موجود؟" -------------------------------------------------------------
 
@@ -163,26 +135,8 @@ export function EndEarlySheet({ visible, remaining, gender, onFinish, onClose }:
 }
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
   options: {
     gap: spacing.md,
-  },
-  pickList: {
-    borderRadius: radius.card,
-    borderWidth: size.border,
-    borderColor: colors.line,
-    overflow: 'hidden',
-  },
-  pickRow: {
-    minHeight: size.toast,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderBottomWidth: size.border,
-    borderBottomColor: colors.line,
   },
   preview: {
     gap: spacing.sm,

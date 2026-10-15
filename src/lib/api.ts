@@ -104,9 +104,11 @@ export async function clearStaleSession(): Promise<boolean> {
 
 // --- My household ------------------------------------------------------------------------------
 
-export type ListSummary = { householdId: string; name: string; memberCount: number };
+// A face on a list card (enough for an avatar)
+export type Face = Pick<Member, 'id' | 'display_name' | 'initial' | 'avatar_color'>;
+export type ListSummary = { householdId: string; name: string; memberCount: number; members: Face[] };
 
-// All my lists, newest first
+// All my lists, newest first, each with its current people
 export async function listMyHouseholds(): Promise<ListSummary[]> {
   const { data: session } = await supabase.auth.getSession();
   const uid = session.session?.user.id;
@@ -114,17 +116,29 @@ export async function listMyHouseholds(): Promise<ListSummary[]> {
   const rows = check(
     await supabase
       .from('members')
-      .select('household_id, joined_at, households(name, members(count))')
+      .select('household_id, joined_at, households(name, members(id, display_name, avatar_color, joined_at))')
       .eq('user_id', uid)
       .is('left_at', null)
       .is('households.members.left_at', null)
       .order('joined_at', { ascending: false }),
-  ) as unknown as { household_id: string; households: { name: string; members: { count: number }[] } | null }[];
-  return rows.map((r) => ({
-    householdId: r.household_id,
-    name: r.households?.name ?? '',
-    memberCount: r.households?.members?.[0]?.count ?? 1,
-  }));
+  ) as unknown as {
+    household_id: string;
+    households: {
+      name: string;
+      members: { id: string; display_name: string; avatar_color: Member['avatar_color']; joined_at: string }[];
+    } | null;
+  }[];
+  return rows.map((r) => {
+    const members = [...(r.households?.members ?? [])]
+      .sort((a, b) => a.joined_at.localeCompare(b.joined_at))
+      .map((m) => ({ id: m.id, display_name: m.display_name, initial: m.display_name.trim().charAt(0), avatar_color: m.avatar_color }));
+    return {
+      householdId: r.household_id,
+      name: r.households?.name ?? '',
+      memberCount: Math.max(1, members.length),
+      members,
+    };
+  });
 }
 
 // One of my households: the one asked for, else the last one opened, else the newest (null if none yet)

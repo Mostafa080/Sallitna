@@ -131,7 +131,7 @@ function demoState(): State {
     householdName: household.name,
     settings: defaultSettings,
     meId: demoMeId,
-    lists: [{ householdId: household.id, name: household.name, memberCount: demoMembers.length }],
+    lists: [{ householdId: household.id, name: household.name, memberCount: demoMembers.length, members: demoMembers }],
   };
 }
 

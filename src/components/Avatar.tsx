@@ -48,7 +48,7 @@ export function Avatar({ member, small, large, ring = 'ground' }: Props) {
 }
 
 type StackProps = {
-  members: Member[];
+  members: Pick<Member, 'id' | 'display_name' | 'initial' | 'avatar_color'>[];
   small?: boolean;
   ring?: Ring;
   max?: number; // show this many, then a "+N" circle

@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
-import { BackIcon, Card, CircleButton, ForwardIcon, Row, SectionLabel, Toggle } from '@/components/family/FamilyParts';
+import { Card, ForwardIcon, Row, SectionLabel, Toggle } from '@/components/family/FamilyParts';
 import { UndoToast } from '@/components/UndoToast';
 import { type HouseholdSettings } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
@@ -104,12 +104,11 @@ export default function AccountScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          { paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + spacing.xxxl },
+          { paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + size.tabBar + spacing.xxxl },
         ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <CircleButton icon={BackIcon} label={t('detail.back')} onPress={() => router.back()} />
           <AppText variant="title" weight="bold" style={styles.title} accessibilityRole="header">
             {t('account.title')}
           </AppText>
@@ -140,7 +139,7 @@ export default function AccountScreen() {
           <Row
             title={t('lists.sheetTitle')}
             value={list.householdName}
-            onPress={() => router.push('/lists')}
+            onPress={() => router.navigate('/')}
           />
           <Row
             title={t('account.members')}
@@ -197,7 +196,7 @@ export default function AccountScreen() {
 
       <View style={[styles.statusBarCover, { height: insets.top }]} />
 
-      <UndoToast bottomOffset={insets.bottom + spacing.lg} />
+      <UndoToast bottomOffset={insets.bottom + size.tabBar + spacing.lg} />
     </KeyboardAvoidingView>
   );
 }

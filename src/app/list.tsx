@@ -1,17 +1,17 @@
-import { useFocusEffect, useRouter } from 'expo-router';
-import { ChevronDown, Mic, Plus, Search, ShoppingCart } from 'lucide-react-native';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Mic, Plus, Search } from 'lucide-react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { FadeOut, LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
-import { Avatar, AvatarStack } from '@/components/Avatar';
+import { AvatarStack } from '@/components/Avatar';
 import { EmptyState } from '@/components/EmptyState';
+import { BackIcon, CircleButton } from '@/components/family/FamilyParts';
 import { ItemRow } from '@/components/ItemRow';
 import { QuestionCard } from '@/components/QuestionCard';
-import { Brand } from '@/components/onboarding/OnboardingParts';
 import { ShopperBanner } from '@/components/ShopperBanner';
 import { UndoToast } from '@/components/UndoToast';
 import { basics, categoryOrder, NEW_ITEM_WINDOW_MINUTES, type Basic } from '@/data/fakeHousehold';
@@ -23,15 +23,15 @@ import { colors, motion, radius, shadow, size, spacing } from '@/theme';
 
 type Filter = 'all' | 'today';
 
-// Faces under the title; more than this become «+N»
-const MAX_HEADER_AVATARS = 5;
+// Faces next to the title; more than this become «+N»
+const MAX_HEADER_AVATARS = 3;
 // Room at the bottom so the last row isn't hidden behind the floating mic
 const MIC_CLEARANCE = features.voice ? size.micButton + spacing.xl : 0;
 
 const rowLayout = LinearTransition.duration(motion.normal);
 const rowExit = FadeOut.duration(motion.fast);
 
-export default function HomeScreen() {
+export default function ListScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const list = useList();
@@ -43,25 +43,11 @@ export default function HomeScreen() {
   const [addedBasics, setAddedBasics] = useState<Record<string, string>>({});
   const scrollRef = useRef<ScrollView>(null);
 
-  // Just signed out (from «حسابي», the lists sheet, «عرّفنا عليك»…): close whatever is open, back to welcome
-  const previousMode = useRef(list.mode);
+  // Signed out (or the list is gone) → back to «قوايمي», which takes over (welcome / sign-up)
+  const ready = list.mode === 'live' || list.mode === 'demo';
   useEffect(() => {
-    const was = previousMode.current;
-    previousMode.current = list.mode;
-    if (list.mode === 'signedOut' && (was === 'live' || was === 'demo' || was === 'needsHousehold')) {
-      if (router.canDismiss()) router.dismissAll();
-      router.push('/welcome');
-    }
-  }, [list.mode]);
-
-  // Not signed in → welcome. Signed in without a list → «عرّفنا عليك» or «أنشئ قائمتك الأولى».
-  // Runs again whenever we come back here unfinished, so nobody gets stuck on the logo.
-  useFocusEffect(
-    useCallback(() => {
-      if (list.mode === 'signedOut') router.push('/welcome');
-      else if (list.mode === 'needsHousehold') router.push(list.hasSignupProfile ? '/first-list' : '/about-you');
-    }, [list.mode, list.hasSignupProfile]),
-  );
+    if (!ready && router.canGoBack()) router.back();
+  }, [ready]);
 
   const openItems = list.items.filter((item) => item.status === 'open');
   const todayItems = openItems.filter((item) => isToday(item.created_at));
@@ -79,7 +65,10 @@ export default function HomeScreen() {
   const questionsForMe = list.questions
     .filter((q) => q.to === list.currentMemberId && q.from !== list.currentMemberId && !q.answer)
     .map((q) => ({ q, item: list.items.find((i) => i.id === q.itemId), asker: list.memberById(q.from) }))
-    .filter((x): x is { q: typeof x.q; item: NonNullable<typeof x.item>; asker: NonNullable<typeof x.asker> } => !!x.item && !!x.asker)
+    .filter(
+      (x): x is { q: typeof x.q; item: NonNullable<typeof x.item>; asker: NonNullable<typeof x.asker> } =>
+        !!x.item && !!x.asker,
+    )
     .reverse();
   const pendingQuestion = list.questions.find((q) => !q.answer);
   const helper = list.members.find((m) => m.role === 'helper');
@@ -180,7 +169,7 @@ export default function HomeScreen() {
     ]);
   };
 
-  const onAtStore = () => router.push(list.trip ? '/shop' : '/start-trip');
+  const onAtStore = () => router.navigate('/market');
   const me = list.memberById(list.currentMemberId);
 
   const onDemoBadge = () =>
@@ -189,15 +178,7 @@ export default function HomeScreen() {
       { text: t('home.demoLeave'), onPress: list.signOut },
     ]);
 
-  // Until we know who's signed in (and behind welcome / sign-up): the logo, not an empty screen
-  if (list.mode !== 'live' && list.mode !== 'demo') {
-    return (
-      <View style={styles.loading}>
-        <Brand />
-        {list.mode === 'loading' && <ActivityIndicator color={colors.muted} />}
-      </View>
-    );
-  }
+  if (!ready) return null;
 
   return (
     <View style={styles.screen}>
@@ -211,16 +192,11 @@ export default function HomeScreen() {
         }}
         onScrollBeginDrag={() => setOpenRowId(null)}
         showsVerticalScrollIndicator={false}>
-        {/* Header: list name ▾ (switch lists) on the start side · my avatar (profile & settings) on the end side,
-            the family's faces under the name */}
+        {/* Header in one row: back to «قوايمي» · list name · the list's people + «+» to invite (helpers can't) */}
         <View style={styles.headerBlock}>
           <View style={styles.header}>
-            <Pressable
-              style={styles.titleBlock}
-              onPress={() => router.push('/lists')}
-              onLongPress={openDevMenu}
-              accessibilityRole="button"
-              accessibilityLabel={t('lists.switchA11y')}>
+            <CircleButton icon={BackIcon} label={t('lists.backA11y')} onPress={() => router.back()} />
+            <Pressable style={styles.titleBlock} onLongPress={openDevMenu} accessible={false}>
               <AppText
                 variant="title"
                 weight="bold"
@@ -231,63 +207,47 @@ export default function HomeScreen() {
                 accessibilityRole="header">
                 {list.householdName}
               </AppText>
-              <ChevronDown size={size.icon} color={colors.ink} strokeWidth={size.iconStroke + 0.5} />
               {list.mode === 'demo' && (
-                <Pressable onPress={onDemoBadge} style={styles.demoBadge} accessibilityRole="button" hitSlop={spacing.sm}>
+                <Pressable
+                  onPress={onDemoBadge}
+                  style={styles.demoBadge}
+                  accessibilityRole="button"
+                  hitSlop={spacing.sm}>
                   <AppText variant="meta" weight="semibold" color="accentInk">
                     {t('home.demo')}
                   </AppText>
                 </Pressable>
               )}
             </Pressable>
-            {me && (
+            <View style={styles.familyRow}>
               <Pressable
-                onPress={() => router.push('/account')}
-                hitSlop={spacing.sm}
+                onPress={() => router.push('/members')}
+                hitSlop={spacing.xs}
                 accessibilityRole="button"
-                accessibilityLabel={t('account.title')}>
-                <Avatar member={me} large="list" ring="ground" />
+                accessibilityLabel={t('home.membersA11y')}>
+                <AvatarStack members={list.members} ring="ground" max={MAX_HEADER_AVATARS} />
               </Pressable>
-            )}
-          </View>
-          {/* The list's people + a small «+» to invite more (helpers can't invite) */}
-          <View style={styles.familyRow}>
-            <Pressable
-              onPress={() => router.push('/members')}
-              hitSlop={spacing.xs}
-              accessibilityRole="button"
-              accessibilityLabel={t('home.membersA11y')}>
-              <AvatarStack members={list.members} ring="ground" max={MAX_HEADER_AVATARS} />
-            </Pressable>
-            {me?.role !== 'helper' && (
-              <Pressable
-                onPress={() => router.push('/invite')}
-                style={styles.addMember}
-                hitSlop={spacing.sm}
-                accessibilityRole="button"
-                accessibilityLabel={t('home.inviteA11y')}>
-                <Plus size={size.iconSmall + spacing.xxs} color={colors.ink} strokeWidth={size.iconStroke + 0.5} />
-              </Pressable>
-            )}
+              {me?.role !== 'helper' && (
+                <Pressable
+                  onPress={() => router.push('/invite')}
+                  style={styles.addMember}
+                  hitSlop={spacing.sm}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('home.inviteA11y')}>
+                  <Plus size={size.iconSmall + spacing.xxs} color={colors.ink} strokeWidth={size.iconStroke + 0.5} />
+                </Pressable>
+              )}
+            </View>
           </View>
         </View>
 
-        {/* One action row: «اكتب» field + round «أنا في السوق» button */}
-        <View style={styles.actionRow}>
-          <Pressable onPress={() => router.push('/add')} style={styles.typeField} accessibilityRole="search">
-            <Search size={size.icon - spacing.xs} color={colors.muted} strokeWidth={size.iconStroke} />
-            <AppText variant="item" color="muted">
-              {t('home.typeField')}
-            </AppText>
-          </Pressable>
-          <Pressable
-            onPress={onAtStore}
-            style={[styles.cartButton, list.trip && styles.cartButtonActive]}
-            accessibilityRole="button"
-            accessibilityLabel={t(list.trip ? 'home.backToShop' : 'home.cartA11y')}>
-            <ShoppingCart size={size.icon} color={colors.onDark} strokeWidth={size.iconStroke} />
-          </Pressable>
-        </View>
+        {/* «اكتب» field (shopping lives in the «بالسوق» tab) */}
+        <Pressable onPress={() => router.push('/add')} style={styles.typeField} accessibilityRole="search">
+          <Search size={size.icon - spacing.xs} color={colors.muted} strokeWidth={size.iconStroke} />
+          <AppText variant="item" color="muted">
+            {t('home.typeField')}
+          </AppText>
+        </Pressable>
 
         {questionsForMe.map(({ q, item, asker }) => (
           <QuestionCard
@@ -304,14 +264,7 @@ export default function HomeScreen() {
           <EmptyState basics={basics} added={addedBasics} onToggleBasic={onToggleBasic} onShowList={leaveStarterMode} />
         ) : (
           <>
-            {shopper && (
-              <ShopperBanner
-                shopper={shopper}
-                self={!!list.trip}
-                compact
-                onPress={list.trip ? () => router.push('/shop') : onAtStore}
-              />
-            )}
+            {shopper && <ShopperBanner shopper={shopper} self={!!list.trip} compact onPress={onAtStore} />}
 
             {/* Count + a quiet «الكل · اليوم» toggle */}
             <View style={styles.filterRow}>
@@ -400,18 +353,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.ground,
   },
-  loading: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xl,
-    backgroundColor: colors.ground,
-  },
   headerBlock: {
     gap: spacing.xs,
   },
   familyRow: {
-    alignSelf: 'flex-start',
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
@@ -463,30 +408,13 @@ const styles = StyleSheet.create({
     borderRadius: radius.badge,
     backgroundColor: colors.accentTint,
   },
-  actionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginTop: -spacing.xs,
-  },
-  cartButton: {
-    width: size.control + spacing.xs,
-    height: size.control + spacing.xs,
-    borderRadius: radius.pill,
-    backgroundColor: colors.ink,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cartButtonActive: {
-    backgroundColor: colors.accent,
-  },
   filterText: {
     minHeight: size.touch,
     justifyContent: 'center',
     paddingHorizontal: spacing.xs,
   },
   typeField: {
-    flex: 1,
+    marginTop: -spacing.xs,
     minHeight: size.control + spacing.xs,
     flexDirection: 'row',
     alignItems: 'center',

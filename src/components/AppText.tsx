@@ -16,7 +16,7 @@ type Props = TextProps & {
 
 const DEVANAGARI = /[\u0900-\u097F]/;
 
-// Hindi text needs Noto Sans Devanagari; Readex Pro covers Arabic and Latin
+// Hindi text needs Noto Sans Devanagari; Norsal covers Arabic and Latin
 const isDevanagari = (children: TextProps['children']) =>
   Children.toArray(children).some((child) => typeof child === 'string' && DEVANAGARI.test(child));
 

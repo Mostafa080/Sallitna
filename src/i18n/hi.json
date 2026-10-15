@@ -347,6 +347,9 @@
     "close": "Close"
   },
   "shop": {
+    "doneShort": "Done",
+    "swipeBought": "Got it",
+    "swipeNotFound": "Not found",
     "title_f": "You're at the store",
     "title_m": "You're at the store",
     "splitTitle_f": "You and {{name}} are shopping",
@@ -372,11 +375,8 @@
     "partnerBought_f": "Bought",
     "partnerSearching_m": "Looking for them",
     "partnerSearching_f": "Looking for them",
-    "notFound": "Couldn't find something",
     "done": "I'm done",
-    "back": "Back to the list",
     "offlineA11y": "Long-press to test being offline",
-    "pickTitle": "What couldn't you find?",
     "cartA11y": "Put {{name}} in the cart",
     "uncartA11y": "Take {{name}} out of the cart"
   },
@@ -779,7 +779,8 @@
     "empty": "No new notifications"
   },
   "tabs": {
-    "list": "List",
+    "list": "My lists",
+    "market": "Shopping",
     "account": "Account",
     "talk": "Tap & talk"
   },
@@ -807,7 +808,9 @@
     "loading": "One moment…"
   },
   "lists": {
-    "switchA11y": "Switch list",
+    "cardA11y": "Open “{{name}}” · {{members}}",
+    "inviteA11y": "Invite someone to “{{name}}”",
+    "backA11y": "Back to my lists",
     "sheetTitle": "My lists",
     "new": "New list",
     "members": {

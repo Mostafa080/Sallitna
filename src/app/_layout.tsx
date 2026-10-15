@@ -1,16 +1,10 @@
 import {
-  ReadexPro_400Regular,
-  ReadexPro_500Medium,
-  ReadexPro_600SemiBold,
-  ReadexPro_700Bold,
-  useFonts,
-} from '@expo-google-fonts/readex-pro';
-import {
   NotoSansDevanagari_400Regular,
   NotoSansDevanagari_500Medium,
   NotoSansDevanagari_600SemiBold,
   NotoSansDevanagari_700Bold,
 } from '@expo-google-fonts/noto-sans-devanagari';
+import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -32,10 +26,11 @@ I18nManager.forceRTL(true);
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
-    ReadexPro_400Regular,
-    ReadexPro_500Medium,
-    ReadexPro_600SemiBold,
-    ReadexPro_700Bold,
+    // Norsal (Arabic + Latin): fixed weights cut from the variable font in /Resources/Fonts/norsal
+    'Norsal-Regular': require('../../assets/fonts/Norsal-Regular.ttf'),
+    'Norsal-Medium': require('../../assets/fonts/Norsal-Medium.ttf'),
+    'Norsal-SemiBold': require('../../assets/fonts/Norsal-SemiBold.ttf'),
+    'Norsal-Bold': require('../../assets/fonts/Norsal-Bold.ttf'),
     NotoSansDevanagari_400Regular,
     NotoSansDevanagari_500Medium,
     NotoSansDevanagari_600SemiBold,
@@ -54,17 +49,10 @@ export default function RootLayout() {
         <ListProvider>
           <StatusBar style="dark" />
           <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.ground } }}>
+            {/* «قوايمي» · «بالسوق» · «حسابي» — everything else opens over the tabs */}
+            <Stack.Screen name="(tabs)" />
             <Stack.Screen name="add" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
             <Stack.Screen name="voice" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
-            <Stack.Screen
-              name="start-trip"
-              options={{ presentation: 'transparentModal', animation: 'fade', contentStyle: { backgroundColor: 'transparent' } }}
-            />
-            <Stack.Screen
-              name="lists"
-              options={{ presentation: 'transparentModal', animation: 'fade', contentStyle: { backgroundColor: 'transparent' } }}
-            />
-            <Stack.Screen name="shop" options={{ animation: 'fade' }} />
             <Stack.Screen name="trip-done" options={{ animation: 'fade', gestureEnabled: false }} />
             <Stack.Screen name="invite-expired" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
             <Stack.Screen name="helper" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />

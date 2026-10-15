@@ -1,7 +1,10 @@
 import * as Haptics from 'expo-haptics';
-import { Check, ChevronLeft, ChevronRight, WifiOff } from 'lucide-react-native';
-import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Check, SearchX, WifiOff } from 'lucide-react-native';
+import { useState, type ReactNode } from 'react';
+import { Pressable, StyleSheet, View, type AccessibilityActionEvent } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
@@ -9,54 +12,47 @@ import type { Item } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { isRTLLayout } from '@/lib/direction';
 import { formatQuantity } from '@/lib/format';
-import { colors, radius, size, spacing } from '@/theme';
+import { colors, motion, opacity, radius, size, spacing } from '@/theme';
 
-const BackIcon = isRTLLayout ? ChevronRight : ChevronLeft;
 const CHECK_HIT_SLOP = (size.touch - size.checkbox) / 2;
 
-// Dark rounded header of the shopping screens
+// Header of the shopping screen — same look as the list screen: big title on the page, muted line under it
 type HeaderProps = {
   title: string;
   subtitle?: string;
-  onBack: () => void;
   onTitleLongPress?: () => void;
-  badge?: ReactNode; // shown on the end side of the top row
+  badge?: ReactNode; // shown on the end side, next to the title
   children?: ReactNode; // progress, etc.
 };
 
-export function ShopHeader({ title, subtitle, onBack, onTitleLongPress, badge, children }: HeaderProps) {
+export function ShopHeader({ title, subtitle, onTitleLongPress, badge, children }: HeaderProps) {
   const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.header, { paddingTop: insets.top + spacing.md }]}>
+    <View style={[styles.header, { paddingTop: insets.top + spacing.lg }]}>
       <View style={styles.topRow}>
-        <Pressable onPress={onBack} style={styles.backButton} accessibilityRole="button" accessibilityLabel={t('shop.back')}>
-          <BackIcon size={size.icon} color={colors.onDark} strokeWidth={size.iconStroke} />
+        <Pressable
+          style={styles.flex}
+          onLongPress={onTitleLongPress}
+          accessibilityHint={onTitleLongPress ? t('shop.offlineA11y') : undefined}>
+          <AppText
+            variant="title"
+            weight="bold"
+            style={styles.title}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.6}
+            accessibilityRole="header">
+            {title}
+          </AppText>
         </Pressable>
         {badge}
       </View>
-      <Pressable onLongPress={onTitleLongPress} accessibilityHint={onTitleLongPress ? t('shop.offlineA11y') : undefined}>
-        <AppText variant="title" weight="bold" color="onDark" accessibilityRole="header">
-          {title}
-        </AppText>
-      </Pressable>
       {subtitle && (
-        <AppText variant="body" color="onDarkMuted">
+        <AppText variant="body" color="muted">
           {subtitle}
         </AppText>
       )}
       {children}
-    </View>
-  );
-}
-
-// "● العائلة تدري إنك هنا"
-export function LivePill() {
-  return (
-    <View style={styles.livePill}>
-      <View style={styles.liveDot} />
-      <AppText variant="body" color="onDark">
-        {t('shop.familyKnows')}
-      </AppText>
     </View>
   );
 }
@@ -66,10 +62,10 @@ export function ProgressBar({ done, total }: { done: number; total: number }) {
   return (
     <View style={styles.progressBlock}>
       <View style={styles.progressLabels}>
-        <AppText variant="body" weight="bold" color="onDark">
+        <AppText variant="body" weight="bold">
           {t('shop.progress', { done, total })}
         </AppText>
-        <AppText variant="body" color="onDarkMuted">
+        <AppText variant="body" color="muted">
           {t('shop.left', { n: total - done })}
         </AppText>
       </View>
@@ -91,9 +87,21 @@ type RowProps = {
   onToggle?: () => void; // undefined = can't be ticked here
   onLongPress?: () => void;
   trailing?: ReactNode; // replaces the quantity pill
+  accessibilityActions?: { name: string; label: string }[];
+  onAccessibilityAction?: (e: AccessibilityActionEvent) => void;
 };
 
-export function ShopRow({ item, subtitle, highlight, checked, onToggle, onLongPress, trailing }: RowProps) {
+export function ShopRow({
+  item,
+  subtitle,
+  highlight,
+  checked,
+  onToggle,
+  onLongPress,
+  trailing,
+  accessibilityActions,
+  onAccessibilityAction,
+}: RowProps) {
   const toggle = () => {
     if (!onToggle) return;
     Haptics.impactAsync(checked ? Haptics.ImpactFeedbackStyle.Light : Haptics.ImpactFeedbackStyle.Medium);
@@ -107,7 +115,9 @@ export function ShopRow({ item, subtitle, highlight, checked, onToggle, onLongPr
       style={[styles.row, highlight && styles.rowHighlight]}
       accessibilityRole={onToggle ? 'checkbox' : undefined}
       accessibilityState={onToggle ? { checked } : undefined}
-      accessibilityLabel={onToggle ? t(checked ? 'shop.uncartA11y' : 'shop.cartA11y', { name: item.name }) : item.name}>
+      accessibilityLabel={onToggle ? t(checked ? 'shop.uncartA11y' : 'shop.cartA11y', { name: item.name }) : item.name}
+      accessibilityActions={accessibilityActions}
+      onAccessibilityAction={onAccessibilityAction}>
       {onToggle && (
         <View hitSlop={CHECK_HIT_SLOP} style={[styles.check, checked && styles.checkOn]}>
           {checked && <Check size={size.icon - spacing.sm} color={colors.onDark} strokeWidth={size.iconStroke + 1} />}
@@ -134,6 +144,101 @@ export function ShopRow({ item, subtitle, highlight, checked, onToggle, onLongPr
         </View>
       )}
     </Pressable>
+  );
+}
+
+// --- Swipe a row while shopping ------------------------------------------------
+// Physical directions (as agreed): swipe LEFT → «اشتريتها» (into the cart), swipe RIGHT → «ملقتهاش».
+// Let go past the threshold to act; a short drag springs back.
+
+const SWIPE_THRESHOLD = size.swipeAction * 1.5; // how far to drag before letting go acts
+const SWIPE_ACTIVATE = spacing.xl; // sideways travel before a row swipe starts
+const SCROLL_WINS = spacing.sm; // vertical travel that hands the touch to the list scroll
+const FLING_VELOCITY = 800;
+// Where each label sits: the side the row moves away from
+const BOUGHT_SIDE = isRTLLayout ? 'flex-start' : 'flex-end'; // right edge (revealed by a left swipe)
+const NOT_FOUND_SIDE = isRTLLayout ? 'flex-end' : 'flex-start'; // left edge (revealed by a right swipe)
+
+type SwipeRowProps = Omit<RowProps, 'accessibilityActions' | 'onAccessibilityAction'> & {
+  onBought: () => void;
+  onNotFound: () => void;
+};
+
+export function SwipeShopRow({ onBought, onNotFound, ...rowProps }: SwipeRowProps) {
+  const offset = useSharedValue(0); // physical: negative = moved left
+  const [armed, setArmed] = useState<'bought' | 'notFound' | null>(null);
+
+  // A light tap on the finger when the action is ready (and again if it's backed off)
+  const onArmedChange = (next: 'bought' | 'notFound' | null) => {
+    setArmed(next);
+    if (next) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  };
+  const act = (action: 'bought' | 'notFound') => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    if (action === 'bought') onBought();
+    else onNotFound();
+  };
+
+  const armedNow = useSharedValue<0 | 1 | -1>(0);
+  const pan = Gesture.Pan()
+    .activeOffsetX([-SWIPE_ACTIVATE, SWIPE_ACTIVATE])
+    .failOffsetY([-SCROLL_WINS, SCROLL_WINS])
+    .onUpdate((e) => {
+      offset.value = e.translationX;
+      const next = e.translationX <= -SWIPE_THRESHOLD ? -1 : e.translationX >= SWIPE_THRESHOLD ? 1 : 0;
+      if (next !== armedNow.value) {
+        armedNow.value = next;
+        scheduleOnRN(onArmedChange, next === -1 ? 'bought' : next === 1 ? 'notFound' : null);
+      }
+    })
+    .onEnd((e) => {
+      const left = e.translationX <= -SWIPE_THRESHOLD || (e.translationX < 0 && e.velocityX < -FLING_VELOCITY);
+      const right = e.translationX >= SWIPE_THRESHOLD || (e.translationX > 0 && e.velocityX > FLING_VELOCITY);
+      offset.value = withTiming(0, { duration: motion.fast });
+      armedNow.value = 0;
+      scheduleOnRN(onArmedChange, null);
+      if (left) scheduleOnRN(act, 'bought');
+      else if (right) scheduleOnRN(act, 'notFound');
+    });
+
+  const rowStyle = useAnimatedStyle(() => ({ transform: [{ translateX: offset.value }] }));
+  const boughtStyle = useAnimatedStyle(() => ({ opacity: offset.value < 0 ? 1 : 0 }));
+  const notFoundStyle = useAnimatedStyle(() => ({ opacity: offset.value > 0 ? 1 : 0 }));
+
+  // Screen readers can't swipe — same two actions through the actions menu
+  const accessibilityActions = [
+    { name: 'bought', label: t('shop.swipeBought') },
+    { name: 'notFound', label: t('shop.swipeNotFound') },
+  ];
+  const onAccessibilityAction = (e: AccessibilityActionEvent) => {
+    if (e.nativeEvent.actionName === 'bought') onBought();
+    if (e.nativeEvent.actionName === 'notFound') onNotFound();
+  };
+
+  return (
+    <View style={styles.swipeWrap}>
+      <Animated.View style={[styles.swipePanel, styles.swipeBought, { justifyContent: BOUGHT_SIDE }, boughtStyle]}>
+        <View style={[styles.swipeLabel, armed === 'bought' && styles.swipeLabelArmed]}>
+          <Check size={size.icon} color={colors.onDark} strokeWidth={size.iconStroke + 1} />
+          <AppText variant="body" weight="bold" color="onDark">
+            {t('shop.swipeBought')}
+          </AppText>
+        </View>
+      </Animated.View>
+      <Animated.View style={[styles.swipePanel, styles.swipeNotFound, { justifyContent: NOT_FOUND_SIDE }, notFoundStyle]}>
+        <View style={[styles.swipeLabel, armed === 'notFound' && styles.swipeLabelArmed]}>
+          <SearchX size={size.icon} color={colors.onDark} strokeWidth={size.iconStroke} />
+          <AppText variant="body" weight="bold" color="onDark">
+            {t('shop.swipeNotFound')}
+          </AppText>
+        </View>
+      </Animated.View>
+      <GestureDetector gesture={pan}>
+        <Animated.View style={rowStyle}>
+          <ShopRow {...rowProps} accessibilityActions={accessibilityActions} onAccessibilityAction={onAccessibilityAction} />
+        </Animated.View>
+      </GestureDetector>
+    </View>
   );
 }
 
@@ -179,41 +284,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
     gap: spacing.xs,
-    borderBottomStartRadius: radius.card * 2,
-    borderBottomEndRadius: radius.card * 2,
-    backgroundColor: colors.darkGround,
+    backgroundColor: colors.ground,
   },
   topRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.md,
+    gap: spacing.md,
   },
-  backButton: {
-    width: size.touch + spacing.xs,
-    height: size.touch + spacing.xs,
-    borderRadius: radius.pill,
-    backgroundColor: colors.darkSurface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  livePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.pill,
-    backgroundColor: colors.darkSurface,
-  },
-  liveDot: {
-    width: size.liveDot - spacing.xxs,
-    height: size.liveDot - spacing.xxs,
-    borderRadius: radius.pill,
-    backgroundColor: colors.live,
+  title: {
+    lineHeight: size.titleLine,
   },
   progressBlock: {
     marginTop: spacing.md,
@@ -226,7 +308,7 @@ const styles = StyleSheet.create({
   track: {
     height: size.progress,
     borderRadius: radius.pill,
-    backgroundColor: colors.darkLine,
+    backgroundColor: colors.line,
     overflow: 'hidden',
     alignItems: 'flex-start', // fills from the start side
   },
@@ -273,6 +355,34 @@ const styles = StyleSheet.create({
   },
   qtyPillLight: {
     backgroundColor: colors.surface,
+  },
+  swipeWrap: {
+    overflow: 'hidden',
+  },
+  swipePanel: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    start: 0,
+    end: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.xl,
+  },
+  swipeBought: {
+    backgroundColor: colors.success,
+  },
+  swipeNotFound: {
+    backgroundColor: colors.accent,
+  },
+  swipeLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    opacity: opacity.skeleton,
+  },
+  swipeLabelArmed: {
+    opacity: 1,
   },
   sectionHeader: {
     paddingHorizontal: spacing.lg,
