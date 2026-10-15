@@ -704,3 +704,51 @@ Agreed: the «+» on a card invites someone to that list.
   Agreed replacement: a small dark **«خلصت»** pill next to the title (same as before: asks «ماشية قبل ما تخلصي؟»
   if items are left, otherwise opens the summary). «ملقتهاش» = swipe right. The «● العيلة عارفة إنك هنا» pill and
   the «إيه اللي ملقتهوش؟» picker sheet were removed (unused now). New text: `shop.doneShort`.
+
+## Session 13g — 2026-10-15: Quick fixes for Egypt (your request)
+
+Agreed: phone numbers Egypt only (+20).
+
+### Done
+1. **Empty list** no longer says «دوس الزرار وقول…» while voice is off: «اكتب اللي ناقص البيت في الخانة اللي فوق.»
+   and the voice examples are hidden (they come back with `features.voice`). New text `empty.subtitleType`.
+2. **Dotless «ي» fixed.** Cause: the font says its letters go down to -195, but the dots of «ي» go to about -455,
+   so iOS cut them off. The 4 Norsal files in `assets/fonts/` now declare enough room (descender 470).
+   «في، دلوقتي، عندي» show their dots in every weight and size. Lines are a little taller as a result.
+3. **Egypt: phone +20 and money ج.م.** The phone field takes 10 digits starting with 10/11/12/15 («10 0000 0001»);
+   typing the local 0 («010…») or pasting «+20 …» works. Trip summary shows «ج.م» (EGP in en/hi).
+   **New test numbers** (no SMS, code 123456): **+20 1000000001 … 1000000004** — pushed to Supabase
+   (`supabase/config.toml`), checked by signing in once from a script.
+   ⚠️ The old Saudi test accounts (منى 500000001, Sara 500000002) **can't sign in anymore**; their data is still in
+   the database (can be cleaned up later).
+4. **Product names in Egyptian:** لبن كامل/خالي الدسم (was حليب), عيش فينو / عيش توست (was خبز), مياه, زبادي,
+   بن, جبنة, مسحوق غسيل, حبهان. Old names still find them in search. «عيش» = bread in Egypt (and still rice for
+   Gulf dialects); «لبن» = milk in Egypt (yogurt for Gulf/Levant). Quick-add chips: لبن، عيش، مياه….
+   Database: `migrations/20261015140000_catalog_egyptian_names.sql`, `…141000_catalog_egyptian_translations.sql`
+   (English/Hindi names follow: Fino bread, Coffee, Laundry detergent). Items already on lists keep their names.
+
+### Known issues
+- The hidden voice demo sentence is still Saudi (voice is paused).
+5. **«بالسوق» start page redesigned** (your request; agreed: list card + store tiles):
+   - A white **list card**: the list you're shopping for, its faces, «N حاجات» and the first 3 items («طماطم · بيض ·
+     عيش · +1»); an empty list says «القائمة فاضية دلوقتي — العيلة تقدر تضيف وإنت في السوق.». With more than one
+     list, a «▾» appears and tapping the card opens a bottom sheet «أنهي قائمة؟» (each list with its faces,
+     ✓ on the open one; the tab bar hides while it’s open) to switch.
+   - **Stores as a 2×2 grid of tiles** with icons (cart, shop, pill, croissant) — nothing runs off the screen anymore;
+     the chosen one gets a dark border and an orange icon.
+   - New text: `market.whichList`, `market.more`, `market.emptyHint`.
+6. **Remove a list** (your request; agreed: delete for everyone, «…» menu on each card):
+   - Each card in «قوايمي» has a «…» button → sheet with the list's name and one action:
+     - the **manager** sees «امسح القائمة · هتختفي عند كل اللي فيها» → confirm «تمسح «X»؟» → gone for everyone;
+     - **others** see «اخرج من القائمة · هتختفي عندك بس…» → only they lose it.
+   - Toasts «اتمسحت «X»» / «خرجت من «X»». If it was the open list, the next one opens; with none left → «أنشئ قائمتك الأولى».
+     Not shown in the demo.
+   - Database: `migrations/20261015150000_delete_household.sql` — new safe door `delete_household` (manager only).
+     **Soft delete**: nothing is erased; the list is marked deleted, everyone is moved out (so the security rules
+     hide it), running trips end, invite codes stop working, `get_invite` / `join_household` refuse deleted lists.
+   - **Tests: 60 / 60** (8 new). Also checked live with two throwaway test accounts (deleted afterwards):
+     a member can't delete, can leave; the manager deletes; nobody sees it; the old code can't rejoin.
+
+### Known issues
+- «اطلع من …» in «حسابي» is still "coming soon" (leaving works from the «…» menu now) — can be connected next.
+- The manager can't just *leave* a list that has other people (they'd have to hand over first) — only delete it.

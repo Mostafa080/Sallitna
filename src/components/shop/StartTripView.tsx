@@ -1,21 +1,31 @@
-// «رايح السوق؟» — the «بالسوق» tab before a trip starts: pick the store, split with whoever's
-// already shopping, then «ابدأ التسوق» (the tab then becomes the live shopping screen).
+// «رايح السوق؟» — the «بالسوق» tab before a trip starts: which list (card, tap to switch), which store
+// (2×2 tiles), split with whoever's already shopping, then «ابدأ التسوق» (the tab becomes the shopping screen).
 
 import * as Haptics from 'expo-haptics';
-import { Bell } from 'lucide-react-native';
+import { Bell, Check, ChevronDown, Croissant, Pill, ShoppingCart, Store, type LucideIcon } from 'lucide-react-native';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
-import { Avatar } from '@/components/Avatar';
-import { FilterPill } from '@/components/FilterPill';
-import { RadioCard, SheetButton } from '@/components/shop/Sheet';
+import { Avatar, AvatarStack } from '@/components/Avatar';
+import { RadioCard, Sheet, SheetButton } from '@/components/shop/Sheet';
 import { UndoToast } from '@/components/UndoToast';
-import { activeShopperSinceMinutes, storeOrder, type StoreKey } from '@/data/fakeHousehold';
+import { activeShopperSinceMinutes, categoryOrder, storeOrder, type StoreKey } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
+import { useHideTabBar } from '@/lib/tabBar';
 import { useList } from '@/store/ListStore';
-import { colors, radius, size, spacing } from '@/theme';
+import { colors, opacity, radius, size, spacing } from '@/theme';
+
+const storeIcons: Record<StoreKey, LucideIcon> = {
+  supermarket: ShoppingCart,
+  grocery: Store,
+  pharmacy: Pill,
+  bakery: Croissant,
+};
+// Item names shown on the list card; the rest become «+N»
+const PREVIEW_ITEMS = 3;
+const MAX_CARD_AVATARS = 4;
 
 export function StartTripView() {
   const insets = useSafeAreaInsets();
@@ -32,7 +42,29 @@ export function StartTripView() {
 
   const [store, setStore] = useState<StoreKey>('supermarket');
   const [mode, setMode] = useState<'solo' | 'split'>(other ? 'split' : 'solo');
-  const openCount = list.items.filter((i) => i.status === 'open').length;
+  const openItems = list.items
+    .filter((i) => i.status === 'open')
+    .sort((a, b) => categoryOrder.indexOf(a.category) - categoryOrder.indexOf(b.category));
+  const openCount = openItems.length;
+  const preview = openItems.slice(0, PREVIEW_ITEMS).map((i) => i.name);
+  const more = openCount - preview.length;
+  const canSwitch = list.lists.length > 1;
+
+  // Pick another of my lists (same choices as «قوايمي») from a bottom sheet
+  const [picking, setPicking] = useState(false);
+  useHideTabBar(picking); // the floating tab bar would cover the sheet
+  const onSwitchList = () => {
+    if (!canSwitch) return;
+    Haptics.selectionAsync();
+    setPicking(true);
+  };
+  const onPickList = (householdId: string) => {
+    setPicking(false);
+    if (householdId === list.householdId) return;
+    Haptics.selectionAsync();
+    list.switchList(householdId);
+  };
+
   const tabBarSpace = insets.bottom + size.tabBar;
 
   const start = () => {
@@ -45,23 +77,65 @@ export function StartTripView() {
       <ScrollView
         contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.lg }]}
         showsVerticalScrollIndicator={false}>
-        <View style={styles.intro}>
-          <AppText variant="title" weight="bold" style={styles.title} accessibilityRole="header">
-            {t(`startTrip.title_${g}`)}
+        <AppText variant="title" weight="bold" style={styles.title} accessibilityRole="header">
+          {t(`startTrip.title_${g}`)}
+        </AppText>
+
+        {/* The list I'm shopping for */}
+        <Pressable
+          onPress={onSwitchList}
+          disabled={!canSwitch}
+          style={({ pressed }) => [styles.listCard, pressed && styles.pressed]}
+          accessibilityRole={canSwitch ? 'button' : undefined}
+          accessibilityHint={canSwitch ? t('market.whichList') : undefined}>
+          <View style={styles.row}>
+            <View style={styles.listName}>
+              <AppText variant="heading" weight="bold" numberOfLines={1} style={styles.shrink}>
+                {list.householdName}
+              </AppText>
+              {canSwitch && <ChevronDown size={size.icon - spacing.xs} color={colors.ink} strokeWidth={size.iconStroke} />}
+            </View>
+            <AvatarStack members={list.members} ring="surface" max={MAX_CARD_AVATARS} small />
+          </View>
+          <AppText variant="label" weight="semibold" color={openCount > 0 ? 'ink' : 'muted'}>
+            {t('home.itemCount', { n: openCount })}
           </AppText>
-          <AppText variant="item" color="muted">
-            {t('startTrip.count', { count: t('home.itemCount', { n: openCount }) })}
-          </AppText>
-        </View>
+          {openCount > 0 ? (
+            <AppText variant="body" color="muted" numberOfLines={1}>
+              {preview.join(t('item.metaSeparator')) + (more > 0 ? t('market.more', { n: more }) : '')}
+            </AppText>
+          ) : (
+            <AppText variant="body" color="muted">
+              {t('market.emptyHint')}
+            </AppText>
+          )}
+        </Pressable>
 
         <View style={styles.section}>
           <AppText variant="label" weight="bold">
             {t('startTrip.where')}
           </AppText>
-          <View style={styles.chips} accessibilityRole="radiogroup">
-            {storeOrder.map((key) => (
-              <FilterPill key={key} label={t(`stores.${key}`)} selected={store === key} onPress={() => setStore(key)} />
-            ))}
+          <View style={styles.tiles} accessibilityRole="radiogroup">
+            {storeOrder.map((key) => {
+              const Icon = storeIcons[key];
+              const selected = store === key;
+              return (
+                <Pressable
+                  key={key}
+                  onPress={() => {
+                    Haptics.selectionAsync();
+                    setStore(key);
+                  }}
+                  style={[styles.tile, selected && styles.tileSelected]}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected }}>
+                  <Icon size={size.icon} color={selected ? colors.accent : colors.muted} strokeWidth={size.iconStroke} />
+                  <AppText variant="label" weight={selected ? 'bold' : 'medium'} numberOfLines={1}>
+                    {t(`stores.${key}`)}
+                  </AppText>
+                </Pressable>
+              );
+            })}
           </View>
         </View>
 
@@ -105,6 +179,30 @@ export function StartTripView() {
         </View>
         <SheetButton label={t(`startTrip.start_${g}`)} onPress={start} />
       </View>
+
+      <Sheet visible={picking} onClose={() => setPicking(false)} title={t('market.whichList')}>
+        <View style={styles.pickCard} accessibilityRole="radiogroup">
+          {list.lists.map((l, index) => {
+            const current = l.householdId === list.householdId;
+            return (
+              <Pressable
+                key={l.householdId}
+                onPress={() => onPickList(l.householdId)}
+                style={[styles.pickRow, index > 0 && styles.pickDivider]}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: current }}>
+                <View style={styles.pickCheck}>
+                  {current && <Check size={size.icon - spacing.xs} color={colors.accent} strokeWidth={size.iconStroke + 1} />}
+                </View>
+                <AppText variant="item" weight={current ? 'bold' : 'regular'} style={styles.flex} numberOfLines={1}>
+                  {l.name}
+                </AppText>
+                {l.members.length > 0 && <AvatarStack members={l.members} ring="surface" max={MAX_CARD_AVATARS} small />}
+              </Pressable>
+            );
+          })}
+        </View>
+      </Sheet>
     </View>
   );
 }
@@ -122,19 +220,73 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl,
     gap: spacing.xl,
   },
-  intro: {
-    gap: spacing.sm,
-  },
   title: {
     lineHeight: size.titleLine,
   },
-  section: {
+  shrink: {
+    flexShrink: 1,
+  },
+  pressed: {
+    opacity: opacity.pressed,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.md,
   },
-  chips: {
+  listCard: {
+    gap: spacing.xs,
+    padding: spacing.lg,
+    borderRadius: radius.card,
+    backgroundColor: colors.surface,
+  },
+  listName: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  pickCard: {
+    borderRadius: radius.card,
+    borderWidth: size.border,
+    borderColor: colors.line,
+    overflow: 'hidden',
+  },
+  pickRow: {
+    minHeight: size.toast,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
+  },
+  pickDivider: {
+    borderTopWidth: size.border,
+    borderTopColor: colors.line,
+  },
+  pickCheck: {
+    width: size.checkbox,
+    alignItems: 'center',
+  },
+  tiles: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: spacing.md,
+  },
+  tile: {
+    flexBasis: '45%',
+    flexGrow: 1,
     gap: spacing.sm,
+    padding: spacing.lg,
+    borderRadius: radius.card,
+    borderWidth: size.borderThick,
+    borderColor: colors.surface,
+    backgroundColor: colors.surface,
+  },
+  tileSelected: {
+    borderColor: colors.ink,
+  },
+  section: {
+    gap: spacing.md,
   },
   otherCard: {
     flexDirection: 'row',

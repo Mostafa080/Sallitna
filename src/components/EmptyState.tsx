@@ -6,6 +6,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { AppText } from '@/components/AppText';
 import type { Basic } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
+import { features } from '@/lib/features';
 import { colors, motion, radius, size, spacing } from '@/theme';
 
 type Props = {
@@ -15,7 +16,7 @@ type Props = {
   onShowList: () => void;
 };
 
-// "The basket is empty" — examples of what to say, plus one-tap basics.
+// "The basket is empty" — how to add (examples of what to say when voice is on), plus one-tap basics.
 export function EmptyState({ basics, added, onToggleBasic, onShowList }: Props) {
   const addedCount = Object.keys(added).length;
 
@@ -29,17 +30,20 @@ export function EmptyState({ basics, added, onToggleBasic, onShowList }: Props) 
           {t('empty.title')}
         </AppText>
         <AppText variant="label" color="muted" style={styles.center}>
-          {t('empty.subtitle')}
+          {t(features.voice ? 'empty.subtitle' : 'empty.subtitleType')}
         </AppText>
-        <View style={styles.examples}>
-          {[t('empty.example1'), t('empty.example2')].map((example) => (
-            <View key={example} style={styles.example}>
-              <AppText variant="body" style={styles.center}>
-                {example}
-              </AppText>
-            </View>
-          ))}
-        </View>
+        {/* Things to say — only while adding by voice is on */}
+        {features.voice && (
+          <View style={styles.examples}>
+            {[t('empty.example1'), t('empty.example2')].map((example) => (
+              <View key={example} style={styles.example}>
+                <AppText variant="body" style={styles.center}>
+                  {example}
+                </AppText>
+              </View>
+            ))}
+          </View>
+        )}
       </View>
 
       <View style={styles.basics}>

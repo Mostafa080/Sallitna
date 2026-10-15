@@ -266,12 +266,12 @@ template = "Your code is {{ .Code }}"
 max_frequency = "5s"
 
 # Use pre-defined map of phone number to OTP for testing.
-# Sallitna test numbers (no SMS is sent): +966 50 000 0001 … 0004, code 123456.
+# Sallitna test numbers (no SMS is sent): +20 10 0000 0001 … 0004, code 123456.
 [auth.sms.test_otp]
-966500000001 = "123456"
-966500000002 = "123456"
-966500000003 = "123456"
-966500000004 = "123456"
+201000000001 = "123456"
+201000000002 = "123456"
+201000000003 = "123456"
+201000000004 = "123456"
 
 # Configure logged in session timeouts.
 # [auth.sessions]

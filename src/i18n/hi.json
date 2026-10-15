@@ -124,6 +124,8 @@
     "delete": "Delete"
   },
   "toast": {
+    "listDeleted": "Deleted “{{name}}”",
+    "listLeft": "You left “{{name}}”",
     "undo": "वापस लें",
     "bought": "Checked off “{{name}}”",
     "removed": "Deleted “{{name}}”",
@@ -180,6 +182,7 @@
   "empty": {
     "title": "The basket is empty",
     "subtitle": "Tap the button and say what the house needs. For example:",
+    "subtitleType": "Type what the home needs in the box above.",
     "example1": "“We need 2 kilos of tomatoes and cucumbers”",
     "example2": "“We’re out of milk”",
     "basicsHeader": "Or start with the basics · {{n}} added",
@@ -453,12 +456,12 @@
     "paid": "How much did you pay?",
     "optional": "(optional)",
     "amount": "Amount",
-    "currency": "SAR",
+    "currency": "EGP",
     "receiptA11y": "Photo of the receipt",
     "finish": "Tell the family and go back",
     "share": "Share summary",
     "shareText": "Sallitna — {{store}} trip: bought {{bought}}, not found {{notFound}}, added meanwhile {{added}}.",
-    "shareAmount": " Paid {{amount}} SAR."
+    "shareAmount": " We paid {{amount}} EGP."
   },
   "answer": {
     "title": "Question from {{name}}",
@@ -678,8 +681,8 @@
     "phoneTitle": "Your phone number",
     "phoneBody": "We'll text you a 6-digit code. No password, no email.",
     "phoneLabel": "Phone number",
-    "phonePlaceholder": "5X XXX XXXX",
-    "phoneHint": "A Saudi number starting with 5, 9 digits",
+    "phonePlaceholder": "1X XXXX XXXX",
+    "phoneHint": "Egyptian number starting with 1, 10 digits (without the 0)",
     "edit": "Edit",
     "send": "Send code",
     "codeLabel": "Enter the code",
@@ -702,7 +705,7 @@
     "wrongNumber": "Wrong number? Edit it",
     "lockNote": "After {{attempts}} wrong tries we wait {{minutes}} minutes before sending a new code",
     "sendFailed": "Couldn't send the code. Check the number and your connection, then try again.",
-    "testHint": "Testing: 500000001 to 500000004 · code 123456",
+    "testHint": "For testing: 1000000001 to 1000000004 · code 123456",
     "whatsappSoon": "Sending on WhatsApp is coming soon"
   },
   "setup": {
@@ -808,6 +811,17 @@
     "loading": "One moment…"
   },
   "lists": {
+    "optionsA11y": "Options for “{{name}}”",
+    "delete": "Delete list",
+    "deleteBody": "It disappears for everyone in it",
+    "deleteTitle": "Delete “{{name}}”?",
+    "deleteMessage": "The list will disappear for everyone ({{members}}) and can’t be brought back.",
+    "deleteConfirm": "Delete",
+    "leave": "Leave list",
+    "leaveBody": "Only you lose it; the others keep using it",
+    "leaveTitle": "Leave “{{name}}”?",
+    "leaveConfirm": "Leave",
+    "cancel": "Cancel",
     "cardA11y": "Open “{{name}}” · {{members}}",
     "inviteA11y": "Invite someone to “{{name}}”",
     "backA11y": "Back to my lists",
@@ -846,5 +860,10 @@
     "title_f": "{{name}} is asking",
     "title_m": "{{name}} is asking",
     "openA11y": "Open the question"
+  },
+  "market": {
+    "whichList": "Which list are you shopping for?",
+    "more": " · \u2066+{{n}}\u2069",
+    "emptyHint": "The list is empty. Start and we’ll ask the family if they need anything."
   }
 }

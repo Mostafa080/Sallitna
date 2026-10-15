@@ -1,5 +1,5 @@
 // Phone number → 6-digit code, with Supabase phone sign-in.
-// While building, only the test numbers work (see supabase/config.toml): +966 500000001…4, code 123456.
+// While building, only the test numbers work (see supabase/config.toml): +20 1000000001…4, code 123456.
 // mode=create: new household (phone is typed here). mode=join: phone, invite code and list name come from join.
 
 import * as Haptics from 'expo-haptics';

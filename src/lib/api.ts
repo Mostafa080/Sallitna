@@ -23,7 +23,7 @@ const CURRENT_KEY = 'sallitna.currentHousehold';
 export const rememberHousehold = (id: string) => AsyncStorage.setItem(CURRENT_KEY, id).catch(() => {});
 const rememberedHousehold = () => AsyncStorage.getItem(CURRENT_KEY).catch(() => null);
 
-// "+966551234567" from "551234567"
+// "+201001234567" from "1001234567"
 const e164 = (digits: string) => `${PHONE_PREFIX}${digits}`;
 
 type MemberRow = {
@@ -106,7 +106,7 @@ export async function clearStaleSession(): Promise<boolean> {
 
 // A face on a list card (enough for an avatar)
 export type Face = Pick<Member, 'id' | 'display_name' | 'initial' | 'avatar_color'>;
-export type ListSummary = { householdId: string; name: string; memberCount: number; members: Face[] };
+export type ListSummary = { householdId: string; name: string; memberCount: number; members: Face[]; myRole: MemberRole };
 
 // All my lists, newest first, each with its current people
 export async function listMyHouseholds(): Promise<ListSummary[]> {
@@ -116,13 +116,14 @@ export async function listMyHouseholds(): Promise<ListSummary[]> {
   const rows = check(
     await supabase
       .from('members')
-      .select('household_id, joined_at, households(name, members(id, display_name, avatar_color, joined_at))')
+      .select('household_id, role, joined_at, households(name, members(id, display_name, avatar_color, joined_at))')
       .eq('user_id', uid)
       .is('left_at', null)
       .is('households.members.left_at', null)
       .order('joined_at', { ascending: false }),
   ) as unknown as {
     household_id: string;
+    role: MemberRole;
     households: {
       name: string;
       members: { id: string; display_name: string; avatar_color: Member['avatar_color']; joined_at: string }[];
@@ -137,6 +138,7 @@ export async function listMyHouseholds(): Promise<ListSummary[]> {
       name: r.households?.name ?? '',
       memberCount: Math.max(1, members.length),
       members,
+      myRole: r.role,
     };
   });
 }
@@ -295,6 +297,16 @@ export async function removeMember(id: string) {
 
 export async function restoreMember(id: string) {
   check(await supabase.rpc('restore_member', { member: id }));
+}
+
+// «امسح القائمة» — manager only; the list disappears for everyone (kept in the database, see the migration)
+export async function deleteHousehold(householdId: string) {
+  check(await supabase.rpc('delete_household', { hh: householdId }));
+}
+
+// «اخرج من القائمة» — only for me; the others keep it
+export async function leaveHousehold(householdId: string) {
+  check(await supabase.rpc('leave_household', { hh: householdId }));
 }
 
 export async function renameHousehold(householdId: string, name: string) {

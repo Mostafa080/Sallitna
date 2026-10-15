@@ -131,7 +131,7 @@ function demoState(): State {
     householdName: household.name,
     settings: defaultSettings,
     meId: demoMeId,
-    lists: [{ householdId: household.id, name: household.name, memberCount: demoMembers.length, members: demoMembers }],
+    lists: [{ householdId: household.id, name: household.name, memberCount: demoMembers.length, members: demoMembers, myRole: 'owner' }],
   };
 }
 
@@ -441,7 +441,7 @@ function useListState() {
       const cardamom = catalogById('c20');
       if (!cardamom) return;
       const adder = demoMembers.find((m) => m.id === liveAdderId);
-      dispatch({ type: 'liveAdd', item: newItem(catalogToDraft(cardamom), liveAdderId, 'هيل كيس') });
+      dispatch({ type: 'liveAdd', item: newItem(catalogToDraft(cardamom), liveAdderId, 'حبهان كيس') });
       if (adder) {
         dispatch({
           type: 'toast',
@@ -1049,6 +1049,22 @@ function useListState() {
     // --- Sign-in and households ---------------------------------------------------
 
     refreshHousehold,
+
+    // Delete a list for everyone (manager) or leave it (anyone else). If it was the open one, the next list opens;
+    // with no list left, the app goes back to «أنشئ قائمتك الأولى».
+    async removeList(householdId: string, how: 'delete' | 'leave'): Promise<boolean> {
+      if (!live) return false;
+      const name = state.lists.find((l) => l.householdId === householdId)?.name ?? '';
+      try {
+        if (how === 'delete') await api.deleteHousehold(householdId);
+        else await api.leaveHousehold(householdId);
+        await refreshHousehold(t(how === 'delete' ? 'toast.listDeleted' : 'toast.listLeft', { name }));
+        return true;
+      } catch (error) {
+        failed(error);
+        return false;
+      }
+    },
 
     // Open another of my lists
     async switchList(householdId: string) {

@@ -22,12 +22,12 @@ export type CatalogItem = {
 
 export const catalog: CatalogItem[] = [
   {
-    id: 'c1', name: 'حليب كامل الدسم', aliases: ['حليب', 'حليب كامل'], category: 'dairy', alternative: 'c2',
+    id: 'c1', name: 'لبن كامل الدسم', aliases: ['لبن', 'لبن كامل', 'حليب', 'حليب كامل', 'حليب كامل الدسم'], category: 'dairy', alternative: 'c2',
     default_qty: 1, default_unit: 'count', translations: { en: 'Full-fat milk', hi: 'फुल क्रीम दूध' },
     habits: { times_this_month: 4, cadence_days: 7, last_bought_days_ago: 2 },
   },
   {
-    id: 'c2', name: 'حليب قليل الدسم', aliases: ['حليب', 'حليب لايت'], category: 'dairy',
+    id: 'c2', name: 'لبن خالي الدسم', aliases: ['لبن', 'لبن خالي', 'حليب', 'حليب لايت', 'حليب قليل الدسم'], category: 'dairy',
     default_qty: 1, default_unit: 'count', translations: { en: 'Low-fat milk', hi: 'टोंड दूध' },
   },
   {
@@ -35,17 +35,18 @@ export const catalog: CatalogItem[] = [
     default_qty: 1, default_unit: 'count', translations: { en: 'Halva', hi: 'हलवा' },
   },
   {
-    id: 'c4', name: 'رز بسمتي', aliases: ['رز', 'أرز', 'عيش'], category: 'pantry', // «عيش» = rice in the Gulf
+    id: 'c4', name: 'رز بسمتي', aliases: ['رز', 'أرز'], category: 'pantry',
     default_qty: 5, default_unit: 'kg', translations: { en: 'Basmati rice', hi: 'बासमती चावल' },
     habits: { times_this_month: 1, cadence_days: 21, last_bought_days_ago: 20 },
   },
   {
-    id: 'c5', name: 'خبز صامولي', aliases: ['صامولي', 'خبز'], category: 'bakery',
-    default_qty: 1, default_unit: 'bag', translations: { en: 'Samoli bread', hi: 'समोली ब्रेड' },
+    // «عيش» = bread in Egypt
+    id: 'c5', name: 'عيش فينو', aliases: ['عيش', 'فينو', 'خبز', 'صامولي', 'خبز صامولي'], category: 'bakery',
+    default_qty: 1, default_unit: 'bag', translations: { en: 'Fino bread', hi: 'फ़िनो ब्रेड' },
     habits: { times_this_month: 6 },
   },
   {
-    id: 'c6', name: 'خبز توست', aliases: ['توست', 'خبز'], category: 'bakery',
+    id: 'c6', name: 'عيش توست', aliases: ['عيش', 'توست', 'خبز', 'خبز توست'], category: 'bakery',
     default_qty: 1, default_unit: 'bag', translations: { en: 'Toast bread', hi: 'टोस्ट ब्रेड' },
   },
   {
@@ -54,18 +55,18 @@ export const catalog: CatalogItem[] = [
     habits: { times_this_month: 3 },
   },
   {
-    id: 'c8', name: 'ماء', aliases: ['مويه', 'موية', 'ماي', 'مياه'], category: 'pantry',
+    id: 'c8', name: 'مياه', aliases: ['ميه', 'مية', 'ماء', 'مويه', 'موية', 'ماي'], category: 'pantry',
     default_qty: 1, default_unit: 'box', translations: { en: 'Water', hi: 'पानी' },
     habits: { times_this_month: 5 },
   },
   {
-    id: 'c9', name: 'لبن زبادي', aliases: ['زبادي', 'روب', 'لبن'], category: 'dairy',
+    id: 'c9', name: 'زبادي', aliases: ['لبن زبادي', 'روب'], category: 'dairy', // «لبن» alone = milk in Egypt
     default_qty: 4, default_unit: 'count', translations: { en: 'Yogurt', hi: 'दही' },
     habits: { times_this_month: 3 },
   },
   {
-    id: 'c10', name: 'قهوة عربية', aliases: ['قهوة', 'بن', 'قهوه'], category: 'pantry',
-    default_qty: 1, default_unit: 'count', translations: { en: 'Arabic coffee', hi: 'अरबी कॉफ़ी' },
+    id: 'c10', name: 'بن', aliases: ['قهوة', 'قهوه', 'قهوة عربية'], category: 'pantry',
+    default_qty: 1, default_unit: 'count', translations: { en: 'Coffee', hi: 'कॉफ़ी' },
     habits: { times_this_month: 1, cadence_days: 28, last_bought_days_ago: 26 },
   },
   {
@@ -87,7 +88,7 @@ export const catalog: CatalogItem[] = [
     default_qty: 6, default_unit: 'piece', translations: { en: 'Lemons', hi: 'नींबू' },
   },
   {
-    id: 'c15', name: 'جبن', aliases: ['جبنة', 'جبنه'], category: 'dairy',
+    id: 'c15', name: 'جبنة', aliases: ['جبن', 'جبنه'], category: 'dairy',
     default_qty: 1, default_unit: 'count', translations: { en: 'Cheese', hi: 'पनीर' },
     habits: { times_this_month: 2 },
   },
@@ -104,16 +105,16 @@ export const catalog: CatalogItem[] = [
     default_qty: 1, default_unit: 'count', translations: { en: 'Tissues', hi: 'टिशू' },
   },
   {
-    id: 'c20', name: 'هيل', aliases: ['هيل حب', 'حبهان'], category: 'pantry', alternative: 'c21',
+    id: 'c20', name: 'حبهان', aliases: ['هيل', 'هيل حب', 'حبهان حب'], category: 'pantry', alternative: 'c21',
     default_qty: 1, default_unit: 'bag', translations: { en: 'Cardamom', hi: 'इलायची' },
   },
   {
-    id: 'c21', name: 'هيل مطحون', aliases: ['مطحون'], category: 'pantry',
+    id: 'c21', name: 'حبهان مطحون', aliases: ['هيل مطحون', 'مطحون'], category: 'pantry',
     default_qty: 1, default_unit: 'bag', translations: { en: 'Ground cardamom', hi: 'पिसी इलायची' },
   },
   {
-    id: 'c19', name: 'صابون غسيل', aliases: ['مسحوق', 'تايد', 'صابون'], category: 'cleaning',
-    default_qty: 1, default_unit: 'count', translations: { en: 'Laundry soap', hi: 'कपड़े धोने का साबुन' },
+    id: 'c19', name: 'مسحوق غسيل', aliases: ['مسحوق', 'صابون غسيل', 'تايد', 'صابون'], category: 'cleaning',
+    default_qty: 1, default_unit: 'count', translations: { en: 'Laundry detergent', hi: 'कपड़े धोने का पाउडर' },
   },
 ];
 

@@ -215,6 +215,34 @@ select pg_temp.check_('stranger: cannot end their trip',
 select pg_temp.check_('nobody: can delete trips or questions',
   pg_temp.blocked('delete from public.trips') and pg_temp.blocked('delete from public.questions'));
 
+-- ---------- Deleting a list («امسح القائمة») ----------
+-- (Khalid is the manager now — Umm handed over above)
+select pg_temp.act('umm');
+select pg_temp.check_('member: cannot delete the list',
+  pg_temp.blocked(format($q$ select public.delete_household(%L) $q$, pg_temp.get('hhA'))));
+select pg_temp.act('eve');
+select pg_temp.check_('stranger: cannot delete the list',
+  pg_temp.blocked(format($q$ select public.delete_household(%L) $q$, pg_temp.get('hhA'))));
+select pg_temp.act('khalid');
+select pg_temp.check_('manager: can delete the list',
+  not pg_temp.blocked(format($q$ select public.delete_household(%L) $q$, pg_temp.get('hhA'))));
+select pg_temp.check_('after deleting: the manager no longer sees its items',
+  (select count(*) from public.items where household_id = pg_temp.get('hhA')::uuid) = 0);
+select pg_temp.act('umm');
+select pg_temp.check_('after deleting: members no longer see the list or its items',
+  (select count(*) from public.households where id = pg_temp.get('hhA')::uuid) = 0
+  and (select count(*) from public.items where household_id = pg_temp.get('hhA')::uuid) = 0);
+select pg_temp.check_('after deleting: its invite link shows nothing',
+  (select count(*) from public.get_invite(pg_temp.get('codeMember'))) = 0);
+select pg_temp.act('eve');
+select pg_temp.check_('after deleting: nobody can join with an old code',
+  pg_temp.blocked(format($q$ select public.join_household(%L, 'Eve', 'f') $q$, pg_temp.get('codeMember'))));
+reset role;
+select pg_temp.check_('after deleting: data is kept, everyone is moved out, trips ended',
+  (select count(*) from public.items where household_id = pg_temp.get('hhA')::uuid) > 0
+  and (select count(*) from public.members where household_id = pg_temp.get('hhA')::uuid and left_at is null) = 0
+  and (select count(*) from public.trips where household_id = pg_temp.get('hhA')::uuid and ended_at is null) = 0);
+
 -- ---------- Deleting an account that added items ----------
 reset role;
 select pg_temp.check_('deleting Rahul''s account works even though he added items',

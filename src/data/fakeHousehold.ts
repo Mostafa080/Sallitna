@@ -126,7 +126,7 @@ export const OTP_LENGTH = 6;
 export const OTP_MAX_ATTEMPTS = 3;
 export const OTP_LOCK_MINUTES = 10;
 export const OTP_RESEND_SECONDS = 30;
-export const PHONE_PREFIX = '+966';
+export const PHONE_PREFIX = '+20';
 export const INVITE_VALID_DAYS = 7;
 
 export const defaultSettings: HouseholdSettings = {
@@ -176,12 +176,12 @@ export function makeDemoItems(): Item[] {
       voice_transcript: 'ست حبات ليمون', requested_by: ['m3'], created_at: daysAgo(1), translations: { en: 'Lemons', hi: 'नींबू' },
     },
     {
-      ...base, id: 'i4', name: 'حليب كامل الدسم', qty: 2, unit: 'count', category: 'dairy', added_by: 'm1', added_via: 'text',
+      ...base, id: 'i4', name: 'لبن كامل الدسم', qty: 2, unit: 'count', category: 'dairy', added_by: 'm1', added_via: 'text',
       requested_by: ['m1', 'm2'], created_at: daysAgo(1), translations: { en: 'Full-fat milk', hi: 'फुल क्रीम दूध' },
       purchase_stats: { times_this_month: 4, last_bought_by: 'm4' },
     },
     {
-      ...base, id: 'i5', name: 'لبن زبادي', qty: 4, unit: 'count', category: 'dairy', added_by: 'm1', added_via: 'text',
+      ...base, id: 'i5', name: 'زبادي', qty: 4, unit: 'count', category: 'dairy', added_by: 'm1', added_via: 'text',
       requested_by: ['m1'], created_at: daysAgo(1), translations: { en: 'Yogurt', hi: 'दही' },
     },
     {
@@ -189,9 +189,9 @@ export function makeDemoItems(): Item[] {
       requested_by: ['m4'], created_at: daysAgo(1), translations: { en: 'Eggs', hi: 'अंडे' },
     },
     {
-      ...base, id: 'i7', name: 'خبز صامولي', qty: 1, unit: 'bag', category: 'bakery', added_by: 'm2', added_via: 'voice',
+      ...base, id: 'i7', name: 'عيش فينو', qty: 1, unit: 'bag', category: 'bakery', added_by: 'm2', added_via: 'voice',
       voice_transcript: 'كيس خبز صامولي', requested_by: ['m2'], created_at: minutesAgo(40),
-      translations: { en: 'Samoli bread', hi: 'समोली ब्रेड' },
+      translations: { en: 'Fino bread', hi: 'फ़िनो ब्रेड' },
     },
     {
       ...base, id: 'i8', name: 'رز بسمتي', qty: 5, unit: 'kg', category: 'pantry', added_by: 'm1', added_via: 'voice',
@@ -207,8 +207,8 @@ export function makeDemoItems(): Item[] {
       requested_by: ['m2'], created_at: daysAgo(3), translations: { en: 'Olive oil', hi: 'जैतून का तेल' },
     },
     {
-      ...base, id: 'i11', name: 'صابون غسيل', qty: 1, unit: 'count', category: 'cleaning', added_by: 'm1', added_via: 'text',
-      requested_by: ['m1'], created_at: daysAgo(1), translations: { en: 'Laundry soap', hi: 'कपड़े धोने का साबुन' },
+      ...base, id: 'i11', name: 'مسحوق غسيل', qty: 1, unit: 'count', category: 'cleaning', added_by: 'm1', added_via: 'text',
+      requested_by: ['m1'], created_at: daysAgo(1), translations: { en: 'Laundry detergent', hi: 'कपड़े धोने का पाउडर' },
     },
     {
       ...base, id: 'i12', name: 'مناديل', qty: 3, unit: 'count', category: 'cleaning', added_by: 'm4', added_via: 'text',
@@ -218,11 +218,11 @@ export function makeDemoItems(): Item[] {
 }
 
 export const basics: Basic[] = [
-  { name: 'حليب', qty: 1, unit: 'count', category: 'dairy' },
-  { name: 'خبز', qty: 1, unit: 'bag', category: 'bakery' },
+  { name: 'لبن', qty: 1, unit: 'count', category: 'dairy' },
+  { name: 'عيش', qty: 1, unit: 'bag', category: 'bakery' },
   { name: 'بيض', qty: 1, unit: 'carton', category: 'dairy' },
   { name: 'رز', qty: 5, unit: 'kg', category: 'pantry' },
-  { name: 'ماء', qty: 1, unit: 'box', category: 'pantry' },
+  { name: 'مياه', qty: 1, unit: 'box', category: 'pantry' },
   { name: 'طماطم', qty: 1, unit: 'kg', category: 'produce' },
   { name: 'بصل', qty: 1, unit: 'kg', category: 'produce' },
   { name: 'مناديل', qty: 1, unit: 'count', category: 'cleaning' },

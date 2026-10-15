@@ -16,12 +16,19 @@ const START_ALIGN = isRTLLayout ? 'right' : 'left';
 
 // --- Phone helpers -----------------------------------------------------------------
 
-// Saudi mobile: 9 digits starting with 5 (after +966)
-export const isValidPhone = (digits: string) => /^5\d{8}$/.test(digits);
+// Egyptian mobile: 10 digits starting with 10, 11, 12 or 15 (after +20)
+export const PHONE_DIGITS = 10;
+export const isValidPhone = (digits: string) => /^1[0125]\d{8}$/.test(digits);
 
-// "551234567" → "55 123 4567"
+// "1001234567" → "10 0123 4567"
 export const formatPhone = (digits: string) =>
-  [digits.slice(0, 2), digits.slice(2, 5), digits.slice(5, 9)].filter(Boolean).join(' ');
+  [digits.slice(0, 2), digits.slice(2, 6), digits.slice(6, 10)].filter(Boolean).join(' ');
+
+// People in Egypt usually type the local 0 first («010…»), or paste «+20 10…» — keep just the 10 digits
+const toLocalDigits = (text: string) =>
+  onlyDigits(text)
+    .replace(/^(?:0020|20(?=1[0125]\d{8}$)|0)/, '')
+    .slice(0, PHONE_DIGITS);
 
 // Wrapped in left-to-right isolate marks so it doesn't get flipped inside an Arabic sentence
 export const fullPhone = (digits: string) => `\u2066${PHONE_PREFIX} ${formatPhone(digits)}\u2069`;
@@ -75,7 +82,7 @@ export function Field({ label, ...input }: FieldProps) {
   );
 }
 
-// --- +966 phone field -----------------------------------------------------------------------
+// --- +20 phone field -----------------------------------------------------------------------
 
 type PhoneFieldProps = {
   digits: string;
@@ -98,7 +105,7 @@ export function PhoneField({ digits, onChange, onEdit, autoFocus, label }: Phone
       {onChange ? (
         <TextInput
           value={formatPhone(digits)}
-          onChangeText={(text) => onChange(onlyDigits(text).slice(0, 9))}
+          onChangeText={(text) => onChange(toLocalDigits(text))}
           placeholder={t('verify.phonePlaceholder')}
           placeholderTextColor={colors.muted}
           keyboardType="phone-pad"
@@ -109,7 +116,7 @@ export function PhoneField({ digits, onChange, onEdit, autoFocus, label }: Phone
           accessibilityLabel={label}
         />
       ) : (
-        // Sits on the end side, next to +966
+        // Sits on the end side, next to +20
         <View style={styles.phoneReadOnly}>
           <AppText variant="item" style={styles.ltrText} accessibilityLabel={label}>
             {formatPhone(digits)}

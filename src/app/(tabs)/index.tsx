@@ -4,7 +4,7 @@
 
 import * as Haptics from 'expo-haptics';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Plus } from 'lucide-react-native';
+import { Ellipsis, LogOut, Plus, Trash2 } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -13,9 +13,11 @@ import { AppText } from '@/components/AppText';
 import { AvatarStack } from '@/components/Avatar';
 import { ForwardIcon } from '@/components/family/FamilyParts';
 import { Brand } from '@/components/onboarding/OnboardingParts';
+import { Sheet } from '@/components/shop/Sheet';
 import { UndoToast } from '@/components/UndoToast';
 import { t } from '@/i18n';
 import type { ListSummary } from '@/lib/api';
+import { useHideTabBar } from '@/lib/tabBar';
 import { useList } from '@/store/ListStore';
 import { colors, opacity, radius, size, spacing } from '@/theme';
 
@@ -28,6 +30,30 @@ export default function MyListsScreen() {
   const list = useList();
   // The card being opened (switching lists loads it first)
   const [opening, setOpening] = useState<string | null>(null);
+  // The card whose «…» menu is open
+  const [menuFor, setMenuFor] = useState<ListSummary | null>(null);
+  useHideTabBar(!!menuFor); // the floating tab bar would cover the sheet
+
+  const onRemove = (l: ListSummary) => {
+    const how = l.myRole === 'owner' ? 'delete' : 'leave';
+    setMenuFor(null);
+    Alert.alert(
+      t(how === 'delete' ? 'lists.deleteTitle' : 'lists.leaveTitle', { name: l.name }),
+      how === 'delete' ? t('lists.deleteMessage', { members: t('lists.members', { n: l.memberCount }) }) : t('lists.leaveBody'),
+      [
+        { text: t('lists.cancel'), style: 'cancel' },
+        {
+          text: t(how === 'delete' ? 'lists.deleteConfirm' : 'lists.leaveConfirm'),
+          style: 'destructive',
+          onPress: async () => {
+            if (await list.removeList(l.householdId, how)) {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            }
+          },
+        },
+      ],
+    );
+  };
 
   // Just signed out (from «حسابي», «عرّفنا عليك»…): close whatever is open, back to welcome
   const previousMode = useRef(list.mode);
@@ -108,6 +134,20 @@ export default function MyListsScreen() {
               <AppText variant="heading" weight="bold" style={styles.flex} numberOfLines={1}>
                 {l.name}
               </AppText>
+              {/* «…» — delete (manager) or leave the list; not in the demo */}
+              {list.mode === 'live' && (
+                <Pressable
+                  onPress={() => {
+                    Haptics.selectionAsync();
+                    setMenuFor(l);
+                  }}
+                  style={styles.more}
+                  hitSlop={spacing.sm}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('lists.optionsA11y', { name: l.name })}>
+                  <Ellipsis size={size.icon} color={colors.ink} strokeWidth={size.iconStroke} />
+                </Pressable>
+              )}
               {opening === l.householdId ? (
                 <ActivityIndicator color={colors.muted} />
               ) : (
@@ -147,6 +187,31 @@ export default function MyListsScreen() {
       </ScrollView>
 
       <UndoToast bottomOffset={insets.bottom + size.tabBar + spacing.sm} />
+
+      <Sheet visible={!!menuFor} onClose={() => setMenuFor(null)} title={menuFor?.name ?? ''}>
+        {menuFor && (
+          <Pressable
+            onPress={() => onRemove(menuFor)}
+            style={({ pressed }) => [styles.menuRow, pressed && styles.pressed]}
+            accessibilityRole="button">
+            <View style={styles.menuIcon}>
+              {menuFor.myRole === 'owner' ? (
+                <Trash2 size={size.icon - spacing.xs} color={colors.danger} strokeWidth={size.iconStroke} />
+              ) : (
+                <LogOut size={size.icon - spacing.xs} color={colors.danger} strokeWidth={size.iconStroke} />
+              )}
+            </View>
+            <View style={styles.flex}>
+              <AppText variant="item" weight="semibold" color="danger">
+                {t(menuFor.myRole === 'owner' ? 'lists.delete' : 'lists.leave')}
+              </AppText>
+              <AppText variant="body" color="muted">
+                {t(menuFor.myRole === 'owner' ? 'lists.deleteBody' : 'lists.leaveBody')}
+              </AppText>
+            </View>
+          </Pressable>
+        )}
+      </Sheet>
     </View>
   );
 }
@@ -201,6 +266,31 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderColor: colors.muted,
     backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  more: {
+    width: size.touch - spacing.sm,
+    height: size.touch - spacing.sm,
+    borderRadius: radius.pill,
+    backgroundColor: colors.ground,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  menuRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    padding: spacing.lg,
+    borderRadius: radius.card,
+    borderWidth: size.border,
+    borderColor: colors.line,
+  },
+  menuIcon: {
+    width: size.touch - spacing.sm,
+    height: size.touch - spacing.sm,
+    borderRadius: radius.pill,
+    backgroundColor: colors.ground,
     alignItems: 'center',
     justifyContent: 'center',
   },
