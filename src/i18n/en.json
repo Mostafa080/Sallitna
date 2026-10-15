@@ -579,7 +579,10 @@
     "message_m": "{{name}} invited you to “{{list}}” on Sallitna: {{link}}\nInvite code: {{code}}",
     "loading": "Getting the link ready…",
     "next": "Next",
-    "done": "Done"
+    "done": "Done",
+    "helperTitle": "Invite your driver or helper",
+    "helperBody": "Their own code · they see the list in their language",
+    "helperMessage": "You’re invited to the shopping list “{{list}}” on Sallitna: {{link}}\nOpen the app, tap “عندي دعوة من العيلة” and type the code: {{code}}"
   },
   "inviteExpired": {
     "appName": "Sallitna",
@@ -643,7 +646,14 @@
     "comingSoon": "Coming soon",
     "bought": "Crossed off “{{name}}”",
     "markBoughtA11y": "Mark {{name}} as bought",
-    "exitA11y": "Back to the family's list (test)"
+    "exitA11y": "Back to the family's list (test)",
+    "addPlaceholder": "Add an item…",
+    "addAsIs": "Add “{{text}}”",
+    "addA11y": "Add {{name}}",
+    "signOut": "Sign out",
+    "signOutTitle": "Sign out on this phone?",
+    "signOutBody": "The list stays. Come back with your phone number.",
+    "cancel": "Cancel"
   },
   "dialectsShort": {
     "saudi": "Saudi",
@@ -676,7 +686,8 @@
     "benefitShopper": "See who's at the store right now",
     "benefitLanguage": "Your driver or helper sees it in their language",
     "start": "Start a new list",
-    "haveInvite": "I have an invite from my family"
+    "haveInvite": "I have an invite from my family",
+    "helperNote": "Driver or helper? Tap “عندي دعوة من العيلة” and type your code."
   },
   "verify": {
     "phoneTitle": "Your phone number",
@@ -725,7 +736,7 @@
     "invites_f": "{{name}} invited you",
     "invites_m": "{{name}} invited you",
     "title": "Join the list\n“{{list}}”",
-    "body": "{{count}} add by voice and shop from the same list",
+    "body": "Shared by {{count}} — everyone adds to and shops from the same list",
     "phoneLabel": "Your phone number",
     "language": "Which language should the list be in?",
     "send": "Send verification code",
@@ -736,7 +747,9 @@
     "codeHint": "It's in the invite message from your family",
     "notFound": "No invite with this code. Please check it.",
     "checking": "Checking the invite…",
-    "someone": "Someone from your family"
+    "someone": "Someone from your family",
+    "languageHelper": "Which language do you want to use?",
+    "helperNote": "Driver or helper? Type the code from your family’s invite — the next steps will be in your language."
   },
   "joinSetup": {
     "hello": "Welcome {{name}}",
@@ -756,7 +769,9 @@
     "tipStore_m": "When you go shopping, press “I'm at the store”",
     "enter_f": "Open the list",
     "enter_m": "Open the list",
-    "failed": "Couldn't add you to the list. The invite may have expired — ask for a new link."
+    "failed": "Couldn't add you to the list. The invite may have expired — ask for a new link.",
+    "tipTick": "Tick an item when you buy it — the family sees it right away",
+    "tipAdd": "Add anything that’s missing by typing it"
   },
   "notifications": {
     "appName": "Sallitna",
@@ -864,7 +879,7 @@
   },
   "market": {
     "whichList": "Which list are you shopping for?",
-    "more": " · \u2066+{{n}}\u2069",
+    "more": " · ⁦+{{n}}⁩",
     "emptyHint": "The list is empty. Start and we’ll ask the family if they need anything."
   }
 }

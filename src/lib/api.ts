@@ -220,6 +220,7 @@ export type InvitePreview = {
   memberCount: number;
   faces: { initial: string; color: Member['avatar_color'] }[];
   expired: boolean;
+  role: 'member' | 'helper'; // a helper code: the join steps speak the helper's language
 };
 
 // What the join screen shows. Works before signing in. null = no such code.
@@ -232,6 +233,7 @@ export async function getInvite(code: string): Promise<InvitePreview | null> {
         member_count: number;
         members: { initial: string; color: Member['avatar_color'] }[];
         expired: boolean;
+        role: 'member' | 'helper';
       }[]
     | null;
   const row = rows?.[0];
@@ -243,24 +245,25 @@ export async function getInvite(code: string): Promise<InvitePreview | null> {
     memberCount: row.member_count,
     faces: row.members,
     expired: row.expired,
+    role: row.role,
   };
 }
 
-// Reuse a still-valid invite I can see, or make a new one
-export async function getOrCreateInvite(householdId: string): Promise<string> {
+// Reuse a still-valid invite I can see, or make a new one (a helper code joins people as helpers)
+export async function getOrCreateInvite(householdId: string, role: 'member' | 'helper' = 'member'): Promise<string> {
   const existing = check(
     await supabase
       .from('invites')
       .select('code')
       .eq('household_id', householdId)
-      .eq('role', 'member')
+      .eq('role', role)
       .gt('expires_at', new Date(Date.now() + 24 * 60 * 60_000).toISOString()) // at least a day left
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle(),
   ) as { code: string } | null;
   if (existing) return existing.code;
-  const rows = check(await supabase.rpc('create_invite', { hh: householdId })) as { code: string }[];
+  const rows = check(await supabase.rpc('create_invite', { hh: householdId, invite_role: role })) as { code: string }[];
   return rows[0].code;
 }
 

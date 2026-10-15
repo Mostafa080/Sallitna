@@ -10,7 +10,8 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
-import { BackIcon, CircleButton } from '@/components/family/FamilyParts';
+import { DirectionView, directionOf } from '@/components/DirectionView';
+import { backIconFor, CircleButton } from '@/components/family/FamilyParts';
 import { CodeBoxes, fullPhone, isValidPhone, PhoneField } from '@/components/onboarding/OnboardingParts';
 import { SheetButton } from '@/components/shop/Sheet';
 import { UndoToast } from '@/components/UndoToast';
@@ -21,12 +22,19 @@ import {
   OTP_RESEND_SECONDS,
   type LanguageKey,
 } from '@/data/fakeHousehold';
-import { t } from '@/i18n';
+import { getLanguage, tIn } from '@/i18n';
 import * as api from '@/lib/api';
 import { useList } from '@/store/ListStore';
 import { colors, opacity, radius, size, spacing } from '@/theme';
 
-type Params = { mode?: 'create' | 'join'; phone?: string; lang?: LanguageKey; code?: string; list?: string };
+type Params = {
+  mode?: 'create' | 'join';
+  phone?: string;
+  lang?: LanguageKey;
+  code?: string;
+  list?: string;
+  role?: 'member' | 'helper';
+};
 
 const clock = (seconds: number) => `0:${String(seconds).padStart(2, '0')}`;
 
@@ -36,6 +44,9 @@ export default function VerifyScreen() {
   const list = useList();
   const params = useLocalSearchParams<Params>();
   const joining = params.mode === 'join';
+  // A helper joining sees these steps in their language (picked on the join screen); everyone else Arabic
+  const [language] = useState(getLanguage);
+  const tr = (key: string, p?: Record<string, string | number>) => tIn(language, key, p);
 
   const [phone, setPhone] = useState(params.phone ?? '');
   const [step, setStep] = useState<'phone' | 'code'>(params.phone ? 'code' : 'phone');
@@ -50,7 +61,7 @@ export default function VerifyScreen() {
 
   const sendCode = async (via: 'sms' | 'whatsapp'): Promise<boolean> => {
     if (via === 'whatsapp') {
-      list.notify(t('verify.whatsappSoon'));
+      list.notify(tr('verify.whatsappSoon'));
       return false;
     }
     setCode('');
@@ -58,11 +69,11 @@ export default function VerifyScreen() {
     try {
       await api.sendCode(phone);
       setSecondsLeft(OTP_RESEND_SECONDS);
-      if (__DEV__) list.notify(t('verify.testHint'));
+      if (__DEV__) list.notify(tr('verify.testHint'));
       return true;
     } catch (error) {
       if (__DEV__) console.warn('[sendCode]', error);
-      list.notify(t('verify.sendFailed'));
+      list.notify(tr('verify.sendFailed'));
       return false;
     } finally {
       setBusy(false);
@@ -108,14 +119,17 @@ export default function VerifyScreen() {
     }
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     if (joining) {
-      router.replace({ pathname: '/join-setup', params: { lang: params.lang ?? 'ar', code: params.code, list: params.list } });
+      router.replace({
+        pathname: '/join-setup',
+        params: { lang: params.lang ?? 'ar', code: params.code, list: params.list, role: params.role ?? 'member' },
+      });
       return;
     }
     // Already in a household on another phone? Straight back to it.
     try {
       const membership = await api.loadMembership();
       if (membership) {
-        await list.refreshHousehold(t('toast.welcomeBack', { list: membership.householdName }));
+        await list.refreshHousehold(tr('toast.welcomeBack', { list: membership.householdName }));
         router.dismissAll();
         return;
       }
@@ -133,137 +147,158 @@ export default function VerifyScreen() {
   };
 
   const triesLeft = OTP_MAX_ATTEMPTS - wrongTries;
+  const BackIcon = backIconFor(directionOf(language));
 
   return (
-    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView
-        contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.md }]}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <CircleButton icon={BackIcon} label={t('onboarding.back')} onPress={() => router.back()} />
-        </View>
+    <DirectionView language={language}>
+      <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView
+          contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.md }]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
+          <View style={styles.header}>
+            <CircleButton icon={BackIcon} label={tr('onboarding.back')} onPress={() => router.back()} />
+          </View>
 
-        {showError ? (
-          // After a wrong code (code-error.png)
-          <>
-            <View style={styles.intro}>
-              <AppText variant="title" weight="bold" style={styles.title} accessibilityRole="header">
-                {t('verify.codeTitle')}
-              </AppText>
-              <AppText variant="item" color="muted">
-                {t('verify.sentTo', { phone: fullPhone(phone) })}
-              </AppText>
-            </View>
-
-            <CodeBoxes value={code} onChange={onCodeChange} error={codeIsWrong || locked} disabled={locked} autoFocus={!locked} />
-
-            {(codeIsWrong || locked) && (
-              <View style={styles.errorLine} accessibilityLiveRegion="polite">
-                <AlertCircle size={size.icon - spacing.xs} color={colors.danger} strokeWidth={size.iconStroke} />
-                <AppText variant="label" weight="semibold" color="danger" style={styles.flexShrink}>
-                  {locked ? t('verify.locked', { n: OTP_LOCK_MINUTES }) : t('verify.wrong', { n: triesLeft })}
+          {showError ? (
+            // After a wrong code (code-error.png)
+            <>
+              <View style={styles.intro}>
+                <AppText variant="title" weight="bold" style={styles.title} accessibilityRole="header">
+                  {tr('verify.codeTitle')}
+                </AppText>
+                <AppText variant="item" color="muted">
+                  {tr('verify.sentTo', { phone: fullPhone(phone) })}
                 </AppText>
               </View>
-            )}
 
-            <View style={styles.card}>
-              <OptionRow icon={RefreshCw} label={t('verify.newCode')} onPress={() => sendCode('sms')} disabled={locked} />
-              <OptionRow
-                icon={MessageCircle}
-                label={t('verify.sendWhatsapp')}
-                onPress={() => sendCode('whatsapp')}
+              <CodeBoxes
+                value={code}
+                onChange={onCodeChange}
+                error={codeIsWrong || locked}
                 disabled={locked}
-                divider
+                autoFocus={!locked}
               />
-              <OptionRow icon={Pencil} label={t('verify.wrongNumber')} onPress={onEditNumber} divider />
-            </View>
-          </>
-        ) : (
-          // Phone number, then the code (verify.png)
-          <>
-            <View style={styles.intro}>
-              <AppText variant="title" weight="bold" style={styles.title} accessibilityRole="header">
-                {t('verify.phoneTitle')}
-              </AppText>
-              <AppText variant="item" color="muted">
-                {t('verify.phoneBody')}
-              </AppText>
-            </View>
 
-            <View style={styles.block}>
-              <AppText variant="label" weight="bold">
-                {t('verify.phoneLabel')}
-              </AppText>
-              {step === 'phone' ? (
-                <PhoneField digits={phone} onChange={setPhone} autoFocus label={t('verify.phoneLabel')} />
-              ) : (
-                <PhoneField digits={phone} onEdit={onEditNumber} label={t('verify.phoneLabel')} />
-              )}
-              {step === 'phone' && (
-                <AppText variant="body" color="muted">
-                  {t('verify.phoneHint')}
-                </AppText>
-              )}
-            </View>
-
-            {step === 'code' && (
-              <>
-                <View style={styles.block}>
-                  <AppText variant="label" weight="bold">
-                    {t('verify.codeLabel')}
+              {(codeIsWrong || locked) && (
+                <View style={styles.errorLine} accessibilityLiveRegion="polite">
+                  <AlertCircle size={size.icon - spacing.xs} color={colors.danger} strokeWidth={size.iconStroke} />
+                  <AppText variant="label" weight="semibold" color="danger" style={styles.flexShrink}>
+                    {locked ? tr('verify.locked', { n: OTP_LOCK_MINUTES }) : tr('verify.wrong', { n: triesLeft })}
                   </AppText>
-                  <CodeBoxes value={code} onChange={onCodeChange} autoFocus />
-                  <View style={styles.resendLine}>
-                    <AppText variant="body" color="muted">
-                      {t('verify.sentSms')}
-                      {t('item.metaSeparator')}
-                    </AppText>
-                    {secondsLeft > 0 ? (
-                      <AppText variant="body" color="muted">
-                        {t('verify.resendIn', { time: clock(secondsLeft) })}
-                      </AppText>
-                    ) : (
-                      <Pressable onPress={() => sendCode('sms')} hitSlop={spacing.md} accessibilityRole="button">
-                        <AppText variant="body" weight="bold" color="accentInk">
-                          {t('verify.resend')}
-                        </AppText>
-                      </Pressable>
-                    )}
-                  </View>
                 </View>
+              )}
 
-                <Pressable onPress={() => sendCode('whatsapp')} style={styles.whatsappButton} accessibilityRole="button">
-                  <MessageCircle size={size.icon - spacing.xs} color={colors.ink} strokeWidth={size.iconStroke} />
-                  <AppText variant="label" weight="semibold">
-                    {t('verify.whatsappInstead')}
+              <View style={styles.card}>
+                <OptionRow
+                  icon={RefreshCw}
+                  label={tr('verify.newCode')}
+                  onPress={() => sendCode('sms')}
+                  disabled={locked}
+                />
+                <OptionRow
+                  icon={MessageCircle}
+                  label={tr('verify.sendWhatsapp')}
+                  onPress={() => sendCode('whatsapp')}
+                  disabled={locked}
+                  divider
+                />
+                <OptionRow icon={Pencil} label={tr('verify.wrongNumber')} onPress={onEditNumber} divider />
+              </View>
+            </>
+          ) : (
+            // Phone number, then the code (verify.png)
+            <>
+              <View style={styles.intro}>
+                <AppText variant="title" weight="bold" style={styles.title} accessibilityRole="header">
+                  {tr('verify.phoneTitle')}
+                </AppText>
+                <AppText variant="item" color="muted">
+                  {tr('verify.phoneBody')}
+                </AppText>
+              </View>
+
+              <View style={styles.block}>
+                <AppText variant="label" weight="bold">
+                  {tr('verify.phoneLabel')}
+                </AppText>
+                {step === 'phone' ? (
+                  <PhoneField digits={phone} onChange={setPhone} autoFocus label={tr('verify.phoneLabel')} />
+                ) : (
+                  <PhoneField digits={phone} onEdit={onEditNumber} label={tr('verify.phoneLabel')} />
+                )}
+                {step === 'phone' && (
+                  <AppText variant="body" color="muted">
+                    {tr('verify.phoneHint')}
                   </AppText>
-                </Pressable>
-              </>
-            )}
-          </>
-        )}
-      </ScrollView>
+                )}
+              </View>
 
-      <UndoToast bottomOffset={insets.bottom + size.button + spacing.xxxl * 2} />
+              {step === 'code' && (
+                <>
+                  <View style={styles.block}>
+                    <AppText variant="label" weight="bold">
+                      {tr('verify.codeLabel')}
+                    </AppText>
+                    <CodeBoxes value={code} onChange={onCodeChange} autoFocus />
+                    <View style={styles.resendLine}>
+                      <AppText variant="body" color="muted">
+                        {tr('verify.sentSms')}
+                        {tr('item.metaSeparator')}
+                      </AppText>
+                      {secondsLeft > 0 ? (
+                        <AppText variant="body" color="muted">
+                          {tr('verify.resendIn', { time: clock(secondsLeft) })}
+                        </AppText>
+                      ) : (
+                        <Pressable onPress={() => sendCode('sms')} hitSlop={spacing.md} accessibilityRole="button">
+                          <AppText variant="body" weight="bold" color="accentInk">
+                            {tr('verify.resend')}
+                          </AppText>
+                        </Pressable>
+                      )}
+                    </View>
+                  </View>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
-        {showError ? (
-          <AppText variant="body" color="muted" style={styles.center}>
-            {t('verify.lockNote', { attempts: OTP_MAX_ATTEMPTS, minutes: OTP_LOCK_MINUTES })}
-          </AppText>
-        ) : step === 'phone' ? (
-          <SheetButton label={t('verify.send')} onPress={onSendFirst} disabled={!isValidPhone(phone) || busy} />
-        ) : (
-          <>
-            <SheetButton label={t('verify.confirm')} onPress={() => check(code)} disabled={code.length < OTP_LENGTH || busy} />
-            <AppText variant="meta" color="muted" style={styles.center}>
-              {t('verify.terms')}
+                  <Pressable
+                    onPress={() => sendCode('whatsapp')}
+                    style={styles.whatsappButton}
+                    accessibilityRole="button">
+                    <MessageCircle size={size.icon - spacing.xs} color={colors.ink} strokeWidth={size.iconStroke} />
+                    <AppText variant="label" weight="semibold">
+                      {tr('verify.whatsappInstead')}
+                    </AppText>
+                  </Pressable>
+                </>
+              )}
+            </>
+          )}
+        </ScrollView>
+
+        <UndoToast bottomOffset={insets.bottom + size.button + spacing.xxxl * 2} />
+
+        <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
+          {showError ? (
+            <AppText variant="body" color="muted" style={styles.center}>
+              {tr('verify.lockNote', { attempts: OTP_MAX_ATTEMPTS, minutes: OTP_LOCK_MINUTES })}
             </AppText>
-          </>
-        )}
-      </View>
-    </KeyboardAvoidingView>
+          ) : step === 'phone' ? (
+            <SheetButton label={tr('verify.send')} onPress={onSendFirst} disabled={!isValidPhone(phone) || busy} />
+          ) : (
+            <>
+              <SheetButton
+                label={tr('verify.confirm')}
+                onPress={() => check(code)}
+                disabled={code.length < OTP_LENGTH || busy}
+              />
+              <AppText variant="meta" color="muted" style={styles.center}>
+                {tr('verify.terms')}
+              </AppText>
+            </>
+          )}
+        </View>
+      </KeyboardAvoidingView>
+    </DirectionView>
   );
 }
 

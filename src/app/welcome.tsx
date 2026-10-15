@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { Brand } from '@/components/onboarding/OnboardingParts';
 import { SheetButton } from '@/components/shop/Sheet';
-import { t } from '@/i18n';
+import { t, tIn } from '@/i18n';
 import { useList } from '@/store/ListStore';
 import { colors, radius, size, spacing } from '@/theme';
 
@@ -63,6 +63,10 @@ export default function WelcomeScreen() {
       <View style={styles.footer}>
         <SheetButton label={t('welcome.start')} onPress={() => router.push('/verify')} />
         <SheetButton label={t('welcome.haveInvite')} tone="link" onPress={() => router.push('/join')} />
+        {/* For a driver or helper who doesn't read Arabic */}
+        <AppText variant="meta" color="muted" style={styles.helperNote}>
+          {tIn('en', 'welcome.helperNote')}
+        </AppText>
       </View>
     </View>
   );
@@ -109,5 +113,9 @@ const styles = StyleSheet.create({
   },
   footer: {
     gap: spacing.xs,
+  },
+  helperNote: {
+    textAlign: 'center',
+    writingDirection: 'ltr',
   },
 });

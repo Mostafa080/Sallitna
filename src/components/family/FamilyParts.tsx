@@ -12,6 +12,8 @@ import { colors, radius, size, spacing } from '@/theme';
 
 // Back points to the start side, "go into" points to the end side
 export const BackIcon = isRTLLayout ? ChevronRight : ChevronLeft;
+// For a screen laid out in another direction (a helper's language)
+export const backIconFor = (direction: 'rtl' | 'ltr') => (direction === 'rtl' ? ChevronRight : ChevronLeft);
 export const ForwardIcon = isRTLLayout ? ChevronLeft : ChevronRight;
 
 // --- Round header button ---------------------------------------------------------

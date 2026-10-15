@@ -4,7 +4,7 @@
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
-import { MessageCircle } from 'lucide-react-native';
+import { Languages, MessageCircle } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,7 +16,7 @@ import { StepDashes } from '@/components/onboarding/OnboardingParts';
 import { SheetButton } from '@/components/shop/Sheet';
 import { UndoToast } from '@/components/UndoToast';
 import { inviteCode, type Member, type PendingInvite } from '@/data/fakeHousehold';
-import { t } from '@/i18n';
+import { t, tIn } from '@/i18n';
 import { useList } from '@/store/ListStore';
 import { colors, radius, size, spacing } from '@/theme';
 
@@ -52,7 +52,24 @@ export default function InviteScreen({ setup = false }: { setup?: boolean }) {
     if (!code) return;
     Haptics.selectionAsync();
     Share.share({
-      message: t(`invite.message_${me?.gender ?? 'f'}`, { name: me?.display_name ?? '', list: list.householdName, link, code }),
+      message: t(`invite.message_${me?.gender ?? 'f'}`, {
+        name: me?.display_name ?? '',
+        list: list.householdName,
+        link,
+        code,
+      }),
+    });
+  };
+
+  // A driver / maid gets their own code (joins as a helper) and a message in English and Hindi
+  const onInviteHelper = async () => {
+    Haptics.selectionAsync();
+    const helperCode = live ? await list.ensureInviteCode('helper') : inviteCode;
+    if (!helperCode) return;
+    const helperLink = `https://${INVITE_HOST}${helperCode}`;
+    const params = { list: list.householdName, link: helperLink, code: helperCode };
+    Share.share({
+      message: [tIn('en', 'invite.helperMessage', params), tIn('hi', 'invite.helperMessage', params)].join('\n\n'),
     });
   };
 
@@ -98,11 +115,7 @@ export default function InviteScreen({ setup = false }: { setup?: boolean }) {
         showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           {/* In sign-up the list already exists — no going back, only «التالي» */}
-          {setup ? (
-            <View />
-          ) : (
-            <CircleButton icon={BackIcon} label={t('detail.back')} onPress={() => router.back()} />
-          )}
+          {setup ? <View /> : <CircleButton icon={BackIcon} label={t('detail.back')} onPress={() => router.back()} />}
           {setup && <StepDashes current={3} total={3} />}
         </View>
 
@@ -124,7 +137,13 @@ export default function InviteScreen({ setup = false }: { setup?: boolean }) {
           </Pressable>
 
           <View style={styles.linkField}>
-            <AppText variant="item" style={styles.link} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} selectable>
+            <AppText
+              variant="item"
+              style={styles.link}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.7}
+              selectable>
               {shortLink}
             </AppText>
             <Pressable onPress={onCopy} style={styles.copyButton} accessibilityRole="button">
@@ -134,6 +153,21 @@ export default function InviteScreen({ setup = false }: { setup?: boolean }) {
             </Pressable>
           </View>
         </View>
+
+        {/* Driver / maid: separate code, they see the list in their language */}
+        <Pressable onPress={onInviteHelper} style={styles.helperButton} accessibilityRole="button">
+          <View style={styles.helperIcon}>
+            <Languages size={size.icon - spacing.xs} color={colors.accent} strokeWidth={size.iconStroke} />
+          </View>
+          <View style={styles.flex}>
+            <AppText variant="item" weight="bold">
+              {t('invite.helperTitle')}
+            </AppText>
+            <AppText variant="body" color="muted">
+              {t('invite.helperBody')}
+            </AppText>
+          </View>
+        </Pressable>
 
         <SectionLabel>{t('invite.onList', { n: people.length })}</SectionLabel>
         <Card>
@@ -204,6 +238,22 @@ const styles = StyleSheet.create({
   },
   title: {
     lineHeight: size.titleLine,
+  },
+  helperButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    padding: spacing.lg,
+    borderRadius: radius.card,
+    backgroundColor: colors.surface,
+  },
+  helperIcon: {
+    width: size.touch,
+    height: size.touch,
+    borderRadius: radius.pill,
+    backgroundColor: colors.accentTint,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   shareBlock: {
     gap: spacing.md,

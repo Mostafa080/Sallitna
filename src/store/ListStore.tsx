@@ -26,7 +26,7 @@ import {
   type PendingInvite,
   type StoreKey,
 } from '@/data/fakeHousehold';
-import { t } from '@/i18n';
+import { getLanguage, setLanguage, t } from '@/i18n';
 import * as api from '@/lib/api';
 import { normalizeArabic } from '@/lib/arabic';
 import { supabase } from '@/lib/supabase';
@@ -307,6 +307,15 @@ function useListState() {
   const [state, dispatch] = useReducer(reducer, undefined, initialState);
   const { trip } = state;
   const me = state.meId;
+
+  // A helper (driver / maid) uses the whole app in their own language; everyone else in Arabic.
+  // Set before this render's text is built (it's one shared setting, so doing it here is safe).
+  const meMember = state.members.find((m) => m.id === me);
+  const isHelper = state.mode === 'live' && meMember?.role === 'helper';
+  if (state.mode === 'live' || state.mode === 'demo') {
+    const appLanguage = isHelper && meMember ? meMember.view_language : 'ar';
+    if (getLanguage() !== appLanguage) setLanguage(appLanguage);
+  }
   const live = state.mode === 'live';
 
   // On launch: signed in? in a household? (the splash stays until we know)
@@ -336,7 +345,10 @@ function useListState() {
     load();
 
     const { data } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_OUT') dispatch({ type: 'replace', state: initialState('signedOut') });
+      if (event === 'SIGNED_OUT') {
+        setLanguage('ar');
+        dispatch({ type: 'replace', state: initialState('signedOut') });
+      }
     });
     return () => {
       cancelled = true;
@@ -582,6 +594,7 @@ function useListState() {
     householdId: state.householdId,
     inviteCode: state.inviteCode,
     lists: state.lists,
+    isHelper, // signed in as this list's helper → the helper's own screen instead of the family tabs
     hasSignupProfile: state.hasSignupProfile,
     activeTrips: state.activeTrips,
     otherShopperId,
@@ -1077,13 +1090,13 @@ function useListState() {
       }
     },
 
-    // This household's invite code (reuses a valid one)
-    async ensureInviteCode(): Promise<string | null> {
-      if (state.inviteCode) return state.inviteCode;
+    // This household's invite code (reuses a valid one). A helper code joins people as helpers.
+    async ensureInviteCode(role: 'member' | 'helper' = 'member'): Promise<string | null> {
+      if (role === 'member' && state.inviteCode) return state.inviteCode;
       if (!state.householdId) return null;
       try {
-        const code = await api.getOrCreateInvite(state.householdId);
-        dispatch({ type: 'set', patch: { inviteCode: code } });
+        const code = await api.getOrCreateInvite(state.householdId, role);
+        if (role === 'member') dispatch({ type: 'set', patch: { inviteCode: code } });
         return code;
       } catch (error) {
         failed(error);
@@ -1098,6 +1111,7 @@ function useListState() {
 
     async signOut() {
       if (live) await api.signOut().catch(failed);
+      setLanguage('ar'); // welcome is Arabic again
       dispatch({ type: 'replace', state: initialState('signedOut') });
     },
 

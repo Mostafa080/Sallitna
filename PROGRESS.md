@@ -752,3 +752,29 @@ Agreed: phone numbers Egypt only (+20).
 ### Known issues
 - (fixed) «حسابي» bottom row now works: manager → «امسح القائمة», others → «اطلع من …» (same as the «…» menu).
 - The manager can't just *leave* a list that has other people (they'd have to hand over first) — only delete it.
+
+## Session 14 — 2026-10-15: Real helper view (driver / maid)
+
+Agreed: join steps in the helper's language; helpers can tick «bought» and add items by typing.
+
+### Done
+- **Inviting a helper** (family side): «ادعي السواق أو المساعدة» on the invite screen → its own *helper* invite code,
+  shared with a message in English + Hindi.
+- **Joining as a helper**: on «عندي دعوة من العيلة», a helper code switches the screen to English (Hindi / Arabic
+  one tap away) and left-to-right; the code and «about you» steps follow (no Arabic-dialect question; tips: tick when
+  bought, add by typing). Welcome has a small English line for drivers / helpers.
+- **The helper's own home** (`src/components/helper/HelperHome.tsx`) instead of the family tabs, whole app in their
+  language: list in English / Hindi with the Arabic name underneath, «N of M left to buy», tick = bought (saved live),
+  **«Add an item…»** with search in their language («milk» → «Full-fat milk · لبن كامل الدسم», «tomat» → Tomatoes),
+  language switch (saved to their profile), avatar → sign out. Demo «شوف القائمة كأنك Rahul» still works (`app/helper.tsx`).
+- Database: `migrations/20261015160000_get_invite_role.sql` (`get_invite` also returns the role). **Tests 61/61.**
+- Hindi translations for sign-in / join / helper texts (please have a Hindi speaker check them).
+- Checked on the simulator with test accounts: +20 1000000003 (أم علي, list «بيت التجربة», manager) and
+  +20 1000000004 (Rahul, helper): join in English/Hindi → helper home → add Tomatoes → tick «Malk» → saved.
+
+### Known issues
+- After «Open the list» it takes ~8 seconds before the helper's list appears (loading the list) — to speed up.
+- In Expo Go, moving screen files can break the live reload («Requiring unknown module») — fully restart Expo Go.
+- The family side shows a helper's items as normal (no change needed), but a helper can't yet edit quantity or say
+  «not found»; no voice (paused).
+- Test data left for you to try: list «بيت التجربة» (owner 1000000003, helper 1000000004, code 123456).

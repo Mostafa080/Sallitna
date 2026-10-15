@@ -157,6 +157,27 @@ export function searchCatalog(query: string, limit = 4): CatalogItem[] {
     .map((r) => r.item);
 }
 
+// Search in a helper's language: English / Hindi names (e.g. «milk», «दूध»), plus the Arabic names and dialect words
+export function searchCatalogIn(query: string, language: 'ar' | 'en' | 'hi', limit = 4): CatalogItem[] {
+  if (language === 'ar') return searchCatalog(query, limit);
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  const score = (name: string) => {
+    const n = name.toLowerCase();
+    if (n === q) return 3;
+    if (n.startsWith(q) || n.split(' ').some((word) => word.startsWith(q))) return 2;
+    if (n.includes(q)) return 1;
+    return 0;
+  };
+  const translated = catalog
+    .map((item) => ({ item, score: Math.max(score(item.translations?.[language] ?? ''), score(item.translations?.en ?? '')) }))
+    .filter((r) => r.score > 0)
+    .sort((a, b) => b.score - a.score || (b.item.habits?.times_this_month ?? 0) - (a.item.habits?.times_this_month ?? 0))
+    .map((r) => r.item);
+  const arabic = searchCatalog(query, limit).filter((item) => !translated.includes(item));
+  return [...translated, ...arabic].slice(0, limit);
+}
+
 // Items the household usually buys that are due (or nearly due) again
 export function runningLow(excludeNames: Set<string>): CatalogItem[] {
   return catalog

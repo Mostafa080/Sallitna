@@ -19,7 +19,7 @@ export default function TabsLayout() {
     <TabBarProvider>
       {(sheetOpen) => (
         <NativeTabs
-          hidden={!ready || sheetOpen}
+          hidden={!ready || sheetOpen || list.isHelper}
           tintColor={colors.accent}
           badgeBackgroundColor={colors.accent}
           minimizeBehavior="onScrollDown"

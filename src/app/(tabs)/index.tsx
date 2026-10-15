@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { AvatarStack } from '@/components/Avatar';
 import { ForwardIcon } from '@/components/family/FamilyParts';
+import { HelperHome } from '@/components/helper/HelperHome';
 import { Brand } from '@/components/onboarding/OnboardingParts';
 import { Sheet } from '@/components/shop/Sheet';
 import { UndoToast } from '@/components/UndoToast';
@@ -39,7 +40,9 @@ export default function MyListsScreen() {
     setMenuFor(null);
     Alert.alert(
       t(how === 'delete' ? 'lists.deleteTitle' : 'lists.leaveTitle', { name: l.name }),
-      how === 'delete' ? t('lists.deleteMessage', { members: t('lists.members', { n: l.memberCount }) }) : t('lists.leaveBody'),
+      how === 'delete'
+        ? t('lists.deleteMessage', { members: t('lists.members', { n: l.memberCount }) })
+        : t('lists.leaveBody'),
       [
         { text: t('lists.cancel'), style: 'cancel' },
         {
@@ -101,6 +104,10 @@ export default function MyListsScreen() {
     router.push('/new-list');
   };
 
+  // A helper (driver / maid) gets their own simple screen in their language, without the family tabs
+  const me = list.memberById(list.currentMemberId);
+  if (list.isHelper && me) return <HelperHome helper={me} live onExit={() => {}} />;
+
   // Until we know who's signed in (and behind welcome / sign-up): the logo, not an empty screen
   if (list.mode !== 'live' && list.mode !== 'demo') {
     return (
@@ -129,7 +136,10 @@ export default function MyListsScreen() {
             onPress={() => onOpen(l)}
             style={({ pressed }) => [styles.card, pressed && styles.pressed]}
             accessibilityRole="button"
-            accessibilityLabel={t('lists.cardA11y', { name: l.name, members: t('lists.members', { n: l.memberCount }) })}>
+            accessibilityLabel={t('lists.cardA11y', {
+              name: l.name,
+              members: t('lists.members', { n: l.memberCount }),
+            })}>
             <View style={styles.cardTop}>
               <AppText variant="heading" weight="bold" style={styles.flex} numberOfLines={1}>
                 {l.name}

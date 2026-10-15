@@ -1,13 +1,13 @@
 // Building blocks for sign-up and joining (welcome, phone + code, name your home, join).
 
 import { ShoppingBasket } from 'lucide-react-native';
-import type { ReactNode } from 'react';
+import { useContext, type ReactNode } from 'react';
 import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { OTP_LENGTH, PHONE_PREFIX } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
-import { isRTLLayout } from '@/lib/direction';
+import { isRTLLayout, LayoutDirectionContext } from '@/lib/direction';
 import { colors, fonts, fontSize, layout, radius, size, spacing } from '@/theme';
 
 // Phone numbers and codes always read left-to-right; in an RTL screen that's the end side
@@ -67,6 +67,8 @@ export function StepDashes({ current, total, done }: { current: number; total: n
 type FieldProps = Omit<TextInputProps, 'style'> & { label: string };
 
 export function Field({ label, ...input }: FieldProps) {
+  // Typing starts on the reading side (right in Arabic, left in a helper's English / Hindi)
+  const direction = useContext(LayoutDirectionContext);
   return (
     <View style={styles.fieldBlock}>
       <AppText variant="label" weight="bold">
@@ -74,7 +76,7 @@ export function Field({ label, ...input }: FieldProps) {
       </AppText>
       <TextInput
         placeholderTextColor={colors.muted}
-        style={styles.input}
+        style={[styles.input, { textAlign: direction === 'rtl' ? 'right' : 'left' }]}
         accessibilityLabel={label}
         {...input}
       />
@@ -272,6 +274,7 @@ const styles = StyleSheet.create({
     textAlign: START_ALIGN,
   },
   phoneField: {
+    direction: 'rtl', // same look in every language: «+20» on the left edge, the number next to it
     minHeight: size.button + spacing.md,
     flexDirection: 'row',
     alignItems: 'stretch',

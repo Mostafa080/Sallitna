@@ -158,6 +158,11 @@ select pg_temp.check_('everyone: can read the catalog', (select count(*) from pu
 select pg_temp.check_('everyone: cannot change the catalog',
   pg_temp.blocked($q$ update public.catalog set name = 'x' where id = 'c1' $q$));
 
+-- ---------- Helper invite ----------
+select pg_temp.check_('helper invite: the join screen sees it is for a helper',
+  (select role from public.get_invite(pg_temp.get('codeHelper'))) = 'helper'
+  and (select role from public.get_invite(pg_temp.get('codeMember'))) = 'member');
+
 -- ---------- Manager actions ----------
 select pg_temp.act('umm');
 select public.remove_member(pg_temp.get('khalidMember')::uuid);
