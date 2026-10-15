@@ -38,9 +38,21 @@ export type Question = {
   createdAt: string;
   altName: string | null; // suggested replacement, if the catalog knows one
   answer: QuestionAnswer | null;
+  reply?: string | null; // the words of the reply («إيه جيبه»)
+};
+
+// Someone else's trip that's still going (live lists: «سارة في السوق»)
+export type ActiveTrip = {
+  id: string;
+  shopperId: string;
+  store: StoreKey;
+  mode: 'solo' | 'split';
+  partnerId: string | null;
+  startedAt: string;
 };
 
 export type TripSummary = {
+  tripId: string;
   shopperId: string;
   store: StoreKey;
   startedAt: string;

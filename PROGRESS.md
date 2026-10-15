@@ -541,3 +541,39 @@ Plan: **10 database** → 11 sign-in (phone, create/join household) → 12 live 
 - In Expo Go the floating Expo tools button (gear) sits on top of «تراجع» — drag it away; not in the real app.
 - Type-to-add's catalog and dialect words still come from the app's built-in copy (same data as the database).
 - Items with no translation show the Arabic name in the helper view (as before).
+
+## Session 13 (Part A) — 2026-10-15: Live trips and questions
+
+Agreed: trips + questions now, real push notifications in their own session (needs accounts — see Next).
+
+### Done
+- **«أنا في السوق» is a real trip** in the database. Everyone else in the list sees «سارة في السوق الحين» live,
+  plus a note «سارة راحت السوبرماركت · ناقصك شي؟». «خلّصت» / leaving shopping ends it for everyone.
+- Items the family adds during my trip appear on my shopping screen as «أضافه للتو» (live).
+- **Questions between phones:** «ما لقيته» → «اسأل خالد» saves a real question. Khalid sees an **orange card at the
+  top of his list** (agreed) «سارة تسألك · حليب خلصان. أجيب حليب قليل الدسم؟» with 3 quick replies
+  (or tap → the full answer screen). The shopper gets «خالد ردّ: …» live and the item swaps / goes / waits.
+- **Reopening the app mid-trip** returns to shopping mode (cart button orange, banner «أنتِ في السوق»).
+- Trip summary: «كم دفعت؟» amount is saved on the trip.
+- Start-trip sheet: «سارة تتسوق من 10 دقايق» now uses the real person and real minutes.
+- Database: `…130000_trips_questions_realtime.sql` (live trips/questions) and
+  `…131000_trip_question_checks_changed_only.sql` (**bug found in testing**: deleting an account that had shopped or
+  asked a question failed — fixed like items in session 12).
+- **Bug found in testing:** the «حليب مو موجود؟» sheet opened a bit short and then grew, pushing «أرسل السؤال» off the
+  bottom of the screen. It now opens at its full size.
+- **Tests: 52 / 52** security tests (new: only the person asked can answer; you can't ask or start a trip as someone
+  else; strangers see no trips/questions; trips and questions can't be deleted; account deletion with trips works).
+  Live test on the simulator (Sara) + a second account (Khalid): his trip → Sara's banner; his question → Sara's card;
+  Sara's answer saved; Sara's trip → Khalid notified; Khalid adds milk during Sara's trip → appears on her screen;
+  Sara asks → Khalid answers → Sara sees it live; Sara finishes → Khalid sees it end. Test account deleted afterwards.
+
+### Next
+- **Session 14: real push notifications** — needs from you: a free **Expo account** (expo.dev) and an
+  **Apple Developer account** ($99/year) for a real iPhone; then libraries `expo-notifications` + `expo-device`
+  (will ask), a development build of the app (Expo Go can't receive push), and a small Supabase function that sends them.
+
+### Known issues
+- After reopening the app mid-trip, items added before the restart no longer show as «انضافت وقتها» in the summary.
+- Split shopping (two shoppers at once) uses the live trips, but who-takes-which-aisle is still simple (each claims items).
+- Your «البيت» list (Sara, 500000002) has «طماطم، ماء، بصل» bought in a trip at 2:41pm — that wasn't me; probably you
+  testing on your phone. 

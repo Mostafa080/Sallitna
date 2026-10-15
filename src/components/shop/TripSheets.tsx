@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
@@ -50,12 +50,8 @@ type NotFoundProps = {
 };
 
 export function NotFoundSheet({ item, adder, askTarget, onConfirm, onClose }: NotFoundProps) {
+  // Starts fresh for each item (the shop screen gives each item its own sheet)
   const [choice, setChoice] = useState<NotFoundChoice>(askTarget ? 'ask' : 'next');
-
-  // Reset the choice each time the sheet opens for an item
-  useEffect(() => {
-    setChoice(askTarget ? 'ask' : 'next');
-  }, [item?.id, askTarget]);
 
   if (!item) return null;
 

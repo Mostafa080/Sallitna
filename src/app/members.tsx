@@ -10,7 +10,7 @@ import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { BackIcon, Card, CircleButton, ForwardIcon, SectionLabel, StatusPill } from '@/components/family/FamilyParts';
 import { UndoToast } from '@/components/UndoToast';
-import { activeShopperId, pastTrips, type Member } from '@/data/fakeHousehold';
+import { pastTrips, type Member } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import * as api from '@/lib/api';
 import { formatClock, formatRelativeTime, isToday } from '@/lib/format';
@@ -33,7 +33,7 @@ export default function MembersScreen() {
     if (list.mode === 'live') list.refreshHousehold().catch(() => {});
   }, []);
   const canManage = me?.role === 'owner';
-  const shopperId = list.trip ? list.currentMemberId : activeShopperId;
+  const shopperId = list.currentShopperId;
 
   const roleName = (m: Member) => t(`roles.${m.role}_${m.gender}`);
   const metaFor = (m: Member) =>

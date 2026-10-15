@@ -169,7 +169,13 @@
     "signedOut": "Signed out",
     "profileSaved": "Profile saved",
     "othersAdded_f": "{{name}} added “{{item}}”",
-    "othersAdded_m": "{{name}} added “{{item}}”"
+    "othersAdded_m": "{{name}} added “{{item}}”",
+    "wentShopping_f": "{{name}} went to the {{store}} · need anything?",
+    "wentShopping_m": "{{name}} went to the {{store}} · need anything?",
+    "askedYou_f": "{{name}} is asking about “{{item}}”",
+    "askedYou_m": "{{name}} is asking about “{{item}}”",
+    "answerArrived_f": "{{name}} replied: {{reply}}",
+    "answerArrived_m": "{{name}} replied: {{reply}}"
   },
   "empty": {
     "title": "The basket is empty",
@@ -836,5 +842,10 @@
     "body": "A list for home, work or friends. Then invite its people to add with you.",
     "create": "Create a list",
     "nameTitle": "Name your list"
+  },
+  "questionCard": {
+    "title_f": "{{name}} is asking",
+    "title_m": "{{name}} is asking",
+    "openA11y": "Open the question"
   }
 }

@@ -189,7 +189,13 @@
     "signedOut": "طلعت من حسابك",
     "profileSaved": "انحفظ ملفك",
     "othersAdded_f": "{{name}} أضافت «{{item}}»",
-    "othersAdded_m": "{{name}} أضاف «{{item}}»"
+    "othersAdded_m": "{{name}} أضاف «{{item}}»",
+    "wentShopping_f": "{{name}} راحت {{store}} · ناقصك شي؟",
+    "wentShopping_m": "{{name}} راح {{store}} · ناقصك شي؟",
+    "askedYou_f": "{{name}} تسألك عن «{{item}}»",
+    "askedYou_m": "{{name}} يسألك عن «{{item}}»",
+    "answerArrived_f": "{{name}} ردّت: {{reply}}",
+    "answerArrived_m": "{{name}} ردّ: {{reply}}"
   },
   "empty": {
     "title": "السلة فاضية",
@@ -878,5 +884,10 @@
     "body": "قائمة للبيت، للشغل أو للأصدقاء. بعدها تدعو ناسها ويضيفون معك.",
     "create": "أنشئ قائمة",
     "nameTitle": "سمّ قائمتك"
+  },
+  "questionCard": {
+    "title_f": "{{name}} تسألك",
+    "title_m": "{{name}} يسألك",
+    "openA11y": "افتح السؤال"
   }
 }

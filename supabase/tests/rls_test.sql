@@ -182,12 +182,49 @@ select pg_temp.act('eve');
 select pg_temp.check_('expired invite: cannot join',
   pg_temp.blocked(format($q$ select public.join_household(%L, 'Eve', 'f') $q$, pg_temp.get('codeMember'))));
 
+-- ---------- Trips and questions ----------
+select pg_temp.act('khalid');
+select pg_temp.put('khalidNow', (select id::text from public.members where user_id = auth.uid() and left_at is null));
+insert into public.trips (household_id, shopper_id, store) values (pg_temp.get('hhA')::uuid, pg_temp.get('khalidNow')::uuid, 'supermarket');
+select pg_temp.put('tripA', (select id::text from public.trips where household_id = pg_temp.get('hhA')::uuid limit 1));
+insert into public.items (household_id, name, added_by) values (pg_temp.get('hhA')::uuid, 'هيل', pg_temp.get('khalidNow')::uuid);
+select pg_temp.put('itemHeel', (select id::text from public.items where name = 'هيل'));
+select pg_temp.check_('shopper: can ask the manager about an item',
+  not pg_temp.blocked(format($q$ insert into public.questions (household_id, trip_id, item_id, from_member, to_member) values (%L, %L, %L, %L, %L) $q$,
+    pg_temp.get('hhA'), pg_temp.get('tripA'), pg_temp.get('itemHeel'), pg_temp.get('khalidNow'), pg_temp.get('ummMember'))));
+select pg_temp.check_('shopper: cannot ask pretending to be someone else',
+  pg_temp.blocked(format($q$ insert into public.questions (household_id, item_id, from_member, to_member) values (%L, %L, %L, %L) $q$,
+    pg_temp.get('hhA'), pg_temp.get('itemHeel'), pg_temp.get('ummMember'), pg_temp.get('khalidNow'))));
+select pg_temp.check_('shopper: cannot start a trip as someone else',
+  pg_temp.blocked(format($q$ insert into public.trips (household_id, shopper_id, store) values (%L, %L, 'grocery') $q$,
+    pg_temp.get('hhA'), pg_temp.get('ummMember'))));
+
+select pg_temp.act('rahul');
+select pg_temp.check_('someone not asked: cannot answer the question',
+  pg_temp.affected($q$ update public.questions set answer = 'no' $q$) <= 0);
+
+select pg_temp.act('umm');
+select pg_temp.check_('the person asked: can answer',
+  pg_temp.affected($q$ update public.questions set answer = 'alt', reply = 'إيه جيبه', answered_at = now() $q$) = 1);
+
+select pg_temp.act('eve');
+select pg_temp.check_('stranger: sees no trips', (select count(*) from public.trips where household_id = pg_temp.get('hhA')::uuid) = 0);
+select pg_temp.check_('stranger: sees no questions', (select count(*) from public.questions) = 0);
+select pg_temp.check_('stranger: cannot end their trip',
+  pg_temp.affected(format($q$ update public.trips set ended_at = now() where id = %L $q$, pg_temp.get('tripA'))) <= 0);
+select pg_temp.check_('nobody: can delete trips or questions',
+  pg_temp.blocked('delete from public.trips') and pg_temp.blocked('delete from public.questions'));
+
 -- ---------- Deleting an account that added items ----------
 reset role;
 select pg_temp.check_('deleting Rahul''s account works even though he added items',
   not pg_temp.blocked($q$ delete from auth.users where id = '00000000-0000-4000-a000-000000000003' $q$));
 select pg_temp.check_('his items stay on the list (who-added cleared)',
-  (select count(*) from public.items where name = 'Eggs' and added_by is null) = 1);
+  (select count(*) from public.items where household_id = pg_temp.get('hhA')::uuid and name = 'Eggs' and added_by is null) = 1);
+select pg_temp.check_('deleting Khalid''s account works even though he shopped and asked a question',
+  not pg_temp.blocked($q$ delete from auth.users where id = '00000000-0000-4000-a000-000000000002' $q$));
+select pg_temp.check_('the question stays (who asked cleared)',
+  (select count(*) from public.questions where household_id = pg_temp.get('hhA')::uuid and from_member is null) = 1);
 
 reset role;
 select

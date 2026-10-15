@@ -10,10 +10,11 @@ import { AppText } from '@/components/AppText';
 import { Avatar, AvatarStack } from '@/components/Avatar';
 import { EmptyState } from '@/components/EmptyState';
 import { ItemRow } from '@/components/ItemRow';
+import { QuestionCard } from '@/components/QuestionCard';
 import { Brand } from '@/components/onboarding/OnboardingParts';
 import { ShopperBanner } from '@/components/ShopperBanner';
 import { UndoToast } from '@/components/UndoToast';
-import { activeShopperId, basics, categoryOrder, NEW_ITEM_WINDOW_MINUTES, type Basic } from '@/data/fakeHousehold';
+import { basics, categoryOrder, NEW_ITEM_WINDOW_MINUTES, type Basic } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { isToday } from '@/lib/format';
 import { useList } from '@/store/ListStore';
@@ -72,7 +73,13 @@ export default function HomeScreen() {
   }, [openItems.length]);
 
   // My own trip takes over the banner; otherwise show whoever else is shopping
-  const shopper = list.members.find((m) => m.id === (list.trip ? list.currentMemberId : activeShopperId));
+  const shopper = list.members.find((m) => m.id === list.currentShopperId);
+  // Questions from a shopper waiting for my answer (newest first)
+  const questionsForMe = list.questions
+    .filter((q) => q.to === list.currentMemberId && q.from !== list.currentMemberId && !q.answer)
+    .map((q) => ({ q, item: list.items.find((i) => i.id === q.itemId), asker: list.memberById(q.from) }))
+    .filter((x): x is { q: typeof x.q; item: NonNullable<typeof x.item>; asker: NonNullable<typeof x.asker> } => !!x.item && !!x.asker)
+    .reverse();
   const pendingQuestion = list.questions.find((q) => !q.answer);
   const helper = list.members.find((m) => m.role === 'helper');
   const sections = categoryOrder
@@ -276,6 +283,17 @@ export default function HomeScreen() {
             <ShoppingCart size={size.icon} color={colors.onDark} strokeWidth={size.iconStroke} />
           </Pressable>
         </View>
+
+        {questionsForMe.map(({ q, item, asker }) => (
+          <QuestionCard
+            key={q.id}
+            question={q}
+            item={item}
+            asker={asker}
+            onReply={(answer, label) => list.answerQuestion(q.id, answer, label)}
+            onOpen={() => router.push({ pathname: '/answer', params: { id: q.id } })}
+          />
+        ))}
 
         {starterMode ? (
           <EmptyState basics={basics} added={addedBasics} onToggleBasic={onToggleBasic} onShowList={leaveStarterMode} />

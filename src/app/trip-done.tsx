@@ -90,6 +90,7 @@ export default function TripDoneScreen() {
 
   const onFinish = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    if (cleanAmount) list.saveTripAmount(Number(cleanAmount));
     router.dismissAll();
     list.clearSummary();
     list.notify(t('toast.tripReported'));

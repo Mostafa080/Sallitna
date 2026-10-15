@@ -37,7 +37,9 @@ export default function AnswerScreen() {
 
   const shopper = list.memberById(question.from)!;
   const replier = list.memberById(question.to)!;
-  const store = list.trip ? t(`stores.${list.trip.store}`) : '';
+  // Where the shopper is: their live trip (or my own trip in the demo)
+  const storeKey = list.tripStore(question.tripId);
+  const store = storeKey ? t(`stores.${storeKey}`) : '';
   const questionText = question.altName
     ? t('notFound.questionAlt', { name: item.name, alt: question.altName })
     : t('notFound.question', { name: item.name });
@@ -69,7 +71,7 @@ export default function AnswerScreen() {
             <AppText variant="heading" weight="bold" accessibilityRole="header">
               {t('answer.title', { name: shopper.display_name })}
             </AppText>
-            {list.trip && (
+            {storeKey && (
               <View style={styles.whereRow}>
                 <View style={styles.liveDot} />
                 <AppText variant="body" color="muted">

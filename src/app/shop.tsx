@@ -345,7 +345,9 @@ export default function ShopScreen() {
         onClose={() => setPicking(false)}
       />
 
+      {/* A fresh sheet per item, so it opens at its final size (with the «اسأل» preview already showing) */}
       <NotFoundSheet
+        key={notFoundItem?.id ?? 'none'}
         item={notFoundItem}
         adder={notFoundItem ? memberById(notFoundItem.added_by) : undefined}
         askTarget={notFoundItem ? askTargetFor(notFoundItem) : undefined}

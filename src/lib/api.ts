@@ -11,10 +11,12 @@ import {
   type LanguageKey,
   type Member,
   type MemberRole,
+  type StoreKey,
 } from '@/data/fakeHousehold';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { supabase } from '@/lib/supabase';
+import type { ActiveTrip, Question, QuestionAnswer } from '@/store/tripTypes';
 
 // Which of my lists was open last (each list = one household with its own people)
 const CURRENT_KEY = 'sallitna.currentHousehold';
@@ -448,4 +450,132 @@ export async function loadActivity(householdId: string, limit = 200): Promise<Ac
     }
   }
   return events;
+}
+
+// --- Trips and questions -----------------------------------------------------------------------
+
+type TripRow = {
+  id: string;
+  household_id: string;
+  shopper_id: string;
+  store: StoreKey;
+  mode: 'solo' | 'split';
+  partner_id: string | null;
+  started_at: string;
+  ended_at: string | null;
+};
+
+type QuestionRow = {
+  id: string;
+  household_id: string;
+  trip_id: string | null;
+  item_id: string;
+  from_member: string | null;
+  to_member: string | null;
+  alt_name: string | null;
+  answer: QuestionAnswer | null;
+  reply: string | null;
+  created_at: string;
+};
+
+const toActiveTrip = (r: TripRow): ActiveTrip => ({
+  id: r.id,
+  shopperId: r.shopper_id,
+  store: r.store,
+  mode: r.mode,
+  partnerId: r.partner_id,
+  startedAt: r.started_at,
+});
+
+const toQuestion = (r: QuestionRow): Question => ({
+  id: r.id,
+  tripId: r.trip_id ?? '',
+  itemId: r.item_id,
+  from: r.from_member ?? '',
+  to: r.to_member ?? '',
+  createdAt: r.created_at,
+  altName: r.alt_name,
+  answer: r.answer,
+  reply: r.reply,
+});
+
+// Trips still going (anyone's) + questions from the last day
+export async function loadTripState(householdId: string): Promise<{ trips: ActiveTrip[]; questions: Question[] }> {
+  const since = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
+  const [trips, questions] = await Promise.all([
+    supabase.from('trips').select('*').eq('household_id', householdId).is('ended_at', null).order('started_at'),
+    supabase.from('questions').select('*').eq('household_id', householdId).gte('created_at', since).order('created_at'),
+  ]);
+  return {
+    trips: (check(trips) as TripRow[]).map(toActiveTrip),
+    questions: (check(questions) as QuestionRow[]).map(toQuestion),
+  };
+}
+
+export async function startTrip(householdId: string, trip: ActiveTrip) {
+  check(
+    await supabase.from('trips').insert({
+      id: trip.id,
+      household_id: householdId,
+      shopper_id: trip.shopperId,
+      store: trip.store,
+      mode: trip.mode,
+      partner_id: trip.partnerId,
+      started_at: trip.startedAt,
+    }),
+  );
+}
+
+export async function endTrip(id: string, handoff = false) {
+  check(await supabase.from('trips').update({ ended_at: new Date().toISOString(), handoff }).eq('id', id));
+}
+
+export async function saveTripAmount(id: string, amount: number) {
+  check(await supabase.from('trips').update({ amount_paid: amount }).eq('id', id));
+}
+
+export async function askQuestion(householdId: string, q: Question) {
+  check(
+    await supabase.from('questions').insert({
+      id: q.id,
+      household_id: householdId,
+      trip_id: q.tripId || null,
+      item_id: q.itemId,
+      from_member: q.from,
+      to_member: q.to,
+      alt_name: q.altName,
+    }),
+  );
+}
+
+export async function answerQuestion(id: string, answer: QuestionAnswer, reply: string) {
+  check(
+    await supabase.from('questions').update({ answer, reply, answered_at: new Date().toISOString() }).eq('id', id),
+  );
+}
+
+// Live trips and questions for this household. Returns a function that stops listening.
+export function watchTripsAndQuestions(
+  householdId: string,
+  on: {
+    trip: (trip: ActiveTrip, ended: boolean, isNew: boolean) => void;
+    question: (q: Question, isNew: boolean) => void;
+  },
+) {
+  const filter = `household_id=eq.${householdId}`;
+  const channel = supabase
+    .channel(`trips:${householdId}`)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'trips', filter }, (p) => {
+      if (p.eventType === 'DELETE') return;
+      const row = p.new as TripRow;
+      on.trip(toActiveTrip(row), !!row.ended_at, p.eventType === 'INSERT');
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'questions', filter }, (p) => {
+      if (p.eventType === 'DELETE') return;
+      on.question(toQuestion(p.new as QuestionRow), p.eventType === 'INSERT');
+    })
+    .subscribe();
+  return () => {
+    supabase.removeChannel(channel);
+  };
 }

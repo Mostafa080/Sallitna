@@ -10,7 +10,7 @@ import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { FilterPill } from '@/components/FilterPill';
 import { RadioCard, Sheet, SheetButton } from '@/components/shop/Sheet';
-import { activeShopperId, activeShopperSinceMinutes, storeOrder, type StoreKey } from '@/data/fakeHousehold';
+import { activeShopperSinceMinutes, storeOrder, type StoreKey } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { useList } from '@/store/ListStore';
 import { colors, radius, size, spacing } from '@/theme';
@@ -20,7 +20,12 @@ export default function StartTripScreen() {
   const list = useList();
   const me = list.memberById(list.currentMemberId);
   // Only someone who's actually in this household (a brand-new household has nobody shopping)
-  const other = activeShopperId && activeShopperId !== list.currentMemberId ? list.members.find((m) => m.id === activeShopperId) : undefined;
+  const other = list.otherShopperId ? list.members.find((m) => m.id === list.otherShopperId) : undefined;
+  // How long they've been shopping (live: from their trip; demo: a fixed 10 minutes)
+  const otherTrip = list.activeTrips.find((tr) => tr.shopperId === list.otherShopperId);
+  const otherMinutes = otherTrip
+    ? Math.max(1, Math.round((Date.now() - new Date(otherTrip.startedAt).getTime()) / 60_000))
+    : activeShopperSinceMinutes;
   const g = me?.gender ?? 'm';
 
   const [store, setStore] = useState<StoreKey>('supermarket');
@@ -69,7 +74,7 @@ export default function StartTripScreen() {
               <AppText variant="body" style={styles.flex}>
                 {t(`startTrip.otherShopper_${other.gender}`, {
                   name: other.display_name,
-                  minutes: t('time.minutes', { n: activeShopperSinceMinutes }),
+                  minutes: t('time.minutes', { n: otherMinutes }),
                 })}
               </AppText>
             </View>

@@ -32,7 +32,7 @@ import { normalizeArabic } from '@/lib/arabic';
 import { supabase } from '@/lib/supabase';
 import { formatQuantity } from '@/lib/format';
 import type { ListChange } from '@/lib/voiceReview';
-import type { Question, QuestionAnswer, Trip, TripOutcome, TripSummary } from '@/store/tripTypes';
+import type { ActiveTrip, Question, QuestionAnswer, Trip, TripOutcome, TripSummary } from '@/store/tripTypes';
 
 // What "undo" reverses: items to put back as they were, and newly added items to take away.
 // Family changes undo by putting the whole member list back.
@@ -67,6 +67,7 @@ type State = {
   inviteCode: string | null; // live: this household's current invite code
   lists: api.ListSummary[]; // all my lists (live) — each is its own household with its own people
   hasSignupProfile: boolean; // needsHousehold: «عرّفنا عليك» already answered → go to «أنشئ قائمتك الأولى»
+  activeTrips: ActiveTrip[]; // live: other people's trips still going («سارة في السوق»)
 };
 
 // loading: checking sign-in · signedOut: show welcome · needsHousehold: signed in, no household yet
@@ -85,7 +86,10 @@ type Action =
   | { type: 'replace'; state: State }
   | { type: 'remoteUpsert'; item: Item }
   | { type: 'remoteDelete'; id: string }
-  | { type: 'loadedItems'; householdId: string; items: Item[] };
+  | { type: 'loadedItems'; householdId: string; items: Item[] }
+  | { type: 'loadedTrips'; householdId: string; trips: ActiveTrip[]; questions: Question[] }
+  | { type: 'tripChanged'; trip: ActiveTrip; ended: boolean }
+  | { type: 'questionChanged'; question: Question };
 
 function initialState(mode: Mode = 'loading'): State {
   return {
@@ -107,6 +111,7 @@ function initialState(mode: Mode = 'loading'): State {
     inviteCode: null,
     lists: [],
     hasSignupProfile: false,
+    activeTrips: [],
   };
 }
 
@@ -176,11 +181,73 @@ function reducer(state: State, action: Action): State {
       return action.state;
     case 'remoteUpsert': {
       const exists = state.items.some((i) => i.id === action.item.id);
+      // Added by the family while I'm shopping: goes on my trip as «just added»
+      const addToTrip = !exists && state.trip && action.item.status === 'open';
       return {
         ...state,
         items: exists
           ? state.items.map((i) => (i.id === action.item.id ? action.item : i))
           : [...state.items, action.item],
+        trip:
+          addToTrip && state.trip
+            ? {
+                ...state.trip,
+                itemIds: [...state.trip.itemIds, action.item.id],
+                addedIds: [...state.trip.addedIds, action.item.id],
+              }
+            : state.trip,
+      };
+    }
+    case 'loadedTrips': {
+      if (state.householdId !== action.householdId) return state;
+      const mine = action.trips.find((t) => t.shopperId === state.meId);
+      // Reopened the app mid-trip: back into shopping mode (what was asked is kept, the rest starts fresh)
+      const trip =
+        state.trip ??
+        (mine
+          ? {
+              ...mine,
+              itemIds: state.items.filter((i) => i.status === 'open' || i.status === 'in_cart').map((i) => i.id),
+              addedIds: [],
+              skippedIds: action.questions
+                .filter((q) => q.tripId === mine.id && q.answer !== 'alt')
+                .map((q) => q.itemId),
+              outcomes: [],
+            }
+          : null);
+      return {
+        ...state,
+        activeTrips: action.trips.filter((t) => t.shopperId !== state.meId),
+        questions: action.questions,
+        trip,
+      };
+    }
+    case 'tripChanged': {
+      if (action.trip.shopperId === state.meId) return state;
+      const others = state.activeTrips.filter((t) => t.id !== action.trip.id);
+      return { ...state, activeTrips: action.ended ? others : [...others, action.trip] };
+    }
+    case 'questionChanged': {
+      const q = action.question;
+      const before = state.questions.find((x) => x.id === q.id);
+      const questions = before ? state.questions.map((x) => (x.id === q.id ? q : x)) : [...state.questions, q];
+      // My question just got answered while I'm still shopping: update the trip
+      const trip = state.trip;
+      if (!trip || trip.id !== q.tripId || !q.answer || before?.answer) return { ...state, questions };
+      const item = state.items.find((i) => i.id === q.itemId);
+      const base = { itemId: q.itemId, name: item?.name ?? '', answeredBy: q.to, reply: q.reply ?? undefined };
+      const next: TripOutcome =
+        q.answer === 'alt'
+          ? { ...base, decision: 'swapped', alt: q.altName ?? item?.name }
+          : { ...base, decision: q.answer === 'no' ? 'removed' : 'next' };
+      return {
+        ...state,
+        questions,
+        trip: {
+          ...trip,
+          skippedIds: q.answer === 'alt' ? trip.skippedIds.filter((s) => s !== q.itemId) : trip.skippedIds,
+          outcomes: [...trip.outcomes.filter((o) => o.itemId !== q.itemId), next],
+        },
       };
     }
     case 'remoteDelete':
@@ -286,6 +353,8 @@ function useListState() {
   membersRef.current = state.members;
   const itemsRef = useRef(state.items);
   itemsRef.current = state.items;
+  const questionsRef = useRef(state.questions);
+  questionsRef.current = state.questions;
   useEffect(() => {
     if (!householdId) return;
     let cancelled = false;
@@ -293,6 +362,36 @@ function useListState() {
       .loadItems(householdId)
       .then((items) => !cancelled && dispatch({ type: 'loadedItems', householdId, items }))
       .catch((error) => __DEV__ && console.warn('[loadItems]', error));
+
+    api
+      .loadTripState(householdId)
+      .then(({ trips, questions }) => !cancelled && dispatch({ type: 'loadedTrips', householdId, trips, questions }))
+      .catch((error) => __DEV__ && console.warn('[loadTripState]', error));
+
+    const nameOf = (id: string) => membersRef.current.find((m) => m.id === id);
+    const say = (message: string) => dispatch({ type: 'toast', toast: { id: ++toastCounter, message } });
+    const stopTrips = api.watchTripsAndQuestions(householdId, {
+      trip: (trip, ended, isNew) => {
+        dispatch({ type: 'tripChanged', trip, ended });
+        const who = nameOf(trip.shopperId);
+        if (isNew && who && trip.shopperId !== meRef.current) {
+          say(t(`toast.wentShopping_${who.gender}`, { name: who.display_name, store: t(`stores.${trip.store}`) }));
+        }
+      },
+      question: (q, isNew) => {
+        const before = questionsRef.current.find((x) => x.id === q.id);
+        dispatch({ type: 'questionChanged', question: q });
+        const item = itemsRef.current.find((i) => i.id === q.itemId);
+        const from = nameOf(q.from);
+        const to = nameOf(q.to);
+        // Asked me → note (the card shows on the list); my question answered → note with the reply
+        if (isNew && q.to === meRef.current && from) {
+          say(t(`toast.askedYou_${from.gender}`, { name: from.display_name, item: item?.name ?? '' }));
+        } else if (q.from === meRef.current && q.answer && !before?.answer && to) {
+          say(t(`toast.answerArrived_${to.gender}`, { name: to.display_name, reply: q.reply ?? '' }));
+        }
+      },
+    });
 
     const stop = api.watchItems(householdId, (change) => {
       if (change.type === 'delete') {
@@ -331,6 +430,7 @@ function useListState() {
     return () => {
       cancelled = true;
       stop();
+      stopTrips();
     };
   }, [householdId]);
 
@@ -407,6 +507,12 @@ function useListState() {
   const everyone = live
     ? [...state.members, ...state.formerMembers]
     : [...state.members, ...demoMembers.filter((d) => !state.members.some((m) => m.id === d.id))];
+  // Someone else shopping right now (live: from the trips table; demo: the fake «سارة»)
+  const otherShopperId = live
+    ? (state.activeTrips.find((tr) => tr.shopperId !== me)?.shopperId ?? null)
+    : activeShopperId && activeShopperId !== me
+      ? activeShopperId
+      : null;
   const openItemNamed = (name: string) =>
     state.items.find((item) => item.status === 'open' && sameName(item.name, name));
 
@@ -443,7 +549,16 @@ function useListState() {
       type: 'replace',
       state: {
         ...liveState(membership, same ? state.items : [], lists),
-        inviteCode: same ? state.inviteCode : null,
+        // Same list: keep what's going on (a trip, questions, who's shopping, a summary being shown)
+        ...(same
+          ? {
+              inviteCode: state.inviteCode,
+              trip: state.trip,
+              questions: state.questions,
+              activeTrips: state.activeTrips,
+              summary: state.summary,
+            }
+          : { inviteCode: null }),
         toast: welcome ? { id: ++toastCounter, message: welcome } : null,
       },
     });
@@ -468,6 +583,15 @@ function useListState() {
     inviteCode: state.inviteCode,
     lists: state.lists,
     hasSignupProfile: state.hasSignupProfile,
+    activeTrips: state.activeTrips,
+    otherShopperId,
+    // Who the list's banner shows as shopping: me during my trip, otherwise someone else
+    currentShopperId: trip ? me : otherShopperId,
+    // A trip by id — mine or someone else's (for «في السوبرماركت الحين» on a question)
+    tripStore(tripId: string): StoreKey | null {
+      if (trip?.id === tripId) return trip.store;
+      return state.activeTrips.find((tr) => tr.id === tripId)?.store ?? null;
+    },
     everyone,
     memberById,
 
@@ -615,10 +739,15 @@ function useListState() {
 
     startTrip(store: StoreKey, mode: Trip['mode']) {
       const open = state.items.filter((i) => i.status === 'open');
-      const partnerId = mode === 'split' ? activeShopperId : null;
+      const partnerId = mode === 'split' ? otherShopperId : null;
+      const id = live ? api.newItemId() : newId('trip');
+      const startedAt = new Date().toISOString();
+      if (live && state.householdId) {
+        api.startTrip(state.householdId, { id, shopperId: me, store, mode, partnerId, startedAt }).catch(itemsFailed);
+      }
 
-      // Simulated split: the partner already took the dairy aisle and found one thing; produce is yours
-      if (partnerId) {
+      // Simulated split (demo only): the partner already took the dairy aisle and found one thing; produce is yours
+      if (partnerId && !live) {
         let partnerFoundOne = false;
         for (const item of open) {
           if (item.category === 'produce') patchItem(item.id, { claimed_by: me });
@@ -637,10 +766,10 @@ function useListState() {
         type: 'set',
         patch: {
           trip: {
-            id: newId('trip'),
+            id,
             store,
             shopperId: me,
-            startedAt: new Date().toISOString(),
+            startedAt,
             mode,
             partnerId,
             itemIds: open.map((i) => i.id),
@@ -706,6 +835,10 @@ function useListState() {
         altName: (altId && catalogById(altId)?.name) || null,
         answer: null,
       };
+      if (live && state.householdId) {
+        question.id = api.newItemId();
+        api.askQuestion(state.householdId, question).catch(itemsFailed);
+      }
       dispatch({ type: 'trip', patch: { skippedIds, outcomes: withOutcome(trip.outcomes, outcome(item, 'asked')) } });
       dispatch({ type: 'set', patch: { questions: [...state.questions, question] } });
       showToast(t('toast.questionSent', { name: memberById(askTo)?.display_name ?? '' }));
@@ -752,8 +885,9 @@ function useListState() {
 
       dispatch({
         type: 'set',
-        patch: { questions: state.questions.map((q) => (q.id === questionId ? { ...q, answer } : q)) },
+        patch: { questions: state.questions.map((q) => (q.id === questionId ? { ...q, answer, reply } : q)) },
       });
+      if (live) api.answerQuestion(questionId, answer, reply).catch(itemsFailed);
 
       if (trip && trip.id === question.tripId) {
         const answered = { answeredBy: question.to, reply };
@@ -801,7 +935,9 @@ function useListState() {
         else if (item.claimed_by === me) patchItem(item.id, { claimed_by: null });
       }
 
+      if (live) api.endTrip(trip.id, handoff).catch(itemsFailed);
       const summary: TripSummary = {
+        tripId: trip.id,
         shopperId: trip.shopperId,
         store: trip.store,
         startedAt: trip.startedAt,
@@ -818,7 +954,13 @@ function useListState() {
 
     // Leave shopping mode without a summary (nothing was bought)
     leaveTrip() {
+      if (live && trip) api.endTrip(trip.id).catch(itemsFailed);
       dispatch({ type: 'set', patch: { trip: null, offline: false, pendingSync: [] } });
+    },
+
+    // «دفعت كم؟» on the trip summary (live lists only)
+    saveTripAmount(amount: number) {
+      if (live && state.summary?.tripId && amount > 0) api.saveTripAmount(state.summary.tripId, amount).catch(itemsFailed);
     },
 
     clearSummary() {
