@@ -355,3 +355,42 @@ Agreed split for "interactive flow for all screens": **(1) this session**, (2) t
 - The design shows «خالد أضاف 3 أغراض» (حليب ×2، خبز صامولي، رز بسمتي); the demo data has Khalid adding 2 recent things,
   so it shows «خالد أضاف غرضين · بصل أحمر، خبز صامولي».
 - The design shows «الهيل الحب خلصان» — our catalog calls it «هيل», so it reads «هيل خلصان. أجيب هيل مطحون؟».
+
+## Session 10 — 2026-10-15: Database (Supabase)
+
+Agreed: skip the "whole app in English/Hindi" session (Hindi stays where it is) and start the database.
+Plan: **10 database** → 11 sign-in (phone, create/join household) → 12 live list + sync → 13 trips, questions, push notifications.
+
+### Done
+- Supabase project **flqmhjzgekunnaxubjyj** (online; no Docker on this Mac, so no local copy).
+  The Supabase command-line tool runs through `npx` — nothing added to the app. You logged in once (`npx supabase login`).
+- `supabase/` folder (project-structure change, approved):
+  - `migrations/20261015090000_core_schema.sql` — tables: households, members, invites, catalog, catalog_aliases,
+    trips, items, questions, item_events, voice_jobs.
+  - `migrations/20261015090100_seed_catalog.sql` — the 21 catalog items + 43 dialect words, generated from
+    `src/data/fakeCatalog.ts` («عيش» = rice only for Saudi/Emirati/Kuwaiti).
+  - `tests/rls_test.sql` — security tests (see below).
+- **Row Level Security on every table.** You only see and change your own household. Only the manager renames the
+  list, changes roles or removes people; helpers can add and buy but can't invite or manage. Who added an item
+  can't be changed later. History (`item_events`) is written automatically by the database, nobody can write it by hand.
+- **Safe doors** (functions that check who's asking): `create_household`, `create_invite` (8-letter codes, 7 days,
+  member or helper), `get_invite` (what the join screen shows — works before sign-in), `join_household`,
+  `set_member_role` (making someone manager hands it over), `remove_member` / `restore_member` (undo),
+  `leave_household` (the manager must hand over first).
+- Removed members are kept (marked as left) so old items still show who added them.
+- **Tests: 38 / 38 pass** — signed-out visitor, manager, member, helper and a stranger from another household.
+  They run in a transaction that's rolled back, so nothing stays behind.
+  Run again any time: `npx supabase db query --linked -f supabase/tests/rls_test.sql`
+- Supabase security checker (`npx supabase db advisors --linked`): no errors; only warnings that the safe doors
+  are callable — on purpose, each one checks permissions itself.
+
+### Next
+- **Session 11: Sign-in.** Install `@supabase/supabase-js` (+ storage for the login session) — will ask first.
+  Turn on phone sign-in with **test numbers** (fixed codes, no SMS cost), connect the session-8 screens:
+  verify → real code, «سمّ بيتك» → `create_household`, invite → real link, join → `get_invite` / `join_household`.
+  The app's public Supabase address and public key go in `.env` (git ignores it).
+
+### Known issues / open questions
+- **Invite codes are 8 letters** (e.g. `K7MP2QXA`), not 4 like the design's «8KD2» — 4 letters could be guessed.
+- No push notifications, realtime or voice audio storage yet (sessions 12–13).
+- Real SMS (Twilio, paid) needed before launch; until then only the test numbers can sign in.
