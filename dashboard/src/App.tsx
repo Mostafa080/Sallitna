@@ -7,11 +7,12 @@ import { BrandMark } from './BrandMark';
 import { AdminsPage } from './pages/Admins';
 import { LoginPage } from './pages/Login';
 import { OverviewPage } from './pages/Overview';
+import { ProductsPage } from './pages/Products';
 import { UsersPage } from './pages/Users';
 import { rpc, supabase } from './supabase';
 import { text } from './text';
 
-type Page = 'overview' | 'users' | 'admins';
+type Page = 'overview' | 'users' | 'products' | 'admins';
 
 export function App() {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
@@ -61,6 +62,7 @@ export function App() {
   const nav: { key: Page; label: string }[] = [
     { key: 'overview', label: text.navOverview },
     { key: 'users', label: text.navUsers },
+    { key: 'products', label: text.navProducts },
     { key: 'admins', label: text.navAdmins },
   ];
 
@@ -88,6 +90,7 @@ export function App() {
       <main className="main">
         {page === 'overview' && <OverviewPage />}
         {page === 'users' && <UsersPage me={session.user.id} notify={notify} />}
+        {page === 'products' && <ProductsPage notify={notify} />}
         {page === 'admins' && <AdminsPage me={session.user.id} notify={notify} />}
       </main>
       {toast && <div className="toast">{toast}</div>}

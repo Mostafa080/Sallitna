@@ -131,7 +131,15 @@ function demoState(): State {
     householdName: household.name,
     settings: defaultSettings,
     meId: demoMeId,
-    lists: [{ householdId: household.id, name: household.name, memberCount: demoMembers.length, members: demoMembers, myRole: 'owner' }],
+    lists: [
+      {
+        householdId: household.id,
+        name: household.name,
+        memberCount: demoMembers.length,
+        members: demoMembers,
+        myRole: 'owner',
+      },
+    ],
   };
 }
 
@@ -318,13 +326,29 @@ function useListState() {
   }
   const live = state.mode === 'live';
 
+  // Product list for search: the copy saved on the phone right away, then the latest from the database.
+  // Words depend on my dialect («عيش» = bread in Egypt, rice in the Gulf).
+  const myDialect = state.mode === 'live' ? meMember?.dialect : undefined;
+  useEffect(() => {
+    if (!myDialect) return;
+    api
+      .loadCachedCatalog(myDialect)
+      .catch(() => {})
+      .then(() => api.loadCatalog(myDialect))
+      .catch((error) => __DEV__ && console.warn('[catalog]', error));
+  }, [myDialect]);
+
   // On launch: signed in? in a household? (the splash stays until we know)
   useEffect(() => {
     let cancelled = false;
     let retry: ReturnType<typeof setTimeout> | undefined;
-    // The stale-sign-in check and the lists load at the same time (one wait instead of three)
+    // First make sure the saved sign-in is fresh (an hour-old one gets renewed here) — otherwise the two checks
+    // below would race the renewal and wrongly sign the person out. Then the stale-account check and the lists
+    // load at the same time (one wait instead of three).
     const load = () =>
-      Promise.all([api.clearStaleSession(), api.loadMyLists()])
+      api
+        .freshSession()
+        .then(() => Promise.all([api.clearStaleSession(), api.loadMyLists()]))
         .then(async ([gone, { membership, lists }]) => {
           if (cancelled) return;
           if (gone) return dispatch({ type: 'set', patch: { mode: 'signedOut' } });
@@ -416,7 +440,10 @@ function useListState() {
       dispatch({ type: 'remoteUpsert', item });
       // Someone (usually the helper) couldn't find it — my own changes are already local, so no note for those
       if (before && before.status !== 'not_found' && item.status === 'not_found') {
-        dispatch({ type: 'toast', toast: { id: ++toastCounter, message: t('toast.othersNotFound', { item: item.name }) } });
+        dispatch({
+          type: 'toast',
+          toast: { id: ++toastCounter, message: t('toast.othersNotFound', { item: item.name }) },
+        });
       }
       // Someone else added something: a small note (ticks and edits update quietly)
       if (isNew && !known && item.added_by !== meRef.current && item.status === 'open') {
@@ -484,16 +511,14 @@ function useListState() {
   const failed = (error: unknown) => {
     if (__DEV__) console.warn('[api]', error);
     showToast(t('toast.saveFailed'));
-    api
-      .loadMembership()
-      .then(
-        (m) =>
-          m &&
-          dispatch({
-            type: 'set',
-            patch: { members: m.members, formerMembers: m.formerMembers, householdName: m.householdName },
-          }),
-      );
+    api.loadMembership().then(
+      (m) =>
+        m &&
+        dispatch({
+          type: 'set',
+          patch: { members: m.members, formerMembers: m.formerMembers, householdName: m.householdName },
+        }),
+    );
   };
   const familyUndo = (): Undo => ({ restore: [], discard: [], members: state.members });
 
@@ -502,7 +527,11 @@ function useListState() {
     if (__DEV__) console.warn('[items]', error);
     showToast(t('toast.saveFailed'));
     const hh = state.householdId;
-    if (hh) api.loadItems(hh).then((items) => dispatch({ type: 'loadedItems', householdId: hh, items })).catch(() => {});
+    if (hh)
+      api
+        .loadItems(hh)
+        .then((items) => dispatch({ type: 'loadedItems', householdId: hh, items }))
+        .catch(() => {});
   };
   const patchItem = (id: string, patch: Partial<Item>) => {
     dispatch({ type: 'patch', id, patch });
@@ -675,7 +704,9 @@ function useListState() {
         const existing = openItemNamed(draft.name);
         if (existing) {
           const qty = existing.qty + draft.qty;
-          const requested_by = existing.requested_by.includes(me) ? existing.requested_by : [...existing.requested_by, me];
+          const requested_by = existing.requested_by.includes(me)
+            ? existing.requested_by
+            : [...existing.requested_by, me];
           patchItem(existing.id, { qty, requested_by });
           undo.restore.push(existing);
           lastMessage = t('toast.addedMore', { name: existing.name, qty: formatQuantity(qty, existing.unit) });
@@ -961,8 +992,7 @@ function useListState() {
       const mine = trip.partnerId ? inCart.filter((i) => i.claimed_by !== trip.partnerId) : inCart;
 
       for (const item of tripItems) {
-        if (item.status === 'in_cart')
-          patchItem(item.id, { status: 'bought', claimed_by: null });
+        if (item.status === 'in_cart') patchItem(item.id, { status: 'bought', claimed_by: null });
         else if (item.claimed_by === me) patchItem(item.id, { claimed_by: null });
       }
 
@@ -991,7 +1021,8 @@ function useListState() {
 
     // «دفعت كم؟» on the trip summary (live lists only)
     saveTripAmount(amount: number) {
-      if (live && state.summary?.tripId && amount > 0) api.saveTripAmount(state.summary.tripId, amount).catch(itemsFailed);
+      if (live && state.summary?.tripId && amount > 0)
+        api.saveTripAmount(state.summary.tripId, amount).catch(itemsFailed);
     },
 
     clearSummary() {

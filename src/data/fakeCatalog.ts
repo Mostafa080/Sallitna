@@ -1,5 +1,6 @@
-// Fake product catalog + dialect aliases + this household's buying habits.
-// Mirrors the planned `catalog` + `aliases` tables; habits will come from purchase history.
+// Product catalog + dialect words used by search, quick-add and the helper's translations.
+// Starts with the built-in copy below; once the app is online it's replaced by the database's list
+// (managed from the admin dashboard) via setCatalog(). Habits are still examples (real history comes later).
 
 import type { CategoryKey, ItemDraft, Unit } from '@/data/fakeHousehold';
 import { normalizeArabic } from '@/lib/arabic';
@@ -20,7 +21,7 @@ export type CatalogItem = {
   };
 };
 
-export const catalog: CatalogItem[] = [
+const builtInCatalog: CatalogItem[] = [
   {
     id: 'c1', name: 'لبن كامل الدسم', aliases: ['لبن', 'لبن كامل', 'حليب', 'حليب كامل', 'حليب كامل الدسم'], category: 'dairy', alternative: 'c2',
     default_qty: 1, default_unit: 'count', translations: { en: 'Full-fat milk', hi: 'फुल क्रीम दूध' },
@@ -118,8 +119,20 @@ export const catalog: CatalogItem[] = [
   },
 ];
 
-// Precompute normalized search terms once
-const searchTerms = new Map(catalog.map((c) => [c.id, [c.name, ...c.aliases].map(normalizeArabic)]));
+// The list search uses (visible products only), every product by id (hidden ones too, for items already on lists),
+// and each product's normalized words
+let catalog: CatalogItem[] = builtInCatalog;
+let byId = new Map(catalog.map((c) => [c.id, c]));
+let searchTerms = new Map(catalog.map((c) => [c.id, [c.name, ...c.aliases].map(normalizeArabic)]));
+
+// Replace the list with the database's (visible products + hidden ones kept only for lookups by id).
+// Example habits stay attached to the built-in products they belong to.
+export function setCatalog(visible: CatalogItem[], hidden: CatalogItem[] = []) {
+  const habits = new Map(builtInCatalog.map((c) => [c.id, c.habits]));
+  catalog = visible.map((c) => ({ ...c, habits: c.habits ?? habits.get(c.id) }));
+  byId = new Map([...hidden, ...catalog].map((c) => [c.id, c]));
+  searchTerms = new Map(catalog.map((c) => [c.id, [c.name, ...c.aliases].map(normalizeArabic)]));
+}
 
 export function catalogToDraft(item: CatalogItem, qty?: number, unit?: Unit): ItemDraft {
   return {
@@ -198,5 +211,5 @@ export function usualItems(excludeNames: Set<string>, limit = 5): CatalogItem[] 
 }
 
 export function catalogById(id: string): CatalogItem | undefined {
-  return catalog.find((c) => c.id === id);
+  return byId.get(id);
 }

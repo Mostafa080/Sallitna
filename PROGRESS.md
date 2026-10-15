@@ -828,3 +828,36 @@ Agreed: (1) faster opening, (2) helper «Not found» by swipe (same as shopping)
 - **Move the database closer to Egypt** (e.g. Frankfurt `eu-central-1`) would make *everything* 2–3× faster.
   Supabase can't move a project: it means a new project + copying the data (a session of its own).
 - The helper's swipe and the family's «ملقوهاش» card weren't tried on the simulator screen (only the data side).
+
+## Session 17 — 2026-10-16: Dashboard part 2 — the product list
+
+Agreed: removing a product hides it (items already on lists keep working; it can be brought back).
+
+### Done
+- **The app reads products from the database** (`api.loadCatalog` / `loadCachedCatalog`, `setCatalog` in
+  `src/data/fakeCatalog.ts`): the built-in list is only a first-launch backup; the phone keeps the last list
+  (instant + offline) and fetches the latest when the app opens. Words follow my dialect: shared words + my
+  dialect's only («عيش» = bread for Egyptians, rice for Gulf dialects). Hidden products are skipped in search.
+- **Dashboard «المنتجات» page** (`dashboard/src/pages/Products.tsx`): all products with category, usual quantity,
+  English / Hindi names, «suggest instead» product and the words that find them; search, category filter,
+  show hidden; **add / edit** (form), **hide / bring back**, **add / remove words** (all dialects or one dialect).
+- Database: `migrations/20261016100000_admin_products.sql` — `catalog.hidden`, `catalog.updated_at`, admin-only
+  doors `admin_save_product`, `admin_set_product_hidden`, `admin_add_alias`, `admin_remove_alias`.
+  **Tests 88/88** (normal users can only read; admins can add/edit/hide and manage words; names stay unique).
+- Checked live: added «جبنة رومي» (dairy, 1 kilo, Roumi cheese, word «رومي») in the dashboard → the app found it
+  when typing «رومي», no app update.
+- **Bug found and fixed**: the launch speed-up from session 16 ran the "is this sign-in still valid" check at the
+  same time as loading, which signed out a phone whose sign-in was over an hour old. Now the sign-in is renewed
+  first (`api.freshSession`), then both run together. (The simulator was signed out once by it — signed back in.)
+
+### Known issues
+- Product changes reach a phone the next time the app is opened (not while it's open).
+- The «عادةً بتشتروا / قرّب يخلص» suggestions still use example habits (real buying history is a later feature).
+- **Starter product set added** (your request, done by Claude through the admin doors as the admin test account):
+  **85 everyday Egyptian groceries** + 119 search words → **107 products, 185 words** in total. Source file:
+  `supabase/seed/starter_products.json` (produce 22, dairy 8, bakery 5, pantry 29, meat/frozen/baby 10 under
+  «حاجات تانية», cleaning 11). No duplicates with the existing products. Hindi names should be checked by a speaker.
+- **200 more products added** (your request) through the admin doors: `supabase/seed/more_products_200.json`
+  (produce 39, dairy 17, bakery 17, pantry 66, meat/frozen/baby/pets/household 33 under «حاجات تانية», personal care
+  & cleaning 28) + 141 search words. **Totals now: 307 products, 326 words.** Checked for duplicates against the
+  database first (none). Hindi names should be checked by a speaker.

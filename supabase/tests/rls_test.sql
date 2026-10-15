@@ -290,6 +290,39 @@ select pg_temp.check_('admin: can delete an account',
 select pg_temp.check_('admin: the deleted account is gone',
   not exists (select 1 from public.admin_users() where id = '00000000-0000-4000-a000-000000000004'));
 
+-- ---------- Product list (admins only) ----------
+select pg_temp.act('rahul'); -- not an admin (Khalid was made one above)
+select pg_temp.check_('normal user: can read products', (select count(*) from public.catalog) > 0);
+select pg_temp.check_('normal user: cannot change products directly',
+  pg_temp.blocked($q$ insert into public.catalog (id, name) values ('x1', 'Hack') $q$)
+  and pg_temp.affected($q$ update public.catalog set name = 'Hack' where id = 'c1' $q$) <= 0
+  and pg_temp.blocked($q$ insert into public.catalog_aliases (catalog_id, alias) values ('c1', 'hack') $q$));
+select pg_temp.check_('normal user: cannot use the product doors',
+  pg_temp.blocked($q$ select public.admin_save_product('{"name": "Hack"}') $q$)
+  and pg_temp.blocked($q$ select public.admin_set_product_hidden('c1', true) $q$)
+  and pg_temp.blocked($q$ select public.admin_add_alias('c1', 'hack') $q$));
+select pg_temp.act('umm');
+select pg_temp.put('newProduct', public.admin_save_product(
+  '{"name": "منتج تجربة", "category": "pantry", "default_qty": 2, "default_unit": "kg", "en": "Test product", "hi": "टेस्ट"}'));
+select pg_temp.check_('admin: can add a product',
+  (select name = 'منتج تجربة' and default_unit = 'kg' and translations ->> 'en' = 'Test product'
+     from public.catalog where id = pg_temp.get('newProduct')));
+select pg_temp.check_('admin: can edit it',
+  not pg_temp.blocked(format($q$ select public.admin_save_product('{"id": "%s", "name": "منتج تجربة 2", "category": "dairy"}') $q$,
+    pg_temp.get('newProduct'))));
+select pg_temp.check_('admin: edit is saved',
+  (select name = 'منتج تجربة 2' and category = 'dairy' from public.catalog where id = pg_temp.get('newProduct')));
+select pg_temp.check_('admin: two products cannot share a name',
+  pg_temp.blocked($q$ select public.admin_save_product('{"name": "منتج تجربة 2"}') $q$));
+select public.admin_add_alias(pg_temp.get('newProduct'), 'تجربة', 'egyptian');
+select pg_temp.check_('admin: can add a dialect word',
+  (select count(*) from public.catalog_aliases where catalog_id = pg_temp.get('newProduct') and alias = 'تجربة' and dialect = 'egyptian') = 1);
+select public.admin_remove_alias((select id from public.catalog_aliases where catalog_id = pg_temp.get('newProduct') limit 1));
+select pg_temp.check_('admin: can remove a dialect word',
+  (select count(*) from public.catalog_aliases where catalog_id = pg_temp.get('newProduct')) = 0);
+select public.admin_set_product_hidden(pg_temp.get('newProduct'), true);
+select pg_temp.check_('admin: can hide a product', (select hidden from public.catalog where id = pg_temp.get('newProduct')));
+
 -- ---------- Deleting an account that added items ----------
 reset role;
 select pg_temp.check_('deleting Rahul''s account works even though he added items',

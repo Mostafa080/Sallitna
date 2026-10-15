@@ -1,7 +1,7 @@
 // Everything the app asks the database for, in one place.
 // Shapes are converted to the app's own types (src/data/fakeHousehold.ts) here.
 
-import { findCatalogMatch } from '@/data/fakeCatalog';
+import { findCatalogMatch, setCatalog, type CatalogItem } from '@/data/fakeCatalog';
 import {
   defaultSettings,
   PHONE_PREFIX,
@@ -12,6 +12,8 @@ import {
   type Member,
   type MemberRole,
   type StoreKey,
+  type CategoryKey,
+  type Unit,
 } from '@/data/fakeHousehold';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -22,6 +24,60 @@ import type { ActiveTrip, Question, QuestionAnswer } from '@/store/tripTypes';
 const CURRENT_KEY = 'sallitna.currentHousehold';
 export const rememberHousehold = (id: string) => AsyncStorage.setItem(CURRENT_KEY, id).catch(() => {});
 const rememberedHousehold = () => AsyncStorage.getItem(CURRENT_KEY).catch(() => null);
+
+// --- Product list (managed from the admin dashboard) -------------------------------------------
+
+type CatalogRow = {
+  id: string;
+  name: string;
+  category: CategoryKey;
+  default_qty: number | string;
+  default_unit: Unit;
+  translations: { en?: string; hi?: string } | null;
+  alternative_id: string | null;
+  hidden: boolean;
+};
+type AliasRow = { catalog_id: string; alias: string; dialect: DialectKey | null };
+type CatalogCache = { products: CatalogRow[]; aliases: AliasRow[] };
+
+const CATALOG_KEY = 'sallitna.catalog';
+
+// Use a downloaded list: my dialect's words + everyone's words; hidden products only for lookups by id
+function applyCatalog({ products, aliases }: CatalogCache, dialect: DialectKey) {
+  const words = new Map<string, string[]>();
+  for (const a of aliases) {
+    if (a.dialect !== null && a.dialect !== dialect) continue;
+    words.set(a.catalog_id, [...(words.get(a.catalog_id) ?? []), a.alias]);
+  }
+  const toProduct = (r: CatalogRow): CatalogItem => ({
+    id: r.id,
+    name: r.name,
+    aliases: words.get(r.id) ?? [],
+    category: r.category,
+    default_qty: Number(r.default_qty),
+    default_unit: r.default_unit,
+    translations: r.translations?.en ? { en: r.translations.en, hi: r.translations.hi ?? r.translations.en } : undefined,
+    alternative: r.alternative_id ?? undefined,
+  });
+  setCatalog(products.filter((r) => !r.hidden).map(toProduct), products.filter((r) => r.hidden).map(toProduct));
+}
+
+// The list saved on this phone last time — instant, and works offline
+export async function loadCachedCatalog(dialect: DialectKey) {
+  const saved = await AsyncStorage.getItem(CATALOG_KEY).catch(() => null);
+  if (saved) applyCatalog(JSON.parse(saved) as CatalogCache, dialect);
+}
+
+// The latest list from the database (then remembered for next time)
+export async function loadCatalog(dialect: DialectKey) {
+  const [products, aliases] = await Promise.all([
+    supabase.from('catalog').select('id, name, category, default_qty, default_unit, translations, alternative_id, hidden'),
+    supabase.from('catalog_aliases').select('catalog_id, alias, dialect'),
+  ]);
+  const fresh: CatalogCache = { products: check(products) as CatalogRow[], aliases: check(aliases) as AliasRow[] };
+  applyCatalog(fresh, dialect);
+  AsyncStorage.setItem(CATALOG_KEY, JSON.stringify(fresh)).catch(() => {});
+}
 
 // "+201001234567" from "1001234567"
 const e164 = (digits: string) => `${PHONE_PREFIX}${digits}`;
@@ -93,6 +149,11 @@ export async function isSignedIn() {
 
 // The saved sign-in points to an account that no longer exists (e.g. deleted) → forget it on this phone.
 // Returns true if it was cleared. Network problems don't count (we keep the sign-in and retry).
+// Renews an expired sign-in before anything else uses it (no network call when it's still fresh)
+export async function freshSession() {
+  await supabase.auth.getSession();
+}
+
 export async function clearStaleSession(): Promise<boolean> {
   const { data } = await supabase.auth.getSession();
   if (!data.session) return false;

@@ -1,0 +1,2062 @@
+[
+ {
+  "name": "بطاطا حلوة",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Sweet potatoes",
+  "hi": "शकरकंद",
+  "words": [
+   "بطاطا صفرا"
+  ]
+ },
+ {
+  "name": "بنجر",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Beetroot",
+  "hi": "चुकंदर",
+  "words": [
+   "شمندر"
+  ]
+ },
+ {
+  "name": "لفت",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Turnips",
+  "hi": "शलगम",
+  "words": []
+ },
+ {
+  "name": "فجل",
+  "category": "produce",
+  "qty": 1,
+  "unit": "count",
+  "en": "Radish",
+  "hi": "मूली",
+  "words": [
+   "فجل أحمر"
+  ]
+ },
+ {
+  "name": "جرجير",
+  "category": "produce",
+  "qty": 1,
+  "unit": "count",
+  "en": "Arugula",
+  "hi": "रॉकेट पत्ता",
+  "words": []
+ },
+ {
+  "name": "سبانخ",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Spinach",
+  "hi": "पालक",
+  "words": []
+ },
+ {
+  "name": "ملوخية",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Molokhia",
+  "hi": "मलोखिया",
+  "words": [
+   "ملوخيه"
+  ]
+ },
+ {
+  "name": "بامية",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Okra",
+  "hi": "भिंडी",
+  "words": []
+ },
+ {
+  "name": "فاصوليا خضرا",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Green beans",
+  "hi": "हरी फलियाँ",
+  "words": [
+   "فاصوليا"
+  ]
+ },
+ {
+  "name": "بسلة خضرا",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Fresh peas",
+  "hi": "हरी मटर",
+  "words": []
+ },
+ {
+  "name": "ذرة",
+  "category": "produce",
+  "qty": 2,
+  "unit": "piece",
+  "en": "Corn on the cob",
+  "hi": "भुट्टा",
+  "words": [
+   "درة",
+   "كوز ذرة"
+  ]
+ },
+ {
+  "name": "بصل أخضر",
+  "category": "produce",
+  "qty": 1,
+  "unit": "count",
+  "en": "Spring onions",
+  "hi": "हरा प्याज",
+  "words": [
+   "بصل اخضر"
+  ]
+ },
+ {
+  "name": "بصل أبيض",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "White onions",
+  "hi": "सफ़ेद प्याज",
+  "words": []
+ },
+ {
+  "name": "كرفس",
+  "category": "produce",
+  "qty": 1,
+  "unit": "count",
+  "en": "Celery",
+  "hi": "अजवाइन पत्ता",
+  "words": []
+ },
+ {
+  "name": "زنجبيل",
+  "category": "produce",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Ginger",
+  "hi": "अदरक",
+  "words": [
+   "جنزبيل"
+  ]
+ },
+ {
+  "name": "مشروم",
+  "category": "produce",
+  "qty": 1,
+  "unit": "box",
+  "en": "Mushrooms",
+  "hi": "मशरूम",
+  "words": [
+   "فطر",
+   "عيش الغراب"
+  ]
+ },
+ {
+  "name": "أفوكادو",
+  "category": "produce",
+  "qty": 2,
+  "unit": "piece",
+  "en": "Avocado",
+  "hi": "एवोकाडो",
+  "words": [
+   "افوكادو"
+  ]
+ },
+ {
+  "name": "كمثرى",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Pears",
+  "hi": "नाशपाती",
+  "words": [
+   "كمترى"
+  ]
+ },
+ {
+  "name": "خوخ",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Peaches",
+  "hi": "आड़ू",
+  "words": []
+ },
+ {
+  "name": "مشمش",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Apricots",
+  "hi": "खुबानी",
+  "words": []
+ },
+ {
+  "name": "جوافة",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Guava",
+  "hi": "अमरूद",
+  "words": [
+   "جوافه"
+  ]
+ },
+ {
+  "name": "رمان",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Pomegranates",
+  "hi": "अनार",
+  "words": []
+ },
+ {
+  "name": "كانتلوب",
+  "category": "produce",
+  "qty": 1,
+  "unit": "piece",
+  "en": "Cantaloupe",
+  "hi": "खरबूजा",
+  "words": [
+   "شمام"
+  ]
+ },
+ {
+  "name": "كيوي",
+  "category": "produce",
+  "qty": 1,
+  "unit": "box",
+  "en": "Kiwi",
+  "hi": "कीवी",
+  "words": []
+ },
+ {
+  "name": "أناناس",
+  "category": "produce",
+  "qty": 1,
+  "unit": "piece",
+  "en": "Pineapple",
+  "hi": "अनानास",
+  "words": [
+   "اناناس"
+  ]
+ },
+ {
+  "name": "تين",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Figs",
+  "hi": "अंजीर",
+  "words": []
+ },
+ {
+  "name": "بلح",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Dates",
+  "hi": "खजूर",
+  "words": [
+   "تمر",
+   "رطب"
+  ]
+ },
+ {
+  "name": "جريب فروت",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Grapefruit",
+  "hi": "चकोतरा",
+  "words": []
+ },
+ {
+  "name": "قلقاس",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Taro",
+  "hi": "अरबी",
+  "words": []
+ },
+ {
+  "name": "خرشوف",
+  "category": "produce",
+  "qty": 4,
+  "unit": "piece",
+  "en": "Artichokes",
+  "hi": "आर्टिचोक",
+  "words": [
+   "أرضي شوكي"
+  ]
+ },
+ {
+  "name": "كرات",
+  "category": "produce",
+  "qty": 1,
+  "unit": "count",
+  "en": "Leeks",
+  "hi": "लीक",
+  "words": [
+   "كراث"
+  ]
+ },
+ {
+  "name": "بروكلي",
+  "category": "produce",
+  "qty": 1,
+  "unit": "piece",
+  "en": "Broccoli",
+  "hi": "ब्रोकली",
+  "words": []
+ },
+ {
+  "name": "طماطم شيري",
+  "category": "produce",
+  "qty": 1,
+  "unit": "box",
+  "en": "Cherry tomatoes",
+  "hi": "चेरी टमाटर",
+  "words": [
+   "شيري"
+  ]
+ },
+ {
+  "name": "ريحان",
+  "category": "produce",
+  "qty": 1,
+  "unit": "count",
+  "en": "Basil",
+  "hi": "तुलसी",
+  "words": []
+ },
+ {
+  "name": "زعتر أخضر",
+  "category": "produce",
+  "qty": 1,
+  "unit": "count",
+  "en": "Fresh thyme",
+  "hi": "ताज़ा थाइम",
+  "words": []
+ },
+ {
+  "name": "توت",
+  "category": "produce",
+  "qty": 1,
+  "unit": "box",
+  "en": "Berries",
+  "hi": "बेरी",
+  "words": []
+ },
+ {
+  "name": "كاكا",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Persimmons",
+  "hi": "ख़ुरमा",
+  "words": [
+   "كاكى"
+  ]
+ },
+ {
+  "name": "تفاح أخضر",
+  "category": "produce",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Green apples",
+  "hi": "हरा सेब",
+  "words": []
+ },
+ {
+  "name": "جوز هند",
+  "category": "produce",
+  "qty": 1,
+  "unit": "piece",
+  "en": "Coconut",
+  "hi": "नारियल",
+  "words": [
+   "جوز الهند"
+  ]
+ },
+ {
+  "name": "جبنة موتزاريلا",
+  "category": "dairy",
+  "qty": 1,
+  "unit": "count",
+  "en": "Mozzarella",
+  "hi": "मोज़रेला",
+  "words": [
+   "موتزاريلا",
+   "موزاريلا"
+  ]
+ },
+ {
+  "name": "جبنة فلامنك",
+  "category": "dairy",
+  "qty": 1,
+  "unit": "count",
+  "en": "Flamenco cheese",
+  "hi": "फ्लामेंको चीज़",
+  "words": [
+   "فلامنك"
+  ]
+ },
+ {
+  "name": "جبنة اسطنبولي",
+  "category": "dairy",
+  "qty": 1,
+  "unit": "count",
+  "en": "Istanbuli cheese",
+  "hi": "इस्तांबुली चीज़",
+  "words": [
+   "اسطنبولي"
+  ]
+ },
+ {
+  "name": "جبنة كريمي",
+  "category": "dairy",
+  "qty": 1,
+  "unit": "count",
+  "en": "Cream cheese",
+  "hi": "क्रीम चीज़",
+  "words": [
+   "كريم تشيز",
+   "جبنة سايحة"
+  ]
+ },
+ {
+  "name": "جبنة شرايح",
+  "category": "dairy",
+  "qty": 1,
+  "unit": "count",
+  "en": "Sliced cheese",
+  "hi": "चीज़ स्लाइस",
+  "words": [
+   "شرايح جبنة"
+  ]
+ },
+ {
+  "name": "جبنة براميلي",
+  "category": "dairy",
+  "qty": 1,
+  "unit": "count",
+  "en": "Barrel feta",
+  "hi": "फ़ेटा चीज़",
+  "words": [
+   "براميلي"
+  ]
+ },
+ {
+  "name": "جبنة ركفور",
+  "category": "dairy",
+  "qty": 1,
+  "unit": "count",
+  "en": "Roquefort",
+  "hi": "रॉकफोर्ट",
+  "words": [
+   "ركفور"
+  ]
+ },
+ {
+  "name": "مش",
+  "category": "dairy",
+  "qty": 1,
+  "unit": "count",
+  "en": "Mish (aged cheese)",
+  "hi": "मिश",
+  "words": [
+   "مش بلدي"
+  ]
+ },
+ {
+  "name": "لبن شوكولاتة",
+  "category": "dairy",
+  "qty": 1,
+  "unit": "count",
+  "en": "Chocolate milk",
+  "hi": "चॉकलेट दूध",
+  "words": [
+   "حليب شوكولاتة"
+  ]
+ },
+ {
+  "name": "زبادي فواكه",
+  "category": "dairy",
+  "qty": 4,
+  "unit": "count",
+  "en": "Fruit yogurt",
+  "hi": "फ्रूट योगर्ट",
+  "words": [
+   "زبادي بالفواكه"
+  ]
+ },
+ {
+  "name": "زبادي يوناني",
+  "category": "dairy",
+  "qty": 2,
+  "unit": "count",
+  "en": "Greek yogurt",
+  "hi": "ग्रीक योगर्ट",
+  "words": []
+ },
+ {
+  "name": "كريمة خفق",
+  "category": "dairy",
+  "qty": 1,
+  "unit": "count",
+  "en": "Whipping cream",
+  "hi": "व्हिपिंग क्रीम",
+  "words": [
+   "شانتيه",
+   "كريم شانتيه"
+  ]
+ },
+ {
+  "name": "كريمة طبخ",
+  "category": "dairy",
+  "qty": 1,
+  "unit": "count",
+  "en": "Cooking cream",
+  "hi": "कुकिंग क्रीम",
+  "words": []
+ },
+ {
+  "name": "لبن مكثف محلى",
+  "category": "dairy",
+  "qty": 1,
+  "unit": "count",
+  "en": "Condensed milk",
+  "hi": "कंडेंस्ड मिल्क",
+  "words": [
+   "لبن مكثف",
+   "حليب مكثف"
+  ]
+ },
+ {
+  "name": "أرز باللبن",
+  "category": "dairy",
+  "qty": 4,
+  "unit": "count",
+  "en": "Rice pudding",
+  "hi": "खीर",
+  "words": [
+   "رز بلبن",
+   "رز باللبن"
+  ]
+ },
+ {
+  "name": "مهلبية",
+  "category": "dairy",
+  "qty": 4,
+  "unit": "count",
+  "en": "Muhallabia",
+  "hi": "फिरनी",
+  "words": [
+   "مهلبيه"
+  ]
+ },
+ {
+  "name": "لبنة",
+  "category": "dairy",
+  "qty": 1,
+  "unit": "count",
+  "en": "Labneh",
+  "hi": "लब्नेह",
+  "words": []
+ },
+ {
+  "name": "عيش سن",
+  "category": "bakery",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Whole wheat bread",
+  "hi": "गेहूँ की रोटी",
+  "words": [
+   "خبز أسمر",
+   "عيش أسمر"
+  ]
+ },
+ {
+  "name": "باجيت",
+  "category": "bakery",
+  "qty": 2,
+  "unit": "piece",
+  "en": "Baguette",
+  "hi": "बैगेट",
+  "words": [
+   "عيش فرنساوي"
+  ]
+ },
+ {
+  "name": "بريوش",
+  "category": "bakery",
+  "qty": 4,
+  "unit": "piece",
+  "en": "Brioche",
+  "hi": "ब्रियोश",
+  "words": []
+ },
+ {
+  "name": "كحك",
+  "category": "bakery",
+  "qty": 1,
+  "unit": "box",
+  "en": "Kahk cookies",
+  "hi": "काक",
+  "words": [
+   "كعك"
+  ]
+ },
+ {
+  "name": "قراقيش",
+  "category": "bakery",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Qaraqeesh",
+  "hi": "क़राक़ीश",
+  "words": []
+ },
+ {
+  "name": "فطير مشلتت",
+  "category": "bakery",
+  "qty": 1,
+  "unit": "piece",
+  "en": "Feteer",
+  "hi": "फ़तीर",
+  "words": [
+   "فطير"
+  ]
+ },
+ {
+  "name": "جاتوه",
+  "category": "bakery",
+  "qty": 4,
+  "unit": "piece",
+  "en": "Gateau",
+  "hi": "पेस्ट्री",
+  "words": [
+   "جاتو"
+  ]
+ },
+ {
+  "name": "تورتة",
+  "category": "bakery",
+  "qty": 1,
+  "unit": "piece",
+  "en": "Birthday cake",
+  "hi": "बर्थडे केक",
+  "words": [
+   "تورته"
+  ]
+ },
+ {
+  "name": "دونتس",
+  "category": "bakery",
+  "qty": 4,
+  "unit": "piece",
+  "en": "Donuts",
+  "hi": "डोनट",
+  "words": [
+   "دوناتس"
+  ]
+ },
+ {
+  "name": "مافن",
+  "category": "bakery",
+  "qty": 4,
+  "unit": "piece",
+  "en": "Muffins",
+  "hi": "मफ़िन",
+  "words": []
+ },
+ {
+  "name": "عيش برجر",
+  "category": "bakery",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Burger buns",
+  "hi": "बर्गर बन",
+  "words": [
+   "خبز برجر"
+  ]
+ },
+ {
+  "name": "تورتيلا",
+  "category": "bakery",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Tortilla",
+  "hi": "टॉर्टिला",
+  "words": []
+ },
+ {
+  "name": "بيتي فور",
+  "category": "bakery",
+  "qty": 1,
+  "unit": "box",
+  "en": "Petit four",
+  "hi": "पेटिट फोर",
+  "words": [
+   "بتي فور"
+  ]
+ },
+ {
+  "name": "بسبوسة",
+  "category": "bakery",
+  "qty": 1,
+  "unit": "piece",
+  "en": "Basbousa",
+  "hi": "बसबूसा",
+  "words": []
+ },
+ {
+  "name": "كنافة",
+  "category": "bakery",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Kunafa",
+  "hi": "कुनाफ़ा",
+  "words": [
+   "كنافه"
+  ]
+ },
+ {
+  "name": "جلاش",
+  "category": "bakery",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Phyllo dough",
+  "hi": "फ़िलो पेस्ट्री",
+  "words": [
+   "عجينة جلاش"
+  ]
+ },
+ {
+  "name": "عجينة بيتزا",
+  "category": "bakery",
+  "qty": 1,
+  "unit": "count",
+  "en": "Pizza dough",
+  "hi": "पिज़्ज़ा आटा",
+  "words": []
+ },
+ {
+  "name": "كركم",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Turmeric",
+  "hi": "हल्दी",
+  "words": []
+ },
+ {
+  "name": "بابريكا",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Paprika",
+  "hi": "पपरिका",
+  "words": [
+   "شطة حلوة"
+  ]
+ },
+ {
+  "name": "شطة",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Chili powder",
+  "hi": "लाल मिर्च पाउडर",
+  "words": [
+   "شطه"
+  ]
+ },
+ {
+  "name": "كزبرة ناشفة",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Ground coriander",
+  "hi": "धनिया पाउडर",
+  "words": [
+   "كزبرة مطحونة"
+  ]
+ },
+ {
+  "name": "قرفة",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Cinnamon",
+  "hi": "दालचीनी",
+  "words": [
+   "قرفه"
+  ]
+ },
+ {
+  "name": "ورق لورا",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Bay leaves",
+  "hi": "तेज पत्ता",
+  "words": [
+   "لورا"
+  ]
+ },
+ {
+  "name": "بهارات مشكلة",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Mixed spices",
+  "hi": "गरम मसाला",
+  "words": [
+   "بهارات",
+   "سبع بهارات"
+  ]
+ },
+ {
+  "name": "زعتر ناشف",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Dried thyme",
+  "hi": "सूखा थाइम",
+  "words": []
+ },
+ {
+  "name": "سمسم",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Sesame",
+  "hi": "तिल",
+  "words": []
+ },
+ {
+  "name": "حبة البركة",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Black seed",
+  "hi": "कलौंजी",
+  "words": [
+   "حبة البركه"
+  ]
+ },
+ {
+  "name": "ينسون",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Anise",
+  "hi": "सौंफ़",
+  "words": [
+   "يانسون"
+  ]
+ },
+ {
+  "name": "كركديه",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Hibiscus",
+  "hi": "गुड़हल चाय",
+  "words": []
+ },
+ {
+  "name": "عرقسوس",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Licorice root",
+  "hi": "मुलेठी",
+  "words": []
+ },
+ {
+  "name": "شاي أخضر",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "box",
+  "en": "Green tea",
+  "hi": "ग्रीन टी",
+  "words": []
+ },
+ {
+  "name": "بابونج",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "box",
+  "en": "Chamomile",
+  "hi": "कैमोमाइल",
+  "words": [
+   "شاي بابونج"
+  ]
+ },
+ {
+  "name": "كاكاو",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Cocoa powder",
+  "hi": "कोको पाउडर",
+  "words": [
+   "كاكاو بودرة"
+  ]
+ },
+ {
+  "name": "كاسترد",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Custard powder",
+  "hi": "कस्टर्ड पाउडर",
+  "words": [
+   "مسحوق كاسترد"
+  ]
+ },
+ {
+  "name": "جيلي",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Jelly",
+  "hi": "जेली",
+  "words": [
+   "جيلاتين"
+  ]
+ },
+ {
+  "name": "بيكنج باودر",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Baking powder",
+  "hi": "बेकिंग पाउडर",
+  "words": []
+ },
+ {
+  "name": "فانيليا",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Vanilla",
+  "hi": "वनीला",
+  "words": [
+   "فانيلا"
+  ]
+ },
+ {
+  "name": "سكر بودرة",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Icing sugar",
+  "hi": "आइसिंग शुगर",
+  "words": []
+ },
+ {
+  "name": "نشا",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Cornstarch",
+  "hi": "कॉर्नस्टार्च",
+  "words": []
+ },
+ {
+  "name": "لبن جوز الهند",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Coconut milk",
+  "hi": "नारियल दूध",
+  "words": []
+ },
+ {
+  "name": "زيتون",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Olives",
+  "hi": "जैतून",
+  "words": [
+   "زتون"
+  ]
+ },
+ {
+  "name": "مخلل",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Pickles",
+  "hi": "अचार",
+  "words": [
+   "طرشي"
+  ]
+ },
+ {
+  "name": "كاتشب",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Ketchup",
+  "hi": "केचप",
+  "words": [
+   "كتشب"
+  ]
+ },
+ {
+  "name": "مايونيز",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Mayonnaise",
+  "hi": "मेयोनेज़",
+  "words": []
+ },
+ {
+  "name": "مستردة",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Mustard",
+  "hi": "सरसों",
+  "words": [
+   "مسطردة"
+  ]
+ },
+ {
+  "name": "صوص صويا",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Soy sauce",
+  "hi": "सोया सॉस",
+  "words": []
+ },
+ {
+  "name": "صوص باربكيو",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Barbecue sauce",
+  "hi": "बारबेक्यू सॉस",
+  "words": []
+ },
+ {
+  "name": "صوص شطة",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Hot sauce",
+  "hi": "हॉट सॉस",
+  "words": [
+   "هوت صوص"
+  ]
+ },
+ {
+  "name": "فول سوداني",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Peanuts",
+  "hi": "मूंगफली",
+  "words": [
+   "سوداني"
+  ]
+ },
+ {
+  "name": "لوز",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Almonds",
+  "hi": "बादाम",
+  "words": []
+ },
+ {
+  "name": "عين جمل",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Walnuts",
+  "hi": "अखरोट",
+  "words": [
+   "جوز"
+  ]
+ },
+ {
+  "name": "كاجو",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Cashews",
+  "hi": "काजू",
+  "words": []
+ },
+ {
+  "name": "فستق",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Pistachios",
+  "hi": "पिस्ता",
+  "words": []
+ },
+ {
+  "name": "زبيب",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Raisins",
+  "hi": "किशमिश",
+  "words": []
+ },
+ {
+  "name": "لب",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Sunflower seeds",
+  "hi": "सूरजमुखी के बीज",
+  "words": [
+   "لب سوري"
+  ]
+ },
+ {
+  "name": "قمر الدين",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Apricot paste",
+  "hi": "खुबानी पेस्ट",
+  "words": []
+ },
+ {
+  "name": "زبدة فول سوداني",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Peanut butter",
+  "hi": "पीनट बटर",
+  "words": []
+ },
+ {
+  "name": "نوتيلا",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Chocolate spread",
+  "hi": "चॉकलेट स्प्रेड",
+  "words": [
+   "شوكولاتة دهن"
+  ]
+ },
+ {
+  "name": "عسل أسود",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Molasses",
+  "hi": "गुड़ का शीरा",
+  "words": [
+   "عسل اسود"
+  ]
+ },
+ {
+  "name": "سكر بني",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Brown sugar",
+  "hi": "ब्राउन शुगर",
+  "words": []
+ },
+ {
+  "name": "شعرية",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Vermicelli",
+  "hi": "सेवई",
+  "words": [
+   "مكرونة شعرية"
+  ]
+ },
+ {
+  "name": "لازانيا",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "box",
+  "en": "Lasagna sheets",
+  "hi": "लज़ानिया",
+  "words": [
+   "مكرونة لازانيا"
+  ]
+ },
+ {
+  "name": "نودلز",
+  "category": "pantry",
+  "qty": 4,
+  "unit": "count",
+  "en": "Instant noodles",
+  "hi": "नूडल्स",
+  "words": [
+   "اندومي",
+   "اندومى"
+  ]
+ },
+ {
+  "name": "شوربة سريعة",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Instant soup",
+  "hi": "इंस्टेंट सूप",
+  "words": []
+ },
+ {
+  "name": "مرقة",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Stock cubes",
+  "hi": "स्टॉक क्यूब",
+  "words": [
+   "ماجي",
+   "مكعبات مرقة"
+  ]
+ },
+ {
+  "name": "فول ناشف",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Dried fava beans",
+  "hi": "सूखी फ़वा बीन्स",
+  "words": [
+   "فول مدشوش"
+  ]
+ },
+ {
+  "name": "فاصوليا بيضا",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "kg",
+  "en": "White beans",
+  "hi": "सफ़ेद बीन्स",
+  "words": []
+ },
+ {
+  "name": "لوبيا",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Black-eyed peas",
+  "hi": "लोबिया",
+  "words": []
+ },
+ {
+  "name": "عدس بجبة",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Brown lentils",
+  "hi": "भूरी मसूर",
+  "words": [
+   "عدس أسود"
+  ]
+ },
+ {
+  "name": "فريك",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Freekeh",
+  "hi": "फ़्रीकेह",
+  "words": []
+ },
+ {
+  "name": "برغل",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Bulgur",
+  "hi": "बुलगुर",
+  "words": [
+   "بلغل"
+  ]
+ },
+ {
+  "name": "كسكسي",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Couscous",
+  "hi": "कूसकूस",
+  "words": [
+   "كسكس"
+  ]
+ },
+ {
+  "name": "رز بني",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Brown rice",
+  "hi": "ब्राउन राइस",
+  "words": []
+ },
+ {
+  "name": "فيشار",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Popcorn",
+  "hi": "पॉपकॉर्न",
+  "words": [
+   "فشار",
+   "بوب كورن"
+  ]
+ },
+ {
+  "name": "ذرة معلبة",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Canned corn",
+  "hi": "डिब्बाबंद मक्का",
+  "words": []
+ },
+ {
+  "name": "سردين",
+  "category": "pantry",
+  "qty": 2,
+  "unit": "count",
+  "en": "Sardines",
+  "hi": "सार्डिन",
+  "words": []
+ },
+ {
+  "name": "مشروب طاقة",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Energy drink",
+  "hi": "एनर्जी ड्रिंक",
+  "words": [
+   "ريد بول"
+  ]
+ },
+ {
+  "name": "عصير مانجا",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Mango juice",
+  "hi": "आम का जूस",
+  "words": []
+ },
+ {
+  "name": "قهوة تركي",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Turkish coffee",
+  "hi": "टर्किश कॉफ़ी",
+  "words": [
+   "بن محوج"
+  ]
+ },
+ {
+  "name": "بسكويت شاي",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Tea biscuits",
+  "hi": "चाय बिस्किट",
+  "words": [
+   "بسكويت سادة"
+  ]
+ },
+ {
+  "name": "بونبون",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Candy",
+  "hi": "टॉफ़ी",
+  "words": [
+   "مصاصة"
+  ]
+ },
+ {
+  "name": "لبان",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Chewing gum",
+  "hi": "च्यूइंग गम",
+  "words": [
+   "علكة",
+   "شيكلتس"
+  ]
+ },
+ {
+  "name": "مقرمشات",
+  "category": "pantry",
+  "qty": 1,
+  "unit": "count",
+  "en": "Crackers",
+  "hi": "क्रैकर्स",
+  "words": [
+   "كراكرز"
+  ]
+ },
+ {
+  "name": "كبدة",
+  "category": "other",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Liver",
+  "hi": "कलेजी",
+  "words": [
+   "كبده"
+  ]
+ },
+ {
+  "name": "سجق",
+  "category": "other",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Sausages",
+  "hi": "सॉसेज",
+  "words": [
+   "سجق شرقي"
+  ]
+ },
+ {
+  "name": "بسطرمة",
+  "category": "other",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Pastrami",
+  "hi": "पस्त्रामी",
+  "words": []
+ },
+ {
+  "name": "هوت دوج",
+  "category": "other",
+  "qty": 1,
+  "unit": "count",
+  "en": "Hot dogs",
+  "hi": "हॉट डॉग",
+  "words": [
+   "سوسيس"
+  ]
+ },
+ {
+  "name": "برجر",
+  "category": "other",
+  "qty": 1,
+  "unit": "box",
+  "en": "Burger patties",
+  "hi": "बर्गर पैटी",
+  "words": [
+   "برجر مجمد"
+  ]
+ },
+ {
+  "name": "كفتة",
+  "category": "other",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Kofta",
+  "hi": "कोफ्ता",
+  "words": []
+ },
+ {
+  "name": "ستيك",
+  "category": "other",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Steak",
+  "hi": "स्टेक",
+  "words": []
+ },
+ {
+  "name": "لحمة ضاني",
+  "category": "other",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Lamb",
+  "hi": "मटन",
+  "words": [
+   "ضاني",
+   "لحم خروف"
+  ]
+ },
+ {
+  "name": "أوراك فراخ",
+  "category": "other",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Chicken thighs",
+  "hi": "चिकन थाई",
+  "words": [
+   "وراك"
+  ]
+ },
+ {
+  "name": "أجنحة فراخ",
+  "category": "other",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Chicken wings",
+  "hi": "चिकन विंग्स",
+  "words": [
+   "جوانح",
+   "اجنحة"
+  ]
+ },
+ {
+  "name": "ديك رومي",
+  "category": "other",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Turkey",
+  "hi": "टर्की",
+  "words": []
+ },
+ {
+  "name": "بط",
+  "category": "other",
+  "qty": 1,
+  "unit": "piece",
+  "en": "Duck",
+  "hi": "बत्तख",
+  "words": []
+ },
+ {
+  "name": "حمام",
+  "category": "other",
+  "qty": 2,
+  "unit": "count",
+  "en": "Pigeons",
+  "hi": "कबूतर",
+  "words": []
+ },
+ {
+  "name": "فيليه سمك",
+  "category": "other",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Fish fillet",
+  "hi": "मछली फ़िले",
+  "words": [
+   "فيليه"
+  ]
+ },
+ {
+  "name": "كاليماري",
+  "category": "other",
+  "qty": 1,
+  "unit": "kg",
+  "en": "Calamari",
+  "hi": "कैलामारी",
+  "words": [
+   "سبيط"
+  ]
+ },
+ {
+  "name": "بطاطس مجمدة",
+  "category": "other",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Frozen fries",
+  "hi": "फ्रोज़न फ्राइज़",
+  "words": [
+   "بطاطس محمرة",
+   "فرايز"
+  ]
+ },
+ {
+  "name": "ملوخية مجمدة",
+  "category": "other",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Frozen molokhia",
+  "hi": "फ्रोज़न मलोखिया",
+  "words": []
+ },
+ {
+  "name": "بامية مجمدة",
+  "category": "other",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Frozen okra",
+  "hi": "फ्रोज़न भिंडी",
+  "words": []
+ },
+ {
+  "name": "سبانخ مجمدة",
+  "category": "other",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Frozen spinach",
+  "hi": "फ्रोज़न पालक",
+  "words": []
+ },
+ {
+  "name": "ناجتس",
+  "category": "other",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Chicken nuggets",
+  "hi": "चिकन नगेट्स",
+  "words": []
+ },
+ {
+  "name": "بيتزا مجمدة",
+  "category": "other",
+  "qty": 1,
+  "unit": "count",
+  "en": "Frozen pizza",
+  "hi": "फ्रोज़न पिज़्ज़ा",
+  "words": []
+ },
+ {
+  "name": "آيس كريم",
+  "category": "other",
+  "qty": 1,
+  "unit": "count",
+  "en": "Ice cream",
+  "hi": "आइसक्रीम",
+  "words": [
+   "ايس كريم",
+   "جيلاتي"
+  ]
+ },
+ {
+  "name": "تلج",
+  "category": "other",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Ice",
+  "hi": "बर्फ़",
+  "words": [
+   "ثلج"
+  ]
+ },
+ {
+  "name": "لبن أطفال",
+  "category": "other",
+  "qty": 1,
+  "unit": "count",
+  "en": "Baby formula",
+  "hi": "बेबी फ़ॉर्मूला",
+  "words": [
+   "لبن صناعي"
+  ]
+ },
+ {
+  "name": "سيريلاك",
+  "category": "other",
+  "qty": 1,
+  "unit": "count",
+  "en": "Baby cereal",
+  "hi": "बेबी सीरियल",
+  "words": []
+ },
+ {
+  "name": "مناديل مبللة",
+  "category": "other",
+  "qty": 1,
+  "unit": "count",
+  "en": "Wet wipes",
+  "hi": "वेट वाइप्स",
+  "words": [
+   "مناديل مبلولة",
+   "وايبس"
+  ]
+ },
+ {
+  "name": "أكل قطط",
+  "category": "other",
+  "qty": 1,
+  "unit": "count",
+  "en": "Cat food",
+  "hi": "बिल्ली का खाना",
+  "words": []
+ },
+ {
+  "name": "أكل كلاب",
+  "category": "other",
+  "qty": 1,
+  "unit": "count",
+  "en": "Dog food",
+  "hi": "कुत्ते का खाना",
+  "words": []
+ },
+ {
+  "name": "فحم",
+  "category": "other",
+  "qty": 1,
+  "unit": "bag",
+  "en": "Charcoal",
+  "hi": "कोयला",
+  "words": []
+ },
+ {
+  "name": "بطاريات",
+  "category": "other",
+  "qty": 1,
+  "unit": "count",
+  "en": "Batteries",
+  "hi": "बैटरी",
+  "words": [
+   "حجارة"
+  ]
+ },
+ {
+  "name": "لمبة",
+  "category": "other",
+  "qty": 1,
+  "unit": "count",
+  "en": "Light bulb",
+  "hi": "बल्ब",
+  "words": [
+   "لمبه"
+  ]
+ },
+ {
+  "name": "ولاعة",
+  "category": "other",
+  "qty": 1,
+  "unit": "count",
+  "en": "Lighter",
+  "hi": "लाइटर",
+  "words": [
+   "قداحة"
+  ]
+ },
+ {
+  "name": "كبريت",
+  "category": "other",
+  "qty": 1,
+  "unit": "count",
+  "en": "Matches",
+  "hi": "माचिस",
+  "words": []
+ },
+ {
+  "name": "منعم ملابس",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Fabric softener",
+  "hi": "फ़ैब्रिक सॉफ़्टनर",
+  "words": [
+   "داوني",
+   "منعم"
+  ]
+ },
+ {
+  "name": "مزيل بقع",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Stain remover",
+  "hi": "दाग हटाने वाला",
+  "words": [
+   "فانيش"
+  ]
+ },
+ {
+  "name": "منظف زجاج",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Glass cleaner",
+  "hi": "ग्लास क्लीनर",
+  "words": [
+   "منظف ازاز"
+  ]
+ },
+ {
+  "name": "منظف حمامات",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Bathroom cleaner",
+  "hi": "बाथरूम क्लीनर",
+  "words": [
+   "منظف حمام"
+  ]
+ },
+ {
+  "name": "مبيد حشرات",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Insect spray",
+  "hi": "कीटनाशक स्प्रे",
+  "words": [
+   "بف باف",
+   "ريد"
+  ]
+ },
+ {
+  "name": "معطر جو",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Air freshener",
+  "hi": "एयर फ्रेशनर",
+  "words": []
+ },
+ {
+  "name": "سلك مواعين",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Steel wool",
+  "hi": "स्टील वूल",
+  "words": []
+ },
+ {
+  "name": "جوانتي",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Rubber gloves",
+  "hi": "रबर के दस्ताने",
+  "words": [
+   "جوانتي مطبخ"
+  ]
+ },
+ {
+  "name": "ورق قصدير",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Aluminium foil",
+  "hi": "एल्युमिनियम फ़ॉइल",
+  "words": [
+   "فويل",
+   "ورق فويل"
+  ]
+ },
+ {
+  "name": "ورق زبدة",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Baking paper",
+  "hi": "बेकिंग पेपर",
+  "words": []
+ },
+ {
+  "name": "كلينج فيلم",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Cling film",
+  "hi": "क्लिंग फ़िल्म",
+  "words": [
+   "نايلون تغليف"
+  ]
+ },
+ {
+  "name": "فوط مطبخ",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Kitchen cloths",
+  "hi": "किचन कपड़ा",
+  "words": [
+   "فوطة"
+  ]
+ },
+ {
+  "name": "مقشة",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Broom",
+  "hi": "झाड़ू",
+  "words": []
+ },
+ {
+  "name": "ممسحة",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Mop",
+  "hi": "पोंछा",
+  "words": [
+   "مساحة"
+  ]
+ },
+ {
+  "name": "جل استحمام",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Shower gel",
+  "hi": "शावर जेल",
+  "words": [
+   "شاور جل"
+  ]
+ },
+ {
+  "name": "بلسم",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Conditioner",
+  "hi": "कंडीशनर",
+  "words": []
+ },
+ {
+  "name": "مزيل عرق",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Deodorant",
+  "hi": "डियोडरेंट",
+  "words": [
+   "ديودرنت"
+  ]
+ },
+ {
+  "name": "فرشة أسنان",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Toothbrush",
+  "hi": "टूथब्रश",
+  "words": [
+   "فرشة اسنان"
+  ]
+ },
+ {
+  "name": "غسول فم",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Mouthwash",
+  "hi": "माउथवॉश",
+  "words": []
+ },
+ {
+  "name": "أمواس حلاقة",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Razors",
+  "hi": "रेज़र",
+  "words": [
+   "شفرات حلاقة"
+  ]
+ },
+ {
+  "name": "كريم حلاقة",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Shaving cream",
+  "hi": "शेविंग क्रीम",
+  "words": [
+   "رغوة حلاقة"
+  ]
+ },
+ {
+  "name": "فوط صحية",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Sanitary pads",
+  "hi": "सैनिटरी पैड",
+  "words": []
+ },
+ {
+  "name": "قطن",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Cotton pads",
+  "hi": "कॉटन पैड",
+  "words": [
+   "قطن طبي"
+  ]
+ },
+ {
+  "name": "كريم مرطب",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Moisturizer",
+  "hi": "मॉइस्चराइज़र",
+  "words": [
+   "لوشن"
+  ]
+ },
+ {
+  "name": "صابون استحمام",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Bath soap",
+  "hi": "नहाने का साबुन",
+  "words": [
+   "صابونة"
+  ]
+ },
+ {
+  "name": "بودرة أطفال",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Baby powder",
+  "hi": "बेबी पाउडर",
+  "words": []
+ },
+ {
+  "name": "شامبو أطفال",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Baby shampoo",
+  "hi": "बेबी शैम्पू",
+  "words": []
+ },
+ {
+  "name": "معقم إيدين",
+  "category": "cleaning",
+  "qty": 1,
+  "unit": "count",
+  "en": "Hand sanitizer",
+  "hi": "हैंड सैनिटाइज़र",
+  "words": [
+   "جل معقم"
+  ]
+ }
+]

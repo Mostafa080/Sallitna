@@ -34,6 +34,19 @@ export type AdminUser = {
   items_added: number;
 };
 
+export type Product = {
+  id: string;
+  name: string;
+  category: string;
+  default_qty: number;
+  default_unit: string;
+  translations: { en?: string; hi?: string } | null;
+  alternative_id: string | null;
+  hidden: boolean;
+  updated_at: string;
+};
+export type Alias = { id: number; catalog_id: string; alias: string; dialect: string | null };
+
 export type Admin = { user_id: string; phone: string | null; name: string | null; added_at: string };
 
 // Call an admin-only database function; throws with the database's message
