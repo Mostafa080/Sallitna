@@ -1,20 +1,38 @@
-import { ShoppingCart } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import type { Member } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
+import { isRTLLayout } from '@/lib/direction';
 import { colors, radius, size, spacing } from '@/theme';
 
 type Props = {
   shopper: Member;
   self?: boolean; // this phone's member is the one shopping
+  compact?: boolean; // one slim line (the list screen)
   onPress?: () => void;
 };
 
+const ForwardIcon = isRTLLayout ? ChevronLeft : ChevronRight;
+
 // "Sara is at the store now" — shown while someone is in shopper mode.
-export function ShopperBanner({ shopper, self, onPress }: Props) {
+export function ShopperBanner({ shopper, self, compact, onPress }: Props) {
   const g = shopper.gender;
+  const title = self ? t(`banner.selfAtStore_${g}`) : t(`banner.atStore_${g}`, { name: shopper.display_name });
+
+  if (compact) {
+    return (
+      <Pressable onPress={onPress} disabled={!onPress} style={styles.slim} accessibilityRole={onPress ? 'button' : 'summary'}>
+        <View style={styles.slimDot} />
+        <AppText variant="body" weight="semibold" numberOfLines={1} style={styles.text}>
+          {title}
+        </AppText>
+        {onPress && <ForwardIcon size={size.iconSmall + spacing.xs} color={colors.accentInk} strokeWidth={size.iconStroke} />}
+      </Pressable>
+    );
+  }
+
   return (
     <Pressable
       onPress={onPress}
@@ -27,7 +45,7 @@ export function ShopperBanner({ shopper, self, onPress }: Props) {
       </View>
       <View style={styles.text}>
         <AppText variant="label" weight="semibold">
-          {self ? t(`banner.selfAtStore_${g}`) : t(`banner.atStore_${g}`, { name: shopper.display_name })}
+          {title}
         </AppText>
         <AppText variant="body" color="muted" numberOfLines={1}>
           {self ? t(`banner.selfHint_${g}`) : t(`banner.hint_${g}`)}
@@ -69,5 +87,21 @@ const styles = StyleSheet.create({
   text: {
     flex: 1,
     gap: spacing.xxs,
+  },
+  slim: {
+    minHeight: size.touch,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.pill,
+    backgroundColor: colors.accentTint,
+    marginTop: -spacing.sm,
+  },
+  slimDot: {
+    width: size.liveDot - spacing.xxs,
+    height: size.liveDot - spacing.xxs,
+    borderRadius: radius.pill,
+    backgroundColor: colors.success,
   },
 });

@@ -11,7 +11,18 @@
     "markBoughtA11y": "Mark {{name}} as bought",
     "emptyFilter": "Nothing added today",
     "openItemA11y": "Open {{name}}",
-    "membersA11y": "Household members"
+    "membersA11y": "Household members",
+    "typeField": "Type an item…",
+    "atStore": "I'm at the store",
+    "backToShop": "Back to shopping",
+    "demo": "Demo",
+    "demoTitle": "This is a demo list",
+    "demoBody": "Nothing you add here is saved. Leave the demo and start your own list?",
+    "demoLeave": "Leave the demo",
+    "demoStay": "Keep trying",
+    "cartA11y": "I'm at the store",
+    "today": "Today {{n}}",
+    "all": "All"
   },
   "banner": {
     "atStore_f": "{{name}} is at the store now",
@@ -152,7 +163,11 @@
     "joined": "Welcome {{name}} to “{{list}}”",
     "codeSent": "Code sent by text (demo: {{code}})",
     "codeSentWhatsapp": "Code sent on WhatsApp (demo: {{code}})",
-    "listReady": "Your list is ready · say it or type it"
+    "listReady": "Your list is ready · say it or type it",
+    "saveFailed": "Couldn't save — check your connection and try again",
+    "welcomeBack": "Welcome back to “{{list}}”",
+    "signedOut": "Signed out",
+    "profileSaved": "Profile saved"
   },
   "empty": {
     "title": "The basket is empty",
@@ -199,7 +214,8 @@
     "helperView": "See the list as {{name}}",
     "startOver": "Start over (sign-up)",
     "openInvite": "Open an invite link",
-    "notifications": "Notifications screen"
+    "notifications": "Notifications screen",
+    "signOut": "Sign out"
   },
   "typeAdd": {
     "placeholder": "What does the house need?",
@@ -547,8 +563,11 @@
     "waiting_m": "Waiting",
     "start": "Start the list",
     "later": "You can invite them later from “Household”",
-    "message_f": "{{name}} invited you to “{{list}}” on Sallitna: {{link}}",
-    "message_m": "{{name}} invited you to “{{list}}” on Sallitna: {{link}}"
+    "message_f": "{{name}} invited you to “{{list}}” on Sallitna: {{link}}\nInvite code: {{code}}",
+    "message_m": "{{name}} invited you to “{{list}}” on Sallitna: {{link}}\nInvite code: {{code}}",
+    "loading": "Getting the link ready…",
+    "next": "Next",
+    "done": "Done"
   },
   "inviteExpired": {
     "appName": "Sallitna",
@@ -556,7 +575,8 @@
     "body": "Invite links only work for {{n}} days, to keep your family safe. Ask {{name}} for a new one.",
     "ask": "Ask for a new link on WhatsApp",
     "message": "The invite link for “{{list}}” expired. Can you send me a new one?",
-    "startNew": "Start a new list instead"
+    "startNew": "Start a new list instead",
+    "bodyGeneric": "Invite links only work for {{n}} days, to keep your family safe. Ask for a new one."
   },
   "settings": {
     "title": "Settings",
@@ -586,7 +606,12 @@
     "leaveBody_f": "You won't see the list or get its notifications anymore.",
     "leaveBody_m": "You won't see the list or get its notifications anymore.",
     "leaveConfirm": "Leave",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "signOut": "Sign out",
+    "signOutTitle": "Sign out on this phone?",
+    "signOutBody": "Your list stays. Sign back in with your phone number.",
+    "signOutConfirm": "Sign out",
+    "exitDemo": "Leave the demo"
   },
   "helper": {
     "home": "{{name}} का घर",
@@ -647,14 +672,14 @@
   },
   "verify": {
     "phoneTitle": "Your phone number",
-    "phoneBody": "We'll text you a 4-digit code. No password, no email.",
+    "phoneBody": "We'll text you a 6-digit code. No password, no email.",
     "phoneLabel": "Phone number",
     "phonePlaceholder": "5X XXX XXXX",
     "phoneHint": "A Saudi number starting with 5, 9 digits",
     "edit": "Edit",
     "send": "Send code",
     "codeLabel": "Enter the code",
-    "codeA11y": "4-digit code",
+    "codeA11y": "6-digit code",
     "sentSms": "We sent the code by text",
     "resendIn": "Resend in {{time}}",
     "resend": "Resend",
@@ -671,7 +696,10 @@
     "newCode": "Send a new code",
     "sendWhatsapp": "Send it on WhatsApp",
     "wrongNumber": "Wrong number? Edit it",
-    "lockNote": "After {{attempts}} wrong tries we wait {{minutes}} minutes before sending a new code"
+    "lockNote": "After {{attempts}} wrong tries we wait {{minutes}} minutes before sending a new code",
+    "sendFailed": "Couldn't send the code. Check the number and your connection, then try again.",
+    "testHint": "Testing: 500000001 to 500000004 · code 123456",
+    "whatsappSoon": "Sending on WhatsApp is coming soon"
   },
   "setup": {
     "title": "Name your home",
@@ -681,7 +709,9 @@
     "namePlaceholder": "e.g. Umm Khalid",
     "dialect": "Your dialect?",
     "dialectBody": "So we understand you. Everyone picks their own.",
-    "next": "Next"
+    "next": "Next",
+    "failed": "Couldn't create the list. Check your connection and try again.",
+    "aboutTitle": "About you"
   },
   "join": {
     "invites_f": "{{name}} invited you",
@@ -692,7 +722,13 @@
     "language": "Which language should the list be in?",
     "send": "Send verification code",
     "note": "No password. Your number is just so the family knows you.",
-    "facesA11y": "Household members"
+    "facesA11y": "Household members",
+    "codeLabel": "Invite code",
+    "codePlaceholder": "e.g. K7MP2QXA",
+    "codeHint": "It's in the invite message from your family",
+    "notFound": "No invite with this code. Please check it.",
+    "checking": "Checking the invite…",
+    "someone": "Someone from your family"
   },
   "joinSetup": {
     "hello": "Welcome {{name}}",
@@ -711,7 +747,8 @@
     "tipStore_f": "When you go shopping, press “I'm at the store”",
     "tipStore_m": "When you go shopping, press “I'm at the store”",
     "enter_f": "Open the list",
-    "enter_m": "Open the list"
+    "enter_m": "Open the list",
+    "failed": "Couldn't add you to the list. The invite may have expired — ask for a new link."
   },
   "notifications": {
     "appName": "Sallitna",
@@ -736,5 +773,66 @@
     "listSeparator": ", ",
     "open": "Open the list",
     "empty": "No new notifications"
+  },
+  "tabs": {
+    "list": "List",
+    "account": "Account",
+    "talk": "Tap & talk"
+  },
+  "account": {
+    "title": "Account",
+    "profileA11y": "Edit your profile",
+    "household": "Home",
+    "members": "Household",
+    "membersCount": "{{count}}",
+    "invite": "Invite someone",
+    "editProfile": "Edit"
+  },
+  "profile": {
+    "title": "My profile",
+    "name": "Your name on the list",
+    "color": "Your color",
+    "seesIn_f": "Show me the list in",
+    "seesIn_m": "Show me the list in",
+    "speaks_f": "I speak",
+    "speaks_m": "I speak",
+    "save": "Save",
+    "colorA11y": "Color {{n}}"
+  },
+  "app": {
+    "loading": "One moment…"
+  },
+  "lists": {
+    "switchA11y": "Switch list",
+    "sheetTitle": "My lists",
+    "new": "New list",
+    "members": {
+      "one": "1 person",
+      "other": "{{n}} people"
+    },
+    "newTitle": "New list",
+    "newBody": "Each list has its own people. You can invite them after creating it.",
+    "nameLabel": "List name",
+    "namePlaceholder": "e.g. Work",
+    "suggestions": [
+      "Home",
+      "Work",
+      "Friends",
+      "Weekend",
+      "Trip",
+      "Parents"
+    ],
+    "create": "Create list",
+    "created": "“{{name}}” is ready",
+    "failed": "Couldn't create the list. Check your connection and try again.",
+    "demoTitle": "New lists need an account",
+    "demoBody": "Leave the demo and sign in with your phone number to make your own lists.",
+    "switched": "Opened “{{name}}”"
+  },
+  "firstList": {
+    "title": "Create your first list",
+    "body": "A list for home, work or friends. Then invite its people to add with you.",
+    "create": "Create a list",
+    "nameTitle": "Name your list"
   }
 }

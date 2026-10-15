@@ -1,15 +1,17 @@
-// "الإعدادات" — list name, my dialect and language, notifications, voice & privacy.
+// «حسابي» — my profile (tap to edit), my lists & household, list name, notifications, voice & privacy, sign out.
+// Opened from my avatar at the top of the list screen.
 
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
-import { BackIcon, Card, CircleButton, OptionSheet, Row, SectionLabel, Toggle } from '@/components/family/FamilyParts';
+import { Avatar } from '@/components/Avatar';
+import { BackIcon, Card, CircleButton, ForwardIcon, Row, SectionLabel, Toggle } from '@/components/family/FamilyParts';
 import { UndoToast } from '@/components/UndoToast';
-import { dialectOrder, languageOrder, type HouseholdSettings } from '@/data/fakeHousehold';
+import { type HouseholdSettings } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { isRTLLayout } from '@/lib/direction';
 import { useList } from '@/store/ListStore';
@@ -28,7 +30,7 @@ const toggleText: Record<keyof HouseholdSettings, string> = {
   keepRecordings: 'keepRecordings',
 };
 
-export default function SettingsScreen() {
+export default function AccountScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const list = useList();
@@ -37,7 +39,6 @@ export default function SettingsScreen() {
   const [editingName, setEditingName] = useState(false);
   const [name, setName] = useState(list.householdName);
   const latestName = useRef(name); // the newest text, even if Return comes in the same tick as typing
-  const [sheet, setSheet] = useState<'dialect' | 'language' | null>(null);
 
   if (!me) return null;
   const canManage = me.role === 'owner';
@@ -58,6 +59,21 @@ export default function SettingsScreen() {
   const onToggle = (key: keyof HouseholdSettings, value: boolean) => {
     Haptics.selectionAsync();
     list.setSetting(key, value);
+  };
+
+  const onSignOut = () => {
+    if (list.mode === 'demo') {
+      list.signOut();
+      return;
+    }
+    Alert.alert(t('settings.signOutTitle'), t('settings.signOutBody'), [
+      { text: t('settings.cancel'), style: 'cancel' },
+      {
+        text: t('settings.signOutConfirm'),
+        style: 'destructive',
+        onPress: list.signOut,
+      },
+    ]);
   };
 
   const onLeave = () => {
@@ -86,15 +102,54 @@ export default function SettingsScreen() {
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + spacing.xxxl }]}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + spacing.xxxl },
+        ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <CircleButton icon={BackIcon} label={t('detail.back')} onPress={() => router.back()} />
           <AppText variant="title" weight="bold" style={styles.title} accessibilityRole="header">
-            {t('settings.title')}
+            {t('account.title')}
           </AppText>
         </View>
+
+        {/* Me — tap to edit name, «أنا», color, dialect, languages */}
+        <Pressable
+          onPress={() => router.push('/profile')}
+          style={styles.profileCard}
+          accessibilityRole="button"
+          accessibilityLabel={t('account.profileA11y')}>
+          <Avatar member={me} large="hero" ring="surface" />
+          <View style={styles.flex}>
+            <AppText variant="heading" weight="bold" numberOfLines={1}>
+              {me.display_name}
+            </AppText>
+            <AppText variant="body" color="muted" numberOfLines={1}>
+              {[t(`roles.${me.role}_${me.gender}`), t(`dialects.${me.dialect}`), t(`languages.${me.view_language}`)].join(
+                t('item.metaSeparator'),
+              )}
+            </AppText>
+          </View>
+          <ForwardIcon size={size.icon} color={colors.muted} strokeWidth={size.iconStroke} />
+        </Pressable>
+
+        <SectionLabel>{t('account.household')}</SectionLabel>
+        <Card>
+          <Row
+            title={t('lists.sheetTitle')}
+            value={list.householdName}
+            onPress={() => router.push('/lists')}
+          />
+          <Row
+            title={t('account.members')}
+            value={t('members.count', { n: list.members.length })}
+            onPress={() => router.push('/members')}
+            divider
+          />
+          {me.role !== 'helper' && <Row title={t('account.invite')} onPress={() => router.push('/invite')} divider />}
+        </Card>
 
         <SectionLabel>{t('settings.sectionList')}</SectionLabel>
         <Card>
@@ -120,13 +175,6 @@ export default function SettingsScreen() {
               onPress={canManage ? () => setEditingName(true) : undefined}
             />
           )}
-          <Row title={t('settings.dialect')} value={t(`dialects.${me.dialect}`)} onPress={() => setSheet('dialect')} divider />
-          <Row
-            title={t('settings.language')}
-            value={t(`languages.${me.view_language}`)}
-            onPress={() => setSheet('language')}
-            divider
-          />
         </Card>
 
         <SectionLabel>{t('settings.sectionNotify')}</SectionLabel>
@@ -137,6 +185,12 @@ export default function SettingsScreen() {
 
         <Card style={styles.lastCard}>
           <Row title={t('settings.help')} onPress={comingSoon} end={<View />} />
+          <Row
+            title={t(list.mode === 'demo' ? 'settings.exitDemo' : 'settings.signOut')}
+            onPress={onSignOut}
+            end={<View />}
+            divider
+          />
           <Row title={t('settings.leave', { name: list.householdName })} tone="danger" onPress={onLeave} divider />
         </Card>
       </ScrollView>
@@ -144,24 +198,6 @@ export default function SettingsScreen() {
       <View style={[styles.statusBarCover, { height: insets.top }]} />
 
       <UndoToast bottomOffset={insets.bottom + spacing.lg} />
-
-      <OptionSheet
-        visible={sheet === 'dialect'}
-        title={t('settings.dialect')}
-        options={dialectOrder.map((key) => ({ key, label: t(`dialects.${key}`) }))}
-        selected={[me.dialect]}
-        onChange={([dialect]) => list.updateMember(me.id, { dialect }, true)}
-        onClose={() => setSheet(null)}
-      />
-      <OptionSheet
-        visible={sheet === 'language'}
-        title={t('settings.language')}
-        subtitle={t('settings.languageNote')}
-        options={languageOrder.map((key) => ({ key, label: t(`languages.${key}`) }))}
-        selected={[me.view_language]}
-        onChange={([language]) => list.updateMember(me.id, { view_language: language }, true)}
-        onClose={() => setSheet(null)}
-      />
     </KeyboardAvoidingView>
   );
 }
@@ -175,14 +211,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     gap: spacing.lg,
   },
+  flex: {
+    flex: 1,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    marginBottom: spacing.sm,
   },
   title: {
     lineHeight: size.titleLine,
+  },
+  profileCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.lg,
+    padding: spacing.xl,
+    marginBottom: spacing.sm,
+    borderRadius: radius.card + spacing.xs,
+    backgroundColor: colors.surface,
   },
   nameRow: {
     minHeight: size.toast,

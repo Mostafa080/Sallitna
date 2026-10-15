@@ -154,6 +154,8 @@ export function CodeBoxes({ value, onChange, error, disabled, autoFocus }: CodeB
       <TextInput
         value={value}
         onChangeText={(text) => onChange(onlyDigits(text).slice(0, OTP_LENGTH))}
+        // After a wrong code, tapping the boxes clears them to type again
+        onPressIn={() => error && onChange('')}
         editable={!disabled}
         keyboardType="number-pad"
         textContentType="oneTimeCode"
@@ -307,11 +309,12 @@ const styles = StyleSheet.create({
   codeRow: {
     direction: 'ltr', // first digit on the left, like the number itself
     flexDirection: 'row',
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   codeBox: {
-    width: size.codeBox,
-    height: size.codeBox + spacing.xs,
+    flex: 1, // six boxes share the width
+    maxWidth: size.codeBox,
+    height: size.codeBox,
     borderRadius: radius.card,
     borderWidth: size.border,
     borderColor: colors.line,

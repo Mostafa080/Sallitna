@@ -2,7 +2,7 @@
 // Simulated: reached from the test menu (long-press the household name on Home).
 
 import * as Haptics from 'expo-haptics';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MessageCircle, ShoppingBasket, Unlink } from 'lucide-react-native';
 import { Pressable, Share, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,11 +18,14 @@ export default function InviteExpiredScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const list = useList();
-  const owner = list.members.find((m) => m.role === 'owner');
+  // From a real link: the family's name and who invited come along; otherwise (test menu) the demo household
+  const params = useLocalSearchParams<{ list?: string; inviter?: string }>();
+  const inviter = params.list ? params.inviter : list.members.find((m) => m.role === 'owner')?.display_name;
+  const listName = params.list ?? list.householdName;
 
   const onAsk = () => {
     Haptics.selectionAsync();
-    Share.share({ message: t('inviteExpired.message', { list: list.householdName }) });
+    Share.share({ message: t('inviteExpired.message', { list: listName }) });
   };
 
   const onStartNew = () => router.replace('/welcome');
@@ -46,7 +49,9 @@ export default function InviteExpiredScreen() {
           {t('inviteExpired.title')}
         </AppText>
         <AppText variant="item" color="muted" style={styles.center}>
-          {t('inviteExpired.body', { n: INVITE_VALID_DAYS, name: owner?.display_name ?? '' })}
+          {inviter
+            ? t('inviteExpired.body', { n: INVITE_VALID_DAYS, name: inviter })
+            : t('inviteExpired.bodyGeneric', { n: INVITE_VALID_DAYS })}
         </AppText>
       </View>
 

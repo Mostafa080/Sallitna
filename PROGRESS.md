@@ -394,3 +394,113 @@ Plan: **10 database** → 11 sign-in (phone, create/join household) → 12 live 
 - **Invite codes are 8 letters** (e.g. `K7MP2QXA`), not 4 like the design's «8KD2» — 4 letters could be guessed.
 - No push notifications, realtime or voice audio storage yet (sessions 12–13).
 - Real SMS (Twilio, paid) needed before launch; until then only the test numbers can sign in.
+
+## Session 11 — 2026-10-15: Real sign-in (Supabase)
+
+### Done
+- Libraries (approved): `@supabase/supabase-js`, `@react-native-async-storage/async-storage` (stay signed in).
+- `.env` holds only the **public** address + publishable key (git ignores it). `.env.example` is the empty template.
+  `src/lib/supabase.ts` = the one connection; `src/lib/api.ts` = everything the app asks the database for.
+- **Phone sign-in is on** in the Supabase project with **test numbers** (no SMS, no cost):
+  +966 **500000001 … 500000004**, code **123456**. Codes are **6 digits** (Supabase can't do 4) — boxes and text updated.
+  Real SMS: a placeholder Twilio entry in `supabase/config.toml`; fill in before launch.
+- **The app now opens on the real flow:** not signed in → welcome; signed in → your household; signed in without a
+  household → «سمّ بيتك». It remembers you after closing the app.
+  - Start a new list: phone → real code → «سمّ بيتك» creates the household (you're the manager) → invite with a
+    **real 8-character code** (e.g. `sallitna.app/j/K39SL6EV`, plus the code in the WhatsApp message) → empty list.
+  - Already have a household (e.g. new phone)? After the code you go straight back to it.
+  - Join: «عندي دعوة من العائلة» → type the invite code → the family's real name, inviter and faces → phone → code →
+    name, «أنا», dialect, language → you're in. Expired codes open the expired screen with the family's name.
+  - Family screens use the database: members list, roles (hand-over can't be undone from the toast), remove + undo,
+    languages, dialect, list name (manager only), notification/voice switches. A failed save says so and reloads.
+  - Settings → «تسجيل الخروج». Test menu → «تسجيل الخروج».
+- **Hidden demo:** long-press the «سلّتنا» logo on welcome → the fake household from sessions 1–9 (shopper mode,
+  notifications, helper view…). «اطلع من التجربة» in settings goes back. The demo resets when the app restarts.
+- Tested on the simulator end-to-end with two test numbers (create «Test Home», join it, settings saved);
+  test accounts deleted afterwards. Security tests still **38 / 38**.
+
+### Next
+- **Session 12: the live list.** Items read from and saved to the database (add, tick, edit, delete, undo, claim),
+  **live sync** between phones (Supabase Realtime), «آخر نشاط» from `item_events`, catalog + dialect words from the database.
+
+### Known issues / open questions
+- **The list itself isn't saved yet** — items you add in a real household disappear on restart (session 12).
+- Invite **links** don't open the app yet (needs a website/universal link); for now people type the 8-character code,
+  which is included in the invite message.
+- Sign-in only works with the 4 test numbers until real SMS (Twilio) is set up — paid; needed before launch.
+- After 3 wrong codes the app locks the boxes; Supabase also limits tries on its side.
+- «الإرسال على الواتساب» for codes → «قريبًا» (needs a WhatsApp Business account).
+- Shopper mode, notifications screen and helper view only have data in the demo for now (sessions 12–13).
+
+## Session 11b — 2026-10-15: Tabs, «حسابي» and profile (your request)
+
+### Done
+- **Bottom bar = 2 tabs + the mic in the middle** (agreed): «القائمة» · big orange mic «اضغط وتكلّم» · «حسابي».
+  Built with Expo Router's own tabs (`expo-router/ui`) — no new library. Files moved: `src/app/index.tsx` →
+  `src/app/(tabs)/index.tsx`, `src/app/settings.tsx` → `src/app/(tabs)/account.tsx`; new `src/app/(tabs)/_layout.tsx`.
+- **List screen:** «اكتب غرض…» field under the header (opens type-to-add), and a dark **«أنا في السوق» pill** under the
+  family faces (agreed: header pill). During your own trip it says «كمّل التسوق». The old bar's «اكتب» and
+  «أنا في السوق» buttons are gone.
+- **«حسابي» tab** (agreed: merged with settings): your card (face, name, role · dialect · language) → profile;
+  «البيت»: أهل البيت + ادعُ شخص; list name (manager); notifications; voice & privacy; help; sign out / leave.
+  The gear on «أهل البيت» is removed.
+- **Profile screen** (`src/app/profile.tsx`): name, «أنا», color (6), dialect, list language, languages you speak → saved
+  to the database (`updateProfile`), toast «انحفظ ملفك».
+- **Loading:** the «سلّتنا» logo with a spinner instead of a blank screen while the app checks who you are.
+- **Demo badge:** «تجربة» next to the household name in the demo; tap → leave the demo or keep trying.
+
+### Known issues
+- The phone hadn't loaded session 11 yet (only the simulator had). Rescan the QR code in Expo Go.
+- Changing your list language in the profile still doesn't translate the app (only the helper view switches).
+
+## Session 11c — 2026-10-15: Several lists + calmer list screen (your request)
+
+### Done
+- **Several lists, each with its own people** (agreed): «البيت»، «الشغل»، «الأصدقاء»… Each list is its own household
+  in the database (own members, invite code, items) — no database change needed.
+  - Tap the **list name** at the top → «قوائمي» sheet (`src/app/lists.tsx`): your lists with member counts, ✓ on the
+    open one, «＋ قائمة جديدة». Also in «حسابي» → «قوائمي».
+  - **New list** (`src/app/new-list.tsx`): name + suggestion chips (البيت، الشغل، الأصدقاء، الاستراحة، الرحلة، بيت أهلي) →
+    created with you as manager (your profile is reused) → straight to its invite screen.
+  - The app remembers the last list you opened (saved on the phone) and reopens it.
+  - Joining someone's invite adds that list to yours; it doesn't replace your other lists.
+  - In the demo, «قائمة جديدة» explains that lists need an account.
+- **Calmer «القائمة» screen** (agreed layout):
+  - The list's **name is the title** (with ▾) — the extra «قائمة البيت» line is gone. Long names shrink to fit.
+  - Only the faces on the end side; the invite button moved out (it's in «حسابي» and «أهل البيت»).
+  - **One action row:** «اكتب غرض…» field + a round dark **cart button** («أنا في السوق»; orange during your trip).
+  - «سارة في السوق الحين» is now a **slim one-line bar** (tap → start/continue shopping).
+  - Filters are quiet text: «12 غرض … الكل · اليوم 3».
+- If the app can't reach the server on launch but you're signed in, it keeps the logo and retries (instead of
+  showing welcome).
+- Tested on the simulator: sign in → «Home» → new list «الشغل» → switch back → restart reopens «Home».
+  Test account deleted afterwards.
+
+### Known issues
+- Items are still not saved (session 12), so every list starts empty after a restart.
+- Leaving or deleting a list isn't available yet («اطلع من …» still says «قريبًا»).
+
+## Session 11d — 2026-10-15: New sign-up flow, no tabs, floating mic (your request)
+
+### Done
+- **Sign-up flow** (after the phone code), 3 steps with dashes:
+  1. **«عرّفنا عليك»** (`src/app/about-you.tsx`, was household-setup): name, «أنا», dialect — saved with the sign-in
+     account (Supabase user data) until the first list exists, so closing the app mid-way doesn't lose it.
+  2. **«أنشئ قائمتك الأولى»** (`src/app/first-list.tsx`): empty state with one button → **«سمّ قائمتك»** (new-list).
+  3. **Add members**: the invite screen (WhatsApp / copy link), button «التالي».
+  → lands on the empty list «السلة فاضية».
+  Back on step 1 = sign out; back on step 2 = step 1. A returning user goes straight to their list.
+- **No more tabs** (agreed). List screen header: list name ▾ (switch lists) on the right, **your avatar on the left**
+  → «حسابي» (profile, lists, household, settings, sign out) as its own screen with a back button.
+  Family faces + «N أفراد» under the list name (agreed) → «أهل البيت».
+- **«اضغط وتكلّم» = floating orange mic, no text, bottom-left**. Long-press still = noisy-recording test.
+- Signing out from anywhere closes open screens and shows welcome.
+- If the saved sign-in points to a deleted account, the app clears it and shows welcome (fixes the
+  "can't save «سمّ بيتك»" problem from earlier — it wasn't Arabic typing; typing Arabic is verified working).
+- Removed: `src/app/(tabs)/`, `src/components/BottomBar.tsx`. Moved `account.tsx` and `index.tsx` back to `src/app/`.
+- Tested on the simulator: sign out → welcome → 500000002 → عرّفنا عليك → أنشئ قائمتك الأولى → «البيت» →
+  invite (code made) → «السلة فاضية». Test account 500000002 («Sara», «البيت») left in place for you to try.
+
+### Known issues
+- The list items are still not saved (session 12).
+- Supabase had two short outages today (522); the app now retries while signed in.

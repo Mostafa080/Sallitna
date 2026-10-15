@@ -76,3 +76,9 @@ export function tIn(language: Language, key: string, params?: Params): string {
   if (__DEV__) console.warn(`[i18n] Missing key: ${key}`);
   return key;
 }
+
+// A list of strings (e.g. suggestion chips) in the current language
+export function tList(key: string): string[] {
+  const value = lookup(currentLanguage, key) ?? lookup('en', key);
+  return Array.isArray(value) ? value.filter((v): v is string => typeof v === 'string') : [];
+}

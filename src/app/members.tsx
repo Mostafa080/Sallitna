@@ -1,7 +1,8 @@
 // "أهل البيت" — who's in the household, their roles, and recent activity.
 
 import { useRouter } from 'expo-router';
-import { Settings, UserPlus } from 'lucide-react-native';
+import { UserPlus } from 'lucide-react-native';
+import { useEffect } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -25,6 +26,11 @@ export default function MembersScreen() {
   const list = useList();
 
   const me = list.memberById(list.currentMemberId);
+
+  // Live: see anyone who joined since the app opened (realtime comes in session 12)
+  useEffect(() => {
+    if (list.mode === 'live') list.refreshHousehold().catch(() => {});
+  }, []);
   const canManage = me?.role === 'owner';
   const shopperId = list.trip ? list.currentMemberId : activeShopperId;
 
@@ -46,7 +52,6 @@ export default function MembersScreen() {
         showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <CircleButton icon={BackIcon} label={t('detail.back')} onPress={() => router.back()} />
-          <CircleButton icon={Settings} label={t('members.settingsA11y')} onPress={() => router.push('/settings')} />
         </View>
 
         <View>

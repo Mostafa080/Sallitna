@@ -1,5 +1,6 @@
-// Phone number → 4-digit code. Simulated: the code is always DEMO_OTP (a toast shows it).
-// mode=create: new household (phone is typed here). mode=join: phone comes from the join screen.
+// Phone number → 6-digit code, with Supabase phone sign-in.
+// While building, only the test numbers work (see supabase/config.toml): +966 500000001…4, code 123456.
+// mode=create: new household (phone is typed here). mode=join: phone, invite code and list name come from join.
 
 import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -14,7 +15,6 @@ import { CodeBoxes, fullPhone, isValidPhone, PhoneField } from '@/components/onb
 import { SheetButton } from '@/components/shop/Sheet';
 import { UndoToast } from '@/components/UndoToast';
 import {
-  DEMO_OTP,
   OTP_LENGTH,
   OTP_LOCK_MINUTES,
   OTP_MAX_ATTEMPTS,
@@ -22,10 +22,11 @@ import {
   type LanguageKey,
 } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
+import * as api from '@/lib/api';
 import { useList } from '@/store/ListStore';
 import { colors, opacity, radius, size, spacing } from '@/theme';
 
-type Params = { mode?: 'create' | 'join'; phone?: string; lang?: LanguageKey };
+type Params = { mode?: 'create' | 'join'; phone?: string; lang?: LanguageKey; code?: string; list?: string };
 
 const clock = (seconds: number) => `0:${String(seconds).padStart(2, '0')}`;
 
@@ -41,15 +42,31 @@ export default function VerifyScreen() {
   const [code, setCode] = useState('');
   const [wrongTries, setWrongTries] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(0);
+  const [busy, setBusy] = useState(false); // waiting for Supabase
 
   const locked = wrongTries >= OTP_MAX_ATTEMPTS;
   const showError = wrongTries > 0;
   const codeIsWrong = showError && code.length === OTP_LENGTH;
 
-  const sendCode = (via: 'sms' | 'whatsapp') => {
+  const sendCode = async (via: 'sms' | 'whatsapp'): Promise<boolean> => {
+    if (via === 'whatsapp') {
+      list.notify(t('verify.whatsappSoon'));
+      return false;
+    }
     setCode('');
-    setSecondsLeft(OTP_RESEND_SECONDS);
-    list.notify(t(via === 'sms' ? 'toast.codeSent' : 'toast.codeSentWhatsapp', { code: DEMO_OTP }));
+    setBusy(true);
+    try {
+      await api.sendCode(phone);
+      setSecondsLeft(OTP_RESEND_SECONDS);
+      if (__DEV__) list.notify(t('verify.testHint'));
+      return true;
+    } catch (error) {
+      if (__DEV__) console.warn('[sendCode]', error);
+      list.notify(t('verify.sendFailed'));
+      return false;
+    } finally {
+      setBusy(false);
+    }
   };
 
   // Joining arrives with the number already typed — "send" straight away
@@ -64,10 +81,9 @@ export default function VerifyScreen() {
     return () => clearTimeout(timer);
   }, [secondsLeft]);
 
-  const onSendFirst = () => {
+  const onSendFirst = async () => {
     Haptics.selectionAsync();
-    setStep('code');
-    sendCode('sms');
+    if (await sendCode('sms')) setStep('code');
   };
 
   const onEditNumber = () => {
@@ -79,15 +95,36 @@ export default function VerifyScreen() {
     setStep('phone');
   };
 
-  const check = (value: string) => {
-    if (value === DEMO_OTP) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      if (joining) router.replace({ pathname: '/join-setup', params: { lang: params.lang ?? 'ar' } });
-      else router.replace('/household-setup');
+  const check = async (value: string) => {
+    if (busy || locked) return;
+    setBusy(true);
+    try {
+      await api.verifyCode(phone, value);
+    } catch {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      setWrongTries((n) => n + 1);
+      setBusy(false);
       return;
     }
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-    setWrongTries((n) => n + 1);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    if (joining) {
+      router.replace({ pathname: '/join-setup', params: { lang: params.lang ?? 'ar', code: params.code, list: params.list } });
+      return;
+    }
+    // Already in a household on another phone? Straight back to it.
+    try {
+      const membership = await api.loadMembership();
+      if (membership) {
+        await list.refreshHousehold(t('toast.welcomeBack', { list: membership.householdName }));
+        router.dismissAll();
+        return;
+      }
+    } catch {
+      // Couldn't check — carry on to naming a new household
+    }
+    setBusy(false);
+    // New here: about you first; already answered (e.g. closed the app mid-way): create the first list
+    router.replace((await api.getSignupProfile().catch(() => null)) ? '/first-list' : '/about-you');
   };
 
   const onCodeChange = (value: string) => {
@@ -216,10 +253,10 @@ export default function VerifyScreen() {
             {t('verify.lockNote', { attempts: OTP_MAX_ATTEMPTS, minutes: OTP_LOCK_MINUTES })}
           </AppText>
         ) : step === 'phone' ? (
-          <SheetButton label={t('verify.send')} onPress={onSendFirst} disabled={!isValidPhone(phone)} />
+          <SheetButton label={t('verify.send')} onPress={onSendFirst} disabled={!isValidPhone(phone) || busy} />
         ) : (
           <>
-            <SheetButton label={t('verify.confirm')} onPress={() => check(code)} disabled={code.length < OTP_LENGTH} />
+            <SheetButton label={t('verify.confirm')} onPress={() => check(code)} disabled={code.length < OTP_LENGTH || busy} />
             <AppText variant="meta" color="muted" style={styles.center}>
               {t('verify.terms')}
             </AppText>

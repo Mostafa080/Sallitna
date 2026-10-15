@@ -3,7 +3,7 @@
 
 import { useRouter } from 'expo-router';
 import { ArrowDown, Mic } from 'lucide-react-native';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
@@ -11,11 +11,20 @@ import { Brand } from '@/components/onboarding/OnboardingParts';
 import { SheetButton } from '@/components/shop/Sheet';
 import { t } from '@/i18n';
 import { formatQuantity } from '@/lib/format';
+import { useList } from '@/store/ListStore';
 import { colors, layout, radius, size, spacing } from '@/theme';
 
 export default function WelcomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const list = useList();
+
+  // Hidden: long-press the logo to try the app with the fake household from earlier sessions
+  const enterDemo = () => {
+    list.enterDemo();
+    router.dismissAll();
+  };
+
   const demoRows = [
     { key: 'milk', qty: formatQuantity(2, 'count') },
     { key: 'rice', qty: formatQuantity(5, 'kg') },
@@ -24,7 +33,9 @@ export default function WelcomeScreen() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + spacing.sm }]}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Brand />
+        <Pressable onLongPress={enterDemo} delayLongPress={800} accessible={false} style={styles.brand}>
+          <Brand />
+        </Pressable>
 
         {/* Say it → it's on the list */}
         <View style={styles.hero} accessible accessibilityLabel={t('welcome.heroA11y')}>
@@ -92,6 +103,9 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
+  },
+  brand: {
+    alignSelf: 'flex-start',
   },
   flexShrink: {
     flexShrink: 1,

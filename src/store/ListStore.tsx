@@ -1,6 +1,7 @@
 // The household list, shared by every screen.
-// In-memory for now (resets on reload). Later this is backed by Supabase + Realtime,
-// and undo maps to item_events.
+// Two worlds: 'live' — signed in, family data from Supabase (items still in memory until session 12) —
+// and 'demo' — the fake household from earlier sessions (long-press the logo on welcome).
+// Undo will map to item_events.
 
 import { createContext, useContext, useEffect, useReducer, type ReactNode } from 'react';
 
@@ -26,7 +27,9 @@ import {
   type StoreKey,
 } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
+import * as api from '@/lib/api';
 import { normalizeArabic } from '@/lib/arabic';
+import { supabase } from '@/lib/supabase';
 import { formatQuantity } from '@/lib/format';
 import type { ListChange } from '@/lib/voiceReview';
 import type { Question, QuestionAnswer, Trip, TripOutcome, TripSummary } from '@/store/tripTypes';
@@ -58,7 +61,16 @@ type State = {
   householdName: string;
   settings: HouseholdSettings;
   meId: string; // the person using this phone
+  mode: Mode;
+  householdId: string | null; // live only
+  formerMembers: Member[]; // live: removed/left people, so old items keep their names
+  inviteCode: string | null; // live: this household's current invite code
+  lists: api.ListSummary[]; // all my lists (live) — each is its own household with its own people
+  hasSignupProfile: boolean; // needsHousehold: «عرّفنا عليك» already answered → go to «أنشئ قائمتك الأولى»
 };
+
+// loading: checking sign-in · signedOut: show welcome · needsHousehold: signed in, no household yet
+export type Mode = 'loading' | 'signedOut' | 'needsHousehold' | 'demo' | 'live';
 
 type Action =
   | { type: 'patch'; id: string; patch: Partial<Item> }
@@ -72,8 +84,33 @@ type Action =
   | { type: 'liveAdd'; item: Item }
   | { type: 'replace'; state: State };
 
-function initialState(): State {
+function initialState(mode: Mode = 'loading'): State {
   return {
+    items: [],
+    toast: null,
+    trip: null,
+    questions: [],
+    summary: null,
+    offline: false,
+    pendingSync: [],
+    members: [],
+    invites: [],
+    householdName: '',
+    settings: defaultSettings,
+    meId: '',
+    mode,
+    householdId: null,
+    formerMembers: [],
+    inviteCode: null,
+    lists: [],
+    hasSignupProfile: false,
+  };
+}
+
+// The fake household from sessions 1–9
+function demoState(): State {
+  return {
+    ...initialState('demo'),
     items: makeDemoItems(),
     toast: null,
     trip: null,
@@ -86,8 +123,21 @@ function initialState(): State {
     householdName: household.name,
     settings: defaultSettings,
     meId: demoMeId,
+    lists: [{ householdId: household.id, name: household.name, memberCount: demoMembers.length }],
   };
 }
+
+const liveState = (m: api.Membership, items: Item[] = [], lists: api.ListSummary[] = []): State => ({
+  ...initialState('live'),
+  lists,
+  items,
+  members: m.members,
+  formerMembers: m.formerMembers,
+  householdName: m.householdName,
+  householdId: m.householdId,
+  meId: m.meId,
+  settings: m.settings,
+});
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -112,7 +162,7 @@ function reducer(state: State, action: Action): State {
       };
     }
     case 'reset':
-      return { ...initialState(), items: action.items };
+      return { ...demoState(), items: action.items };
     case 'toast':
       return { ...state, toast: action.toast };
     case 'set':
@@ -123,7 +173,8 @@ function reducer(state: State, action: Action): State {
       return action.state;
     case 'liveAdd':
       // Only while still shopping, and only once
-      if (!state.trip || state.items.some((i) => i.status === 'open' && sameName(i.name, action.item.name))) return state;
+      if (!state.trip || state.items.some((i) => i.status === 'open' && sameName(i.name, action.item.name)))
+        return state;
       return {
         ...state,
         items: [...state.items, action.item],
@@ -135,6 +186,8 @@ function reducer(state: State, action: Action): State {
       };
   }
 }
+
+const LAUNCH_RETRY_MS = 3000;
 
 let toastCounter = 0;
 let idCounter = 0;
@@ -163,35 +216,54 @@ export type NewProfile = {
   displayName: string;
   gender: 'f' | 'm';
   dialect: DialectKey;
-  viewLanguage?: LanguageKey;
+  viewLanguage: LanguageKey;
 };
-
-function newMember(id: string, p: NewProfile, role: Member['role'], color: Member['avatar_color']): Member {
-  const name = p.displayName.trim();
-  const language = p.viewLanguage ?? 'ar';
-  return {
-    id,
-    display_name: name,
-    initial: name.charAt(0),
-    gender: p.gender,
-    role,
-    avatar_color: color,
-    view_language: language,
-    speaks: [language],
-    dialect: p.dialect,
-    joined_at: new Date().toISOString(),
-    items_added: 0,
-  };
-}
 
 function useListState() {
   const [state, dispatch] = useReducer(reducer, undefined, initialState);
   const { trip } = state;
   const me = state.meId;
+  const live = state.mode === 'live';
 
-  // Simulated family: a few seconds into a trip, someone adds an item by voice
+  // On launch: signed in? in a household? (the splash stays until we know)
   useEffect(() => {
-    if (!trip) return;
+    let cancelled = false;
+    let retry: ReturnType<typeof setTimeout> | undefined;
+    const load = () =>
+      api
+        .clearStaleSession()
+        .then(() => Promise.all([api.loadMembership(), api.listMyHouseholds()]))
+        .then(async ([membership, lists]) => {
+          if (cancelled) return;
+          if (membership) dispatch({ type: 'replace', state: liveState(membership, [], lists) });
+          else if (await api.isSignedIn()) {
+            const profile = await api.getSignupProfile();
+            dispatch({ type: 'set', patch: { mode: 'needsHousehold', hasSignupProfile: !!profile } });
+          } else dispatch({ type: 'set', patch: { mode: 'signedOut' } });
+        })
+        // Offline or the server didn't answer: signed in on this phone → keep the logo and try again;
+        // never signed in → welcome
+        .catch(async (error) => {
+          if (__DEV__) console.warn('[launch]', error);
+          if (cancelled) return;
+          if (await api.isSignedIn()) retry = setTimeout(load, LAUNCH_RETRY_MS);
+          else dispatch({ type: 'set', patch: { mode: 'signedOut' } });
+        });
+    load();
+
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') dispatch({ type: 'replace', state: initialState('signedOut') });
+    });
+    return () => {
+      cancelled = true;
+      clearTimeout(retry);
+      data.subscription.unsubscribe();
+    };
+  }, []);
+
+  // Simulated family (demo only): a few seconds into a trip, someone adds an item by voice
+  useEffect(() => {
+    if (!trip || state.mode !== 'demo') return;
     const timer = setTimeout(() => {
       const cardamom = catalogById('c20');
       if (!cardamom) return;
@@ -200,7 +272,10 @@ function useListState() {
       if (adder) {
         dispatch({
           type: 'toast',
-          toast: { id: ++toastCounter, message: t(`toast.liveAdded_${adder.gender}`, { name: adder.display_name, item: cardamom.name }) },
+          toast: {
+            id: ++toastCounter,
+            message: t(`toast.liveAdded_${adder.gender}`, { name: adder.display_name, item: cardamom.name }),
+          },
         });
       }
     }, LIVE_ADD_DELAY_MS);
@@ -210,10 +285,31 @@ function useListState() {
 
   const find = (id: string) => state.items.find((item) => item.id === id);
   // Removed members still resolve, so old items keep showing who added them
-  const memberById = (id: string) => state.members.find((m) => m.id === id) ?? demoMembers.find((m) => m.id === id);
+  const memberById = (id: string) =>
+    state.members.find((m) => m.id === id) ??
+    state.formerMembers.find((m) => m.id === id) ??
+    (live ? undefined : demoMembers.find((m) => m.id === id));
+
+  // A save to the database failed: say so, and reload what's really there
+  const failed = (error: unknown) => {
+    if (__DEV__) console.warn('[api]', error);
+    showToast(t('toast.saveFailed'));
+    api
+      .loadMembership()
+      .then(
+        (m) =>
+          m &&
+          dispatch({
+            type: 'set',
+            patch: { members: m.members, formerMembers: m.formerMembers, householdName: m.householdName },
+          }),
+      );
+  };
   const familyUndo = (): Undo => ({ restore: [], discard: [], members: state.members });
   // Everyone who ever added something here — removed members too, so old items keep their names
-  const everyone = [...state.members, ...demoMembers.filter((d) => !state.members.some((m) => m.id === d.id))];
+  const everyone = live
+    ? [...state.members, ...state.formerMembers]
+    : [...state.members, ...demoMembers.filter((d) => !state.members.some((m) => m.id === d.id))];
   const openItemNamed = (name: string) =>
     state.items.find((item) => item.status === 'open' && sameName(item.name, name));
 
@@ -233,6 +329,30 @@ function useListState() {
     next,
   ];
 
+  // Reload a household from the database (after creating/joining/switching, or to see who joined).
+  // Without an id: the one already open (or the last one opened). Keeps the items if it's the same list.
+  const refreshHousehold = async (welcome?: string, householdId?: string): Promise<boolean> => {
+    const [membership, lists] = await Promise.all([
+      api.loadMembership(householdId ?? state.householdId ?? undefined),
+      api.listMyHouseholds(),
+    ]);
+    if (!membership) {
+      const profile = await api.getSignupProfile();
+      dispatch({ type: 'set', patch: { mode: 'needsHousehold', lists, hasSignupProfile: !!profile } });
+      return false;
+    }
+    const same = membership.householdId === state.householdId;
+    dispatch({
+      type: 'replace',
+      state: {
+        ...liveState(membership, same ? state.items : [], lists),
+        inviteCode: same ? state.inviteCode : null,
+        toast: welcome ? { id: ++toastCounter, message: welcome } : null,
+      },
+    });
+    return true;
+  };
+
   return {
     items: state.items,
     toast: state.toast,
@@ -246,6 +366,11 @@ function useListState() {
     invites: state.invites,
     householdName: state.householdName,
     settings: state.settings,
+    mode: state.mode,
+    householdId: state.householdId,
+    inviteCode: state.inviteCode,
+    lists: state.lists,
+    hasSignupProfile: state.hasSignupProfile,
     everyone,
     memberById,
 
@@ -350,7 +475,29 @@ function useListState() {
     },
 
     undo() {
-      if (state.toast?.undo) dispatch({ type: 'undo', undo: state.toast.undo });
+      const undo = state.toast?.undo;
+      if (!undo) return;
+      dispatch({ type: 'undo', undo });
+      // Live family changes are undone in the database too
+      if (live && undo.members) {
+        for (const before of undo.members) {
+          const now = state.members.find((m) => m.id === before.id);
+          if (!now) api.restoreMember(before.id).catch(failed);
+          else if (
+            now.view_language !== before.view_language ||
+            now.dialect !== before.dialect ||
+            now.speaks.join() !== before.speaks.join()
+          ) {
+            api
+              .updateMember(before.id, {
+                view_language: before.view_language,
+                speaks: before.speaks,
+                dialect: before.dialect,
+              })
+              .catch(failed);
+          }
+        }
+      }
     },
 
     notify(message: string) {
@@ -473,7 +620,10 @@ function useListState() {
 
       let item = openItemNamed(cardamom.name);
       if (!item) {
-        item = { ...newItem(catalogToDraft(cardamom), me), created_at: new Date(Date.now() - 3 * 60 * 60_000).toISOString() };
+        item = {
+          ...newItem(catalogToDraft(cardamom), me),
+          created_at: new Date(Date.now() - 3 * 60 * 60_000).toISOString(),
+        };
         dispatch({ type: 'add', items: [item] });
       }
       const altId = cardamom.alternative;
@@ -517,7 +667,10 @@ function useListState() {
           });
         } else if (answer === 'no') {
           dispatch({ type: 'patch', id: item.id, patch: { status: 'removed' } });
-          dispatch({ type: 'trip', patch: { outcomes: withOutcome(trip.outcomes, outcome(item, 'removed', answered)) } });
+          dispatch({
+            type: 'trip',
+            patch: { outcomes: withOutcome(trip.outcomes, outcome(item, 'removed', answered)) },
+          });
         } else {
           dispatch({ type: 'trip', patch: { outcomes: withOutcome(trip.outcomes, outcome(item, 'next', answered)) } });
         }
@@ -540,7 +693,8 @@ function useListState() {
       const mine = trip.partnerId ? inCart.filter((i) => i.claimed_by !== trip.partnerId) : inCart;
 
       for (const item of tripItems) {
-        if (item.status === 'in_cart') dispatch({ type: 'patch', id: item.id, patch: { status: 'bought', claimed_by: null } });
+        if (item.status === 'in_cart')
+          dispatch({ type: 'patch', id: item.id, patch: { status: 'bought', claimed_by: null } });
         else if (item.claimed_by === me) dispatch({ type: 'patch', id: item.id, patch: { claimed_by: null } });
       }
 
@@ -577,7 +731,11 @@ function useListState() {
 
     // Save a member's role and languages. Making someone the manager hands it over:
     // the current manager becomes a member.
-    updateMember(id: string, patch: Partial<Pick<Member, 'role' | 'view_language' | 'speaks' | 'dialect'>>, silent = false) {
+    updateMember(
+      id: string,
+      patch: Partial<Pick<Member, 'role' | 'view_language' | 'speaks' | 'dialect'>>,
+      silent = false,
+    ) {
       const member = memberById(id);
       if (!member) return;
       const undo = familyUndo();
@@ -588,14 +746,44 @@ function useListState() {
         return m;
       });
       dispatch({ type: 'set', patch: { members: next } });
+
+      if (live) {
+        const { role, ...profile } = patch;
+        const roleChanged = role !== undefined && role !== member.role;
+        Promise.all([
+          Object.keys(profile).length > 0 ? api.updateMember(id, profile) : null,
+          roleChanged ? api.setMemberRole(id, role) : null,
+        ]).catch(failed);
+        // A role change (above all a hand-over) can't be undone from here
+        if (!silent) showToast(t('toast.memberSaved', { name: member.display_name }), roleChanged ? undefined : undo);
+        return;
+      }
       if (!silent) showToast(t('toast.memberSaved', { name: member.display_name }), undo);
+    },
+
+    // My own profile (name, «أنا», color, dialect, languages) — no undo, just saved
+    updateProfile(patch: api.ProfilePatch) {
+      const member = memberById(me);
+      if (!member) return;
+      const name = patch.display_name?.trim();
+      const next = { ...member, ...patch, ...(name ? { display_name: name, initial: name.charAt(0) } : {}) };
+      dispatch({ type: 'set', patch: { members: state.members.map((m) => (m.id === me ? next : m)) } });
+      if (live) api.updateMember(me, name ? { ...patch, display_name: name } : patch).catch(failed);
+      showToast(t('toast.profileSaved'));
     },
 
     removeMember(id: string) {
       const member = memberById(id);
       if (!member || id === me) return;
       const undo = familyUndo();
-      dispatch({ type: 'set', patch: { members: state.members.filter((m) => m.id !== id) } });
+      dispatch({
+        type: 'set',
+        patch: {
+          members: state.members.filter((m) => m.id !== id),
+          formerMembers: live ? [...state.formerMembers, member] : state.formerMembers,
+        },
+      });
+      if (live) api.removeMember(id).catch(failed);
       showToast(t('toast.memberRemoved', { name: member.display_name }), undo);
     },
 
@@ -603,52 +791,60 @@ function useListState() {
       const trimmed = name.trim();
       if (!trimmed || trimmed === state.householdName) return;
       dispatch({ type: 'set', patch: { householdName: trimmed } });
+      if (live && state.householdId) api.renameHousehold(state.householdId, trimmed).catch(failed);
       showToast(t('toast.listRenamed', { name: trimmed }));
     },
 
     setSetting(key: keyof HouseholdSettings, value: boolean) {
-      dispatch({ type: 'set', patch: { settings: { ...state.settings, [key]: value } } });
+      const settings = { ...state.settings, [key]: value };
+      dispatch({ type: 'set', patch: { settings } });
+      if (live) api.updateMember(me, { settings }).catch(failed);
     },
 
-    // --- Sign-up (simulated) ------------------------------------------------------
+    // --- Sign-in and households ---------------------------------------------------
 
-    // A brand-new household: just me, as manager, with an empty list
-    createHousehold(profile: NewProfile & { householdName: string }) {
-      const id = newId('member');
-      dispatch({
-        type: 'replace',
-        state: {
-          ...initialState(),
-          items: [],
-          members: [newMember(id, profile, 'owner', 'ink')],
-          invites: [],
-          householdName: profile.householdName.trim(),
-          meId: id,
-        },
-      });
+    refreshHousehold,
+
+    // Open another of my lists
+    async switchList(householdId: string) {
+      if (householdId === state.householdId || !live) return;
+      try {
+        await api.rememberHousehold(householdId);
+        await refreshHousehold(undefined, householdId);
+      } catch (error) {
+        failed(error);
+      }
     },
 
-    // Join the demo household from an invite, as a new member
-    joinHousehold(profile: NewProfile) {
-      const id = newId('member');
-      const fresh = initialState();
-      dispatch({
-        type: 'replace',
-        state: {
-          ...fresh,
-          members: [...fresh.members, newMember(id, profile, 'member', 'success')],
-          meId: id,
-          toast: {
-            id: ++toastCounter,
-            message: t('toast.joined', { name: profile.displayName.trim(), list: fresh.householdName }),
-          },
-        },
-      });
+    // This household's invite code (reuses a valid one)
+    async ensureInviteCode(): Promise<string | null> {
+      if (state.inviteCode) return state.inviteCode;
+      if (!state.householdId) return null;
+      try {
+        const code = await api.getOrCreateInvite(state.householdId);
+        dispatch({ type: 'set', patch: { inviteCode: code } });
+        return code;
+      } catch (error) {
+        failed(error);
+        return null;
+      }
+    },
+
+    // The fake household from earlier sessions, for trying screens without an account
+    enterDemo() {
+      dispatch({ type: 'replace', state: demoState() });
+    },
+
+    async signOut() {
+      if (live) await api.signOut().catch(failed);
+      dispatch({ type: 'replace', state: initialState('signedOut') });
     },
 
     // Dev-only helpers to see the empty state and come back
     clearAll() {
-      dispatch({ type: 'reset', items: [] });
+      if (live) dispatch({ type: 'set', patch: { trip: null, summary: null } });
+      if (live) dispatch({ type: 'discard', ids: state.items.map((i) => i.id) });
+      else dispatch({ type: 'reset', items: [] });
     },
     loadDemo() {
       dispatch({ type: 'reset', items: makeDemoItems() });

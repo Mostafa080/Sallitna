@@ -5,6 +5,7 @@ import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { MessageCircle } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -28,8 +29,18 @@ export default function InviteScreen({ setup = false }: { setup?: boolean }) {
   const insets = useSafeAreaInsets();
   const list = useList();
   const me = list.memberById(list.currentMemberId);
+  const live = list.mode === 'live';
 
-  const shortLink = `${INVITE_HOST}${inviteCode}`;
+  // Live: this household's real code (made on first open), and a fresh look at who has joined
+  const [liveCode, setLiveCode] = useState(list.inviteCode);
+  useEffect(() => {
+    if (!live) return;
+    list.ensureInviteCode().then(setLiveCode);
+    list.refreshHousehold().catch(() => {});
+  }, []);
+
+  const code = live ? liveCode : inviteCode;
+  const shortLink = code ? `${INVITE_HOST}${code}` : t('invite.loading');
   const link = `https://${shortLink}`;
 
   const people: Person[] = [
@@ -38,13 +49,15 @@ export default function InviteScreen({ setup = false }: { setup?: boolean }) {
   ];
 
   const onWhatsApp = () => {
+    if (!code) return;
     Haptics.selectionAsync();
     Share.share({
-      message: t(`invite.message_${me?.gender ?? 'f'}`, { name: me?.display_name ?? '', list: list.householdName, link }),
+      message: t(`invite.message_${me?.gender ?? 'f'}`, { name: me?.display_name ?? '', list: list.householdName, link, code }),
     });
   };
 
   const onCopy = async () => {
+    if (!code) return;
     await Clipboard.setStringAsync(link);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     list.notify(t('toast.linkCopied'));
@@ -84,8 +97,13 @@ export default function InviteScreen({ setup = false }: { setup?: boolean }) {
         ]}
         showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <CircleButton icon={BackIcon} label={t('detail.back')} onPress={() => router.back()} />
-          {setup && <StepDashes current={3} total={3} done />}
+          {/* In sign-up the list already exists — no going back, only «التالي» */}
+          {setup ? (
+            <View />
+          ) : (
+            <CircleButton icon={BackIcon} label={t('detail.back')} onPress={() => router.back()} />
+          )}
+          {setup && <StepDashes current={3} total={3} />}
         </View>
 
         <View style={styles.intro}>
@@ -106,7 +124,7 @@ export default function InviteScreen({ setup = false }: { setup?: boolean }) {
           </Pressable>
 
           <View style={styles.linkField}>
-            <AppText variant="item" style={styles.link} numberOfLines={1} selectable>
+            <AppText variant="item" style={styles.link} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} selectable>
               {shortLink}
             </AppText>
             <Pressable onPress={onCopy} style={styles.copyButton} accessibilityRole="button">
@@ -149,7 +167,7 @@ export default function InviteScreen({ setup = false }: { setup?: boolean }) {
       <UndoToast bottomOffset={insets.bottom + size.button + (setup ? spacing.xxxl * 2 : spacing.xxl)} />
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
-        <SheetButton label={t('invite.start')} tone="accent" onPress={onStart} />
+        <SheetButton label={t(setup ? 'invite.next' : 'invite.done')} tone="accent" onPress={onStart} />
         {setup && (
           <AppText variant="body" color="muted" style={styles.center}>
             {t('invite.later')}
@@ -173,6 +191,7 @@ const styles = StyleSheet.create({
     gap: spacing.xl,
   },
   header: {
+    minHeight: size.touch + spacing.sm,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

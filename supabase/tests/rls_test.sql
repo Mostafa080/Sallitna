@@ -16,10 +16,10 @@ grant all on results, ctx to authenticated, anon;
 grant usage on sequence results_n_seq to authenticated, anon;
 
 insert into auth.users (id, aud, role, phone) values
-  ('00000000-0000-4000-a000-000000000001', 'authenticated', 'authenticated', '966500000001'),
-  ('00000000-0000-4000-a000-000000000002', 'authenticated', 'authenticated', '966500000002'),
-  ('00000000-0000-4000-a000-000000000003', 'authenticated', 'authenticated', '966500000003'),
-  ('00000000-0000-4000-a000-000000000004', 'authenticated', 'authenticated', '966500000004');
+  ('00000000-0000-4000-a000-000000000001', 'authenticated', 'authenticated', '999000000001'),
+  ('00000000-0000-4000-a000-000000000002', 'authenticated', 'authenticated', '999000000002'),
+  ('00000000-0000-4000-a000-000000000003', 'authenticated', 'authenticated', '999000000003'),
+  ('00000000-0000-4000-a000-000000000004', 'authenticated', 'authenticated', '999000000004');
 
 -- Act as someone: act('umm') etc. (sets the role and who auth.uid() returns)
 create function pg_temp.act(who text) returns void language plpgsql as $$

@@ -1,4 +1,5 @@
-// "سمّ بيتك" — last step of starting a new household: list name, my name, dialect.
+// «عرّفنا عليك» — step 1 after the phone code: my name, «أنا», dialect.
+// Saved with the sign-in account; then «أنشئ قائمتك الأولى» (first-list) → name the list → add members.
 
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
@@ -10,28 +11,50 @@ import { AppText } from '@/components/AppText';
 import { BackIcon, CircleButton } from '@/components/family/FamilyParts';
 import { ChipRow, ChoiceChip, DialectCard, Field, StepDashes } from '@/components/onboarding/OnboardingParts';
 import { SheetButton } from '@/components/shop/Sheet';
+import { UndoToast } from '@/components/UndoToast';
 import { dialectOrder, type DialectKey } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
+import * as api from '@/lib/api';
 import { useList } from '@/store/ListStore';
 import { colors, size, spacing } from '@/theme';
 
-export default function HouseholdSetupScreen() {
+export default function AboutYouScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const list = useList();
 
-  const [householdName, setHouseholdName] = useState('');
   const [name, setName] = useState('');
   const [gender, setGender] = useState<'f' | 'm' | null>(null);
   const [dialect, setDialect] = useState<DialectKey>('saudi');
 
-  const ready = householdName.trim() !== '' && name.trim() !== '' && gender !== null;
+  const [saving, setSaving] = useState(false);
 
-  const onNext = () => {
-    if (!gender) return;
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    list.createHousehold({ householdName, displayName: name, gender, dialect });
-    router.replace('/setup-invite');
+  const ready = name.trim() !== '' && gender !== null && !saving;
+
+  const onNext = async () => {
+    if (!gender || saving) return;
+    setSaving(true);
+    try {
+      await api.saveSignupProfile({ displayName: name.trim(), gender, dialect, viewLanguage: 'ar' });
+    } catch (error) {
+      if (__DEV__) console.warn('[saveSignupProfile]', error);
+      // The account behind this sign-in is gone → start over from welcome
+      if (await api.clearStaleSession()) {
+        list.signOut();
+        return;
+      }
+      list.notify(t('setup.failed'));
+      setSaving(false);
+      return;
+    }
+    Haptics.selectionAsync();
+    router.replace('/first-list');
+  };
+
+  // Signed in but no list yet: going back means "use another number" → sign out and start over
+  const onBack = () => {
+    if (list.mode === 'needsHousehold') list.signOut();
+    else router.back();
   };
 
   const pick = <T,>(set: (value: T) => void, value: T) => {
@@ -46,27 +69,21 @@ export default function HouseholdSetupScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <CircleButton icon={BackIcon} label={t('onboarding.back')} onPress={() => router.back()} />
-          <StepDashes current={3} total={3} />
+          <CircleButton icon={BackIcon} label={t('onboarding.back')} onPress={onBack} />
+          <StepDashes current={1} total={3} />
         </View>
 
         <AppText variant="title" weight="bold" style={styles.title} accessibilityRole="header">
-          {t('setup.title')}
+          {t('setup.aboutTitle')}
         </AppText>
 
-        <Field
-          label={t('setup.listName')}
-          value={householdName}
-          onChangeText={setHouseholdName}
-          placeholder={t('setup.listPlaceholder')}
-          returnKeyType="next"
-        />
         <Field
           label={t('setup.yourName')}
           value={name}
           onChangeText={setName}
           placeholder={t('setup.namePlaceholder')}
           returnKeyType="done"
+          autoFocus
         />
 
         <ChipRow label={t('onboarding.gender')}>
@@ -96,6 +113,8 @@ export default function HouseholdSetupScreen() {
           </View>
         </View>
       </ScrollView>
+
+      <UndoToast bottomOffset={insets.bottom + size.button + spacing.xxl} />
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
         <SheetButton label={t('setup.next')} onPress={onNext} disabled={!ready} />

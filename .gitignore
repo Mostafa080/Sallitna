@@ -42,3 +42,6 @@ example
 # generated native folders
 /ios
 /android
+
+# Template with placeholders only (no real values)
+!.env.example

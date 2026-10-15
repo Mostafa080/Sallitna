@@ -60,14 +60,23 @@ export default function RootLayout() {
               name="start-trip"
               options={{ presentation: 'transparentModal', animation: 'fade', contentStyle: { backgroundColor: 'transparent' } }}
             />
+            <Stack.Screen
+              name="lists"
+              options={{ presentation: 'transparentModal', animation: 'fade', contentStyle: { backgroundColor: 'transparent' } }}
+            />
             <Stack.Screen name="shop" options={{ animation: 'fade' }} />
             <Stack.Screen name="trip-done" options={{ animation: 'fade', gestureEnabled: false }} />
             <Stack.Screen name="invite-expired" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
             <Stack.Screen name="helper" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
             <Stack.Screen name="notifications" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
             {/* Sign-up and joining: each step opens over the last, and finishing closes them all */}
-            {['welcome', 'verify', 'household-setup', 'setup-invite', 'join', 'join-setup'].map((name) => (
-              <Stack.Screen key={name} name={name} options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
+            {['welcome', 'verify', 'about-you', 'first-list', 'new-list', 'setup-invite', 'join', 'join-setup'].map((name) => (
+              <Stack.Screen
+                key={name}
+                name={name}
+                // Welcome can't be swiped away: there's nothing behind it until you sign in
+                options={{ presentation: 'fullScreenModal', animation: 'fade', gestureEnabled: name !== 'welcome' }}
+              />
             ))}
           </Stack>
         </ListProvider>
