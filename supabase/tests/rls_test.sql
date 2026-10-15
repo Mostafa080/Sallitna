@@ -248,6 +248,48 @@ select pg_temp.check_('after deleting: data is kept, everyone is moved out, trip
   and (select count(*) from public.members where household_id = pg_temp.get('hhA')::uuid and left_at is null) = 0
   and (select count(*) from public.trips where household_id = pg_temp.get('hhA')::uuid and ended_at is null) = 0);
 
+-- ---------- Admin dashboard doors ----------
+reset role;
+select pg_temp.check_('signed out: cannot use admin doors',
+  pg_temp.blocked('set local role anon; select public.admin_overview()'));
+select pg_temp.act('umm');
+select pg_temp.check_('normal user: is not an admin', public.admin_me() = false);
+select pg_temp.check_('normal user: cannot see admin numbers', pg_temp.blocked('select public.admin_overview()'));
+select pg_temp.check_('normal user: cannot list users', pg_temp.blocked('select * from public.admin_users()'));
+select pg_temp.check_('normal user: cannot block someone',
+  pg_temp.blocked($q$ select public.admin_set_blocked('00000000-0000-4000-a000-000000000004', true) $q$));
+select pg_temp.check_('normal user: cannot delete someone',
+  pg_temp.blocked($q$ select public.admin_delete_user('00000000-0000-4000-a000-000000000004') $q$));
+select pg_temp.check_('normal user: cannot make themselves admin',
+  pg_temp.blocked($q$ select public.admin_add_admin('999000000001') $q$)
+  and pg_temp.blocked($q$ insert into private.admins (user_id) values (auth.uid()) $q$));
+reset role;
+insert into private.admins (user_id) values ('00000000-0000-4000-a000-000000000001');
+select pg_temp.act('umm');
+select pg_temp.check_('admin: sees the numbers and the users',
+  public.admin_me() and (public.admin_overview() ->> 'users_total')::int >= 4
+  and (select count(*) from public.admin_users() where phone like '+99 90••%') >= 4);
+select pg_temp.check_('admin: phones are partly hidden',
+  not exists (select 1 from public.admin_users() where phone like '%999000000004%'));
+select pg_temp.check_('admin: can block someone',
+  not pg_temp.blocked($q$ select public.admin_set_blocked('00000000-0000-4000-a000-000000000004', true) $q$));
+select pg_temp.check_('admin: blocked person shows as blocked',
+  (select blocked from public.admin_users() where id = '00000000-0000-4000-a000-000000000004'));
+select pg_temp.check_('admin: can unblock them',
+  not pg_temp.blocked($q$ select public.admin_set_blocked('00000000-0000-4000-a000-000000000004', false) $q$));
+select pg_temp.check_('admin: unblocked person shows as not blocked',
+  not (select blocked from public.admin_users() where id = '00000000-0000-4000-a000-000000000004'));
+select pg_temp.check_('admin: cannot block or delete themselves',
+  pg_temp.blocked($q$ select public.admin_set_blocked('00000000-0000-4000-a000-000000000001', true) $q$)
+  and pg_temp.blocked($q$ select public.admin_delete_user('00000000-0000-4000-a000-000000000001') $q$));
+select pg_temp.check_('admin: can add another admin by phone',
+  not pg_temp.blocked($q$ select public.admin_add_admin('+999 000 000 002') $q$)
+  and (select count(*) from public.admin_list_admins()) = 2);
+select pg_temp.check_('admin: can delete an account',
+  not pg_temp.blocked($q$ select public.admin_delete_user('00000000-0000-4000-a000-000000000004') $q$));
+select pg_temp.check_('admin: the deleted account is gone',
+  not exists (select 1 from public.admin_users() where id = '00000000-0000-4000-a000-000000000004'));
+
 -- ---------- Deleting an account that added items ----------
 reset role;
 select pg_temp.check_('deleting Rahul''s account works even though he added items',
