@@ -750,5 +750,5 @@ Agreed: phone numbers Egypt only (+20).
      a member can't delete, can leave; the manager deletes; nobody sees it; the old code can't rejoin.
 
 ### Known issues
-- «اطلع من …» in «حسابي» is still "coming soon" (leaving works from the «…» menu now) — can be connected next.
+- (fixed) «حسابي» bottom row now works: manager → «امسح القائمة», others → «اطلع من …» (same as the «…» menu).
 - The manager can't just *leave* a list that has other people (they'd have to hand over first) — only delete it.

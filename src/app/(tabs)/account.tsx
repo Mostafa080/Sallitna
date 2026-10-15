@@ -76,16 +76,33 @@ export default function AccountScreen() {
     ]);
   };
 
+  // Same as «…» on a list card: the manager deletes the list for everyone, anyone else leaves it
+  const isManager = me.role === 'owner';
   const onLeave = () => {
-    Alert.alert(
-      t(`settings.leaveTitle_${me.gender}`, { name: list.householdName }),
-      t(`settings.leaveBody_${me.gender}`),
-      [
-        { text: t('settings.cancel'), style: 'cancel' },
-        // Leaving needs real accounts (Supabase) — not simulated
-        { text: t('settings.leaveConfirm'), style: 'destructive', onPress: comingSoon },
-      ],
-    );
+    const done = (ok: boolean) => ok && Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    if (isManager) {
+      Alert.alert(
+        t('lists.deleteTitle', { name: list.householdName }),
+        t('lists.deleteMessage', { members: t('lists.members', { n: list.members.length }) }),
+        [
+          { text: t('settings.cancel'), style: 'cancel' },
+          {
+            text: t('lists.deleteConfirm'),
+            style: 'destructive',
+            onPress: async () => done(await list.removeList(list.householdId!, 'delete')),
+          },
+        ],
+      );
+      return;
+    }
+    Alert.alert(t(`settings.leaveTitle_${me.gender}`, { name: list.householdName }), t(`settings.leaveBody_${me.gender}`), [
+      { text: t('settings.cancel'), style: 'cancel' },
+      {
+        text: t('settings.leaveConfirm'),
+        style: 'destructive',
+        onPress: async () => done(await list.removeList(list.householdId!, 'leave')),
+      },
+    ]);
   };
 
   const toggleRows = (keys: (keyof HouseholdSettings)[]) =>
@@ -190,7 +207,14 @@ export default function AccountScreen() {
             end={<View />}
             divider
           />
-          <Row title={t('settings.leave', { name: list.householdName })} tone="danger" onPress={onLeave} divider />
+          {list.mode === 'live' && (
+            <Row
+              title={isManager ? t('lists.delete') : t('settings.leave', { name: list.householdName })}
+              tone="danger"
+              onPress={onLeave}
+              divider
+            />
+          )}
         </Card>
       </ScrollView>
 
