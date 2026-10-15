@@ -16,6 +16,7 @@ import { ShopperBanner } from '@/components/ShopperBanner';
 import { UndoToast } from '@/components/UndoToast';
 import { basics, categoryOrder, NEW_ITEM_WINDOW_MINUTES, type Basic } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
+import { features } from '@/lib/features';
 import { isToday } from '@/lib/format';
 import { useList } from '@/store/ListStore';
 import { colors, motion, radius, shadow, size, spacing } from '@/theme';
@@ -25,7 +26,7 @@ type Filter = 'all' | 'today';
 // Faces under the title; more than this become «+N»
 const MAX_HEADER_AVATARS = 5;
 // Room at the bottom so the last row isn't hidden behind the floating mic
-const MIC_CLEARANCE = size.micButton + spacing.xl;
+const MIC_CLEARANCE = features.voice ? size.micButton + spacing.xl : 0;
 
 const rowLayout = LinearTransition.duration(motion.normal);
 const rowExit = FadeOut.duration(motion.fast);
@@ -131,10 +132,14 @@ export default function HomeScreen() {
             },
           ]
         : []),
-      {
-        text: t('dev.micDenied'),
-        onPress: () => router.push({ pathname: '/voice', params: { mode: 'denied' } }),
-      },
+      ...(features.voice
+        ? [
+            {
+              text: t('dev.micDenied'),
+              onPress: () => router.push({ pathname: '/voice', params: { mode: 'denied' } }),
+            },
+          ]
+        : []),
       ...(demo
         ? [
             {
@@ -376,14 +381,16 @@ export default function HomeScreen() {
       <UndoToast bottomOffset={insets.bottom + MIC_CLEARANCE + spacing.sm} />
 
       {/* «اضغط وتكلّم» — floating mic on the end side (bottom-left in Arabic). Long-press = simulated noisy recording */}
-      <Pressable
-        onPress={() => router.push('/voice')}
-        onLongPress={() => router.push({ pathname: '/voice', params: { mode: 'noisy' } })}
-        style={[styles.micButton, { bottom: insets.bottom + spacing.lg }]}
-        accessibilityRole="button"
-        accessibilityLabel={t('tabs.talk')}>
-        <Mic size={size.icon + spacing.sm} color={colors.onDark} strokeWidth={size.iconStroke} />
-      </Pressable>
+      {features.voice && (
+        <Pressable
+          onPress={() => router.push('/voice')}
+          onLongPress={() => router.push({ pathname: '/voice', params: { mode: 'noisy' } })}
+          style={[styles.micButton, { bottom: insets.bottom + spacing.lg }]}
+          accessibilityRole="button"
+          accessibilityLabel={t('tabs.talk')}>
+          <Mic size={size.icon + spacing.sm} color={colors.onDark} strokeWidth={size.iconStroke} />
+        </Pressable>
+      )}
     </View>
   );
 }

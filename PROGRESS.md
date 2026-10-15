@@ -577,3 +577,26 @@ Agreed: trips + questions now, real push notifications in their own session (nee
 - Split shopping (two shoppers at once) uses the live trips, but who-takes-which-aisle is still simple (each claims items).
 - Your «البيت» list (Sara, 500000002) has «طماطم، ماء، بصل» bought in a trip at 2:41pm — that wasn't me; probably you
   testing on your phone. 
+
+## Session 13b — 2026-10-15: Voice paused (your request)
+
+Real voice (speech → items) was planned, then cancelled before any code was written. Nothing installed.
+
+### Done
+- **All mic buttons hidden** behind one switch: `src/lib/features.ts` → `voice: false`.
+  Hidden: the floating orange mic on the list, the mic inside «اكتب غرض…», «أضف بالصوت» on the demo
+  notifications screen, and «الميكروفون مقفول» in the test menu.
+- The voice screens themselves are kept. To bring voice back, change `voice: false` to `voice: true`.
+- **Cleaner welcome screen** (`src/app/welcome.tsx`), no voice promise:
+  - The voice bubble, arrow and example list card are gone: just the logo, title, text and benefits.
+  - New body text: «كل العائلة تضيف للقائمة وتشوفها لحظتها. بدون فوضى مجموعة الواتساب.»
+  - The 3 chips became 3 clear benefit lines with icons: «تتحدّث عند الكل لحظتها» · «تعرف مين في السوق الحين» ·
+    «السايق والعاملة يشوفونها بلغتهم».
+  - Text updated in ar/en/hi; the unused `heroCardWidth` was removed from the theme.
+
+### Next
+- Pick the next feature: real helper view, catalog from the database, known-issue fixes,
+  or push notifications (session 14, needs the Expo + Apple accounts).
+
+### Known issues
+- Items that were added by voice in the demo still show a small mic next to the name.

@@ -16,6 +16,7 @@ import { AppText } from '@/components/AppText';
 import { UndoToast } from '@/components/UndoToast';
 import { activeShopperId, activeShopperSinceMinutes, type Item } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
+import { features } from '@/lib/features';
 import { formatClock, formatQuantity, formatRelativeTime, formatTimestamp, isToday } from '@/lib/format';
 import { useList } from '@/store/ListStore';
 import type { QuestionAnswer } from '@/store/tripTypes';
@@ -112,11 +113,13 @@ export default function NotificationsScreen() {
               title={t('notifications.shopping', { name: shopper.display_name, store: t('stores.supermarket') })}
               body={t(`notifications.shoppingBody_${shopper.gender}`)}
               onPress={goToList}>
-              <ActionButton
-                label={t('notifications.addVoice')}
-                icon={<Mic size={size.iconSmall + spacing.xxs} color={colors.ink} strokeWidth={size.iconStroke} />}
-                onPress={() => router.push('/voice')}
-              />
+              {features.voice && (
+                <ActionButton
+                  label={t('notifications.addVoice')}
+                  icon={<Mic size={size.iconSmall + spacing.xxs} color={colors.ink} strokeWidth={size.iconStroke} />}
+                  onPress={() => router.push('/voice')}
+                />
+              )}
             </NotificationCard>
           </Animated.View>
         )}

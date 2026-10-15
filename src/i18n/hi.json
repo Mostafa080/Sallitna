@@ -666,15 +666,11 @@
     "female": "a woman"
   },
   "welcome": {
-    "quote": "“We need two milks, and rice”",
-    "milk": "Full-fat milk",
-    "rice": "Basmati rice",
-    "heroA11y": "Example: say “we need two milks, and rice” and milk and rice are added to the list",
     "title": "One list\nfor the whole home",
-    "body": "Say it in your dialect, and the whole family sees it right away. No more WhatsApp group chaos.",
-    "chipDialect": "In your dialect",
-    "chipFamily": "For the whole family",
-    "chipLanguage": "In any language",
+    "body": "The whole family adds to the list and sees it right away. No more WhatsApp group chaos.",
+    "benefitLive": "Updates for everyone instantly",
+    "benefitShopper": "See who's at the store right now",
+    "benefitLanguage": "Your driver or helper sees it in their language",
     "start": "Start a new list",
     "haveInvite": "I have an invite from my family"
   },

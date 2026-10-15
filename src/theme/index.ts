@@ -118,7 +118,6 @@ export const size = {
 } as const;
 
 export const layout = {
-  heroCardWidth: '78%', // the example list card on the welcome screen
   twoColumnBasis: '45%', // cards that sit two per row (they grow to fill, the gap does the rest)
 } as const;
 

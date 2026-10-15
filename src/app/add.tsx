@@ -14,6 +14,7 @@ import { catalogToDraft, runningLow, searchCatalog, usualItems, type CatalogItem
 import { t } from '@/i18n';
 import { normalizeArabic } from '@/lib/arabic';
 import { isRTLLayout } from '@/lib/direction';
+import { features } from '@/lib/features';
 import { formatQuantity } from '@/lib/format';
 import { parseShoppingList } from '@/lib/parseList';
 import { useList } from '@/store/ListStore';
@@ -103,13 +104,15 @@ export default function TypeAddScreen() {
             }}
             accessibilityLabel={t('typeAdd.searchA11y')}
           />
-          <Pressable
-            onPress={() => router.replace('/voice')}
-            style={styles.micButton}
-            accessibilityRole="button"
-            accessibilityLabel={t('typeAdd.voiceA11y')}>
-            <Mic size={size.icon - spacing.xs} color={colors.onDark} strokeWidth={size.iconStroke} />
-          </Pressable>
+          {features.voice && (
+            <Pressable
+              onPress={() => router.replace('/voice')}
+              style={styles.micButton}
+              accessibilityRole="button"
+              accessibilityLabel={t('typeAdd.voiceA11y')}>
+              <Mic size={size.icon - spacing.xs} color={colors.onDark} strokeWidth={size.iconStroke} />
+            </Pressable>
+          )}
         </View>
         <Pressable onPress={() => router.back()} hitSlop={spacing.md} accessibilityRole="button">
           <AppText variant="label" weight="semibold">
