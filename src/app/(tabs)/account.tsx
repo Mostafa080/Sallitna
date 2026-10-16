@@ -14,6 +14,7 @@ import { UndoToast } from '@/components/UndoToast';
 import { type HouseholdSettings } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { isRTLLayout } from '@/lib/direction';
+import { features } from '@/lib/features';
 import { useList } from '@/store/ListStore';
 import { colors, fonts, fontSize, radius, size, spacing } from '@/theme';
 
@@ -203,8 +204,12 @@ export default function AccountScreen() {
         <SectionLabel>{t('settings.sectionNotify')}</SectionLabel>
         <Card>{toggleRows(notifyToggles)}</Card>
 
-        <SectionLabel>{t('settings.sectionVoice')}</SectionLabel>
-        <Card>{toggleRows(voiceToggles)}</Card>
+        {features.voice && (
+          <>
+            <SectionLabel>{t('settings.sectionVoice')}</SectionLabel>
+            <Card>{toggleRows(voiceToggles)}</Card>
+          </>
+        )}
 
         <Card style={styles.lastCard}>
           <Row title={t('settings.help')} onPress={comingSoon} end={<View />} />

@@ -915,3 +915,23 @@ Phone A = سلمى (iPhone 17 Pro), Phone B = أم علي, then Rahul (helper), 
   Checked: Phone A in the background → أم علي added «زبادي» → Phone A back → it's there; then «بيض» arrived live.
 - Still open: bugs 2, 4, 6 and the wording issues above. New members still only appear live after the other
   phone comes back to the app (no live "someone joined" yet).
+
+## Session 19 — 2026-10-16: The rest of the test bugs (2, 4, 6) + wording
+
+### Done
+- **Bug 2 fixed** — trip summary: «جبنا X بداله» only if X really went in the cart. If the family said "bring
+  something close" but it wasn't ticked, the summary says «X — رجع للقائمة» with their reply underneath
+  (`ListStore.tsx`, `finishTrip`). Checked on the simulators with a real trip.
+- **Bug 4 fixed** — while a list's items are still loading, the family list and the helper screen show a spinner
+  instead of the empty state («0 of 0 · Nothing left to buy»). If loading fails, the spinner stops and live changes
+  still arrive (`ListStore.tsx` `itemsLoading`, `list.tsx`, `HelperHome.tsx`).
+- **Bug 6 fixed** — «الصوت والخصوصية» is hidden in «حسابي» while voice is off (`features.voice`).
+- **Wording** — «(إنت)/(إنتي)» and «أهلًا بيك/بيكي» follow the person's gender (new `_m`/`_f` keys in ar/en/hi).
+
+### Next
+- Remaining wording: «عند الكل (فرد واحد)» on a one-person list; the «للمرة الجاية» section title while still
+  waiting for an answer; the helper's "Added" toast shows the Arabic name.
+- Live "someone joined" (today new members appear when the app comes back to the front).
+
+### Known issues
+- The loading spinner is quick on a good connection, so it was checked in the code, not seen on screen.

@@ -51,6 +51,7 @@ export type Toast = {
 
 type State = {
   items: Item[];
+  itemsLoadedFor: string | null; // the household whose items have arrived (until then: loading, not «empty»)
   toast: Toast | null;
   trip: Trip | null; // the trip this phone's member is on
   questions: Question[];
@@ -95,6 +96,7 @@ type Action =
 function initialState(mode: Mode = 'loading'): State {
   return {
     items: [],
+    itemsLoadedFor: null,
     toast: null,
     trip: null,
     questions: [],
@@ -263,7 +265,9 @@ function reducer(state: State, action: Action): State {
       return { ...state, items: state.items.filter((i) => i.id !== action.id) };
     case 'loadedItems':
       // Ignore a slow answer for a list we already left
-      return state.householdId === action.householdId ? { ...state, items: action.items } : state;
+      return state.householdId === action.householdId
+        ? { ...state, items: action.items, itemsLoadedFor: action.householdId }
+        : state;
     case 'liveAdd':
       // Only while still shopping, and only once
       if (!state.trip || state.items.some((i) => i.status === 'open' && sameName(i.name, action.item.name)))
@@ -431,7 +435,11 @@ function useListState() {
     api
       .loadItems(householdId)
       .then((items) => !cancelled && dispatch({ type: 'loadedItems', householdId, items }))
-      .catch((error) => __DEV__ && console.warn('[loadItems]', error));
+      .catch((error) => {
+        if (__DEV__) console.warn('[loadItems]', error);
+        // Couldn't load: stop the spinner and show what we have (live changes still arrive)
+        if (!cancelled) dispatch({ type: 'loadedItems', householdId, items: itemsRef.current });
+      });
 
     api
       .loadTripState(householdId)
@@ -634,6 +642,7 @@ function useListState() {
               questions: state.questions,
               activeTrips: state.activeTrips,
               summary: state.summary,
+              itemsLoadedFor: state.itemsLoadedFor,
             }
           : { inviteCode: null }),
         toast: welcome ? { id: ++toastCounter, message: welcome } : null,
@@ -644,6 +653,8 @@ function useListState() {
 
   return {
     items: state.items,
+    // Live list still loading its items (show a spinner, not «nothing left»)
+    itemsLoading: live && state.itemsLoadedFor !== state.householdId,
     toast: state.toast,
     currentMemberId: me,
     trip,
@@ -1038,7 +1049,10 @@ function useListState() {
         startedAt: trip.startedAt,
         endedAt: new Date().toISOString(),
         boughtCount: mine.length,
-        notFound: trip.outcomes,
+        // «Bring something close» only counts as swapped if it really went in the cart; otherwise it's still on the list
+        notFound: trip.outcomes.map((o) =>
+          o.decision === 'swapped' && !inCart.some((i) => i.id === o.itemId) ? { ...o, decision: 'next' as const } : o,
+        ),
         added: tripItems
           .filter((i) => trip.addedIds.includes(i.id))
           .map((i) => ({ name: i.name, bought: i.status === 'in_cart' })),

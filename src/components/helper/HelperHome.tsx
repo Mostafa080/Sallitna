@@ -5,7 +5,7 @@
 import * as Haptics from 'expo-haptics';
 import { Check, Plus } from 'lucide-react-native';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { FadeOut, LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -176,11 +176,16 @@ export function HelperHome({ helper, live, onExit }: Props) {
             </View>
           </View>
 
-          <AppText variant="label" weight="semibold" color="muted" style={styles.count}>
-            {tr('helper.leftToBuy', { open: open.length, total })}
-          </AppText>
+          {list.itemsLoading ? (
+            // Still loading: a spinner, not «0 of 0 · nothing left to buy»
+            <ActivityIndicator color={colors.muted} style={styles.empty} />
+          ) : (
+            <AppText variant="label" weight="semibold" color="muted" style={styles.count}>
+              {tr('helper.leftToBuy', { open: open.length, total })}
+            </AppText>
+          )}
 
-          {rows.length === 0 ? (
+          {list.itemsLoading ? null : rows.length === 0 ? (
             <View style={styles.empty}>
               <AppText variant="item" weight="bold">
                 {tr('helper.empty')}

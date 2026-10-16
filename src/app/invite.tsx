@@ -178,7 +178,7 @@ export default function InviteScreen({ setup = false }: { setup?: boolean }) {
                 <Avatar member={person} large="list" ring="surface" />
                 <View style={styles.flex}>
                   <AppText variant="item" weight="bold">
-                    {isMe ? t('members.you', { name: person.display_name }) : person.display_name}
+                    {isMe ? t(`members.you_${person.gender}`, { name: person.display_name }) : person.display_name}
                   </AppText>
                   <AppText variant="body" color="muted">
                     {subtitleFor(person)}

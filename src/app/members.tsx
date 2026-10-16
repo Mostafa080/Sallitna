@@ -86,7 +86,7 @@ export default function MembersScreen() {
                 <Avatar member={member} large="list" ring="surface" />
                 <View style={styles.flex}>
                   <AppText variant="item" weight="bold">
-                    {isMe ? t('members.you', { name: member.display_name }) : member.display_name}
+                    {isMe ? t(`members.you_${member.gender}`, { name: member.display_name }) : member.display_name}
                   </AppText>
                   <AppText variant="body" color="muted">
                     {metaFor(member)}

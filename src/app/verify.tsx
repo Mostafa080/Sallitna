@@ -129,7 +129,8 @@ export default function VerifyScreen() {
     try {
       const membership = await api.loadMembership();
       if (membership) {
-        await list.refreshHousehold(tr('toast.welcomeBack', { list: membership.householdName }));
+        const me = membership.members.find((m) => m.id === membership.meId);
+        await list.refreshHousehold(tr(`toast.welcomeBack_${me?.gender ?? 'm'}`, { list: membership.householdName }));
         router.dismissAll();
         return;
       }

@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { Mic, Plus, Search } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { FadeOut, LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -268,7 +268,10 @@ export default function ListScreen() {
           onRemove={list.removeItem}
         />
 
-        {starterMode ? (
+        {list.itemsLoading ? (
+          // Still loading: a spinner, not the «empty list» starter
+          <ActivityIndicator color={colors.muted} style={styles.loading} />
+        ) : starterMode ? (
           <EmptyState basics={basics} added={addedBasics} onToggleBasic={onToggleBasic} onShowList={leaveStarterMode} />
         ) : (
           <>
@@ -357,6 +360,9 @@ export default function ListScreen() {
 }
 
 const styles = StyleSheet.create({
+  loading: {
+    paddingVertical: spacing.xxl,
+  },
   screen: {
     flex: 1,
     backgroundColor: colors.ground,
