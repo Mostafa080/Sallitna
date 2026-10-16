@@ -880,7 +880,7 @@ Phone A = سلمى (iPhone 17 Pro), Phone B = أم علي, then Rahul (helper), 
 ### Fixed this session
 - Code boxes: after a wrong code you couldn't type a new one. Now the next digit starts a fresh code.
 
-### Bugs found (not fixed yet)
+### Bugs found (1, 3, 5 handled later the same day — see below)
 1. **Helper lands on the family «حسابي» screen** after signing in, if that tab was open when the last person signed
    out (half English / half Arabic, with family-only rows). A restart shows the right helper screen.
 2. **Trip summary says «جبنا X بداله»** when the family answered "yes, bring anything close" — even if the shopper
@@ -903,3 +903,15 @@ Phone A = سلمى (iPhone 17 Pro), Phone B = أم علي, then Rahul (helper), 
 ### Not tested
 - Leaving a list (would undo the test join), real SMS (needs Twilio), push notifications (not built), dashboard
   (tested in sessions 16–17).
+
+### Follow-up the same day: bugs 1, 3, 5
+- **Bug 1 fixed**: signing out goes back to «قوايمي» first, so whoever signs in next starts there
+  (`(tabs)/account.tsx`). Safety net: a helper who lands on «بالسوق» or «حسابي» is sent to their helper screen
+  (`(tabs)/account.tsx`, `(tabs)/market.tsx`). Checked: «حسابي» → sign out → sign in as Rahul → helper screen.
+- **Bug 3 was not a real bug**: the test tapped the button a split second after typing, before it turned on.
+  With a normal pause, «ابعت الكود» and «اعمل القائمة» work on the first tap. No change.
+- **Bug 5 fixed**: when the app comes back from the background, it loads the list again (items, trips,
+  questions, the people and the other lists) and reconnects the live updates (`ListStore.tsx`, `resync`).
+  Checked: Phone A in the background → أم علي added «زبادي» → Phone A back → it's there; then «بيض» arrived live.
+- Still open: bugs 2, 4, 6 and the wording issues above. New members still only appear live after the other
+  phone comes back to the app (no live "someone joined" yet).

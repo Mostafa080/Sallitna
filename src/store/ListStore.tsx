@@ -3,7 +3,8 @@
 // and 'demo' — the fake household from earlier sessions (long-press the logo on welcome).
 // Undo will map to item_events.
 
-import { createContext, useContext, useEffect, useReducer, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useReducer, useRef, useState, type ReactNode } from 'react';
+import { AppState } from 'react-native';
 
 import { catalogById, catalogToDraft, findCatalogMatch } from '@/data/fakeCatalog';
 import {
@@ -391,9 +392,42 @@ function useListState() {
   itemsRef.current = state.items;
   const questionsRef = useRef(state.questions);
   questionsRef.current = state.questions;
+  // Back from the background (phone locked overnight, another app, the network changed): the live connection
+  // may have dropped and missed changes — load the list again and listen afresh (the effect below re-runs)
+  const [resync, setResync] = useState(0);
+  useEffect(() => {
+    let wasAway = false;
+    const sub = AppState.addEventListener('change', (next) => {
+      if (next === 'background') wasAway = true;
+      else if (next === 'active' && wasAway) {
+        wasAway = false;
+        setResync((n) => n + 1);
+      }
+    });
+    return () => sub.remove();
+  }, []);
+
   useEffect(() => {
     if (!householdId) return;
     let cancelled = false;
+    // Coming back: also the people (someone may have joined or left) and the other lists
+    if (resync > 0) {
+      api
+        .loadMyLists(householdId)
+        .then(({ membership, lists }) => {
+          if (cancelled || !membership || membership.householdId !== householdId) return;
+          dispatch({
+            type: 'set',
+            patch: {
+              members: membership.members,
+              formerMembers: membership.formerMembers,
+              householdName: membership.householdName,
+              lists,
+            },
+          });
+        })
+        .catch((error) => __DEV__ && console.warn('[resync]', error));
+    }
     api
       .loadItems(householdId)
       .then((items) => !cancelled && dispatch({ type: 'loadedItems', householdId, items }))
@@ -476,7 +510,7 @@ function useListState() {
       stop();
       stopTrips();
     };
-  }, [householdId]);
+  }, [householdId, resync]);
 
   // Simulated family (demo only): a few seconds into a trip, someone adds an item by voice
   useEffect(() => {

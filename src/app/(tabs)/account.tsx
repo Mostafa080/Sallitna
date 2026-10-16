@@ -2,7 +2,7 @@
 // Opened from my avatar at the top of the list screen.
 
 import * as Haptics from 'expo-haptics';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -40,6 +40,8 @@ export default function AccountScreen() {
   const [name, setName] = useState(list.householdName);
   const latestName = useRef(name); // the newest text, even if Return comes in the same tick as typing
 
+  // A helper has their own screen on «قوايمي», never the family tabs
+  if (list.isHelper) return <Redirect href="/" />;
   if (!me) return null;
   const canManage = me.role === 'owner';
   const comingSoon = () => list.notify(t('toast.comingSoon'));
@@ -61,9 +63,14 @@ export default function AccountScreen() {
     list.setSetting(key, value);
   };
 
+  // Back to «قوايمي» first, so whoever signs in next starts there (not on this tab)
+  const signOut = () => {
+    router.navigate('/');
+    list.signOut();
+  };
   const onSignOut = () => {
     if (list.mode === 'demo') {
-      list.signOut();
+      signOut();
       return;
     }
     Alert.alert(t('settings.signOutTitle'), t('settings.signOutBody'), [
@@ -71,7 +78,7 @@ export default function AccountScreen() {
       {
         text: t('settings.signOutConfirm'),
         style: 'destructive',
-        onPress: list.signOut,
+        onPress: signOut,
       },
     ]);
   };
