@@ -162,7 +162,12 @@ export function CodeBoxes({ value, onChange, error, disabled, autoFocus }: CodeB
       })}
       <TextInput
         value={value}
-        onChangeText={(text) => onChange(onlyDigits(text).slice(0, OTP_LENGTH))}
+        onChangeText={(text) => {
+          const digits = onlyDigits(text);
+          // After a wrong code, the next digit typed starts a fresh code (no need to delete the old one)
+          if (error && digits.length > value.length) return onChange(digits.slice(value.length, value.length + OTP_LENGTH));
+          onChange(digits.slice(0, OTP_LENGTH));
+        }}
         // After a wrong code, tapping the boxes clears them to type again
         onPressIn={() => error && onChange('')}
         editable={!disabled}
@@ -170,7 +175,8 @@ export function CodeBoxes({ value, onChange, error, disabled, autoFocus }: CodeB
         textContentType="oneTimeCode"
         autoComplete="sms-otp"
         autoFocus={autoFocus}
-        maxLength={OTP_LENGTH}
+        // One extra digit allowed after a wrong code, so typing can replace the full old one
+        maxLength={error ? OTP_LENGTH + 1 : OTP_LENGTH}
         caretHidden
         style={styles.codeInput}
         accessibilityLabel={t('verify.codeA11y')}

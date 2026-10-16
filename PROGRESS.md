@@ -861,3 +861,45 @@ Agreed: removing a product hides it (items already on lists keep working; it can
   (produce 39, dairy 17, bakery 17, pantry 66, meat/frozen/baby/pets/household 33 under «حاجات تانية», personal care
   & cleaning 28) + 141 search words. **Totals now: 307 products, 326 words.** Checked for duplicates against the
   database first (none). Hindi names should be checked by a speaker.
+
+## Session 18 — 2026-10-16: Full test on two simulators
+
+Phone A = سلمى (iPhone 17 Pro), Phone B = أم علي, then Rahul (helper), then أم علي again (iPhone 17).
+
+### Passed
+- Invite → join on the other phone (Arabic join screen, wrong-code error, Egyptian dialect default) → both phones
+  show the shared list with faces and «فردين».
+- Live sync: items added on one phone appear on the other in ~3 s with «جديد» + toast; ticks sync and disappear.
+- Shopping trip: start → the other phone gets «أم علي في السوق دلوقتي» + tab dot; family adds during the trip →
+  shopper sees it highlighted («سلمى لسه ضايفاه»); tick → progress bar; swipe right → «مش موجود؟» sheet → ask →
+  family gets the question card → answer → shopper gets the reply; «خلصت» → finish sheet → summary → banner clears.
+- Helper (Rahul): helper screen in English, add by typing (suggestions), swipe right = not found, swipe left =
+  bought, switch to Hindi — all saved in the database. Family (owner) sees «ملقوهاش في المحل» card → «رجّعها» works.
+- Create list («الرحلة» chip) → invite screen → delete list with confirmation. Sign out → back to Arabic welcome.
+
+### Fixed this session
+- Code boxes: after a wrong code you couldn't type a new one. Now the next digit starts a fresh code.
+
+### Bugs found (not fixed yet)
+1. **Helper lands on the family «حسابي» screen** after signing in, if that tab was open when the last person signed
+   out (half English / half Arabic, with family-only rows). A restart shows the right helper screen.
+2. **Trip summary says «جبنا X بداله»** when the family answered "yes, bring anything close" — even if the shopper
+   never ticked it (it's still open on the list). `ListStore` records it as "swapped" with the same name.
+3. **Main bottom buttons need two taps** while the text field is active («ابعت الكود», «اعمل القائمة»): the first
+   tap only closes the keyboard. Will happen on real phones.
+4. **List looks empty while loading** after a restart («0 of 0 · Nothing left to buy»), then fills in. Should show
+   loading, not the empty state.
+5. **App doesn't refresh when it comes back** (open overnight / network changed → list showed empty or missing an
+   item until restart). Also new members don't appear on other phones until restart.
+6. «الصوت والخصوصية» settings still show in «حسابي» although voice is off.
+
+### Small wording issues
+- «سلمى (إنت)» and «أهلًا بيك» use the masculine form for women (should follow the person's gender).
+- Delete confirmation says «عند الكل (فرد واحد)» on a one-person list.
+- On a «سيبه للمرة الجاية» answer pending, the shopper's section title reads «للمرة الجاية» while still waiting.
+- Helper toast «Added "طماطم شيري"» shows the Arabic name instead of the helper's language.
+- The Expo dev gear button covers buttons on the simulator (dev only — not in the real app).
+
+### Not tested
+- Leaving a list (would undo the test join), real SMS (needs Twilio), push notifications (not built), dashboard
+  (tested in sessions 16–17).
