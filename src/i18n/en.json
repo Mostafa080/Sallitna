@@ -182,7 +182,8 @@
     "answerArrived_m": "{{name}} replied: {{reply}}",
     "notFoundMarked": "“{{name}}” not found · the family will see it",
     "reopened": "“{{name}}” is back on the list",
-    "othersNotFound": "“{{item}}” wasn’t found in the shop"
+    "othersNotFound": "“{{item}}” wasn’t found in the shop",
+    "photoFailed": "The photo wasn't saved — check your connection and try again"
   },
   "empty": {
     "title": "The basket is empty",
@@ -215,7 +216,17 @@
       "one": "Bought once this month · last by {{name}}",
       "other": "Bought {{n}} times this month · last by {{name}}"
     },
-    "save": "Save"
+    "save": "Save",
+    "photoSourceTitle": "Photo of the item",
+    "photoTake": "Take a photo",
+    "photoChoose": "Choose from photos",
+    "photoCancel": "Cancel",
+    "photoChange": "Change photo",
+    "photoRemove": "Remove photo",
+    "photoSaving": "Saving the photo…",
+    "photoFamily": "Family photo · shows every time you add it",
+    "photoOfficial": "Product picture · take your own if yours looks different",
+    "photoDenied": "We need access to the camera or photos — allow it in Settings"
   },
   "dev": {
     "title": "Demo data",
@@ -900,5 +911,9 @@
     "remove": "Remove",
     "reopenA11y": "Put {{name}} back on the list",
     "removeA11y": "Remove {{name}}"
+  },
+  "photo": {
+    "open": "Enlarge the photo of {{name}}",
+    "close": "Close the photo"
   }
 }

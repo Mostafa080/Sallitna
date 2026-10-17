@@ -5,10 +5,12 @@ import { Pressable, StyleSheet, View, type AccessibilityActionEvent } from 'reac
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { ItemPhotoThumb } from '@/components/ItemPhoto';
 import { SwipeActions } from '@/components/SwipeActions';
 import type { Item } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { formatQuantity } from '@/lib/format';
+import { useList } from '@/store/ListStore';
 import { colors, radius, size, spacing } from '@/theme';
 
 const CHECK_HIT_SLOP = (size.touch - size.checkbox) / 2;
@@ -96,6 +98,7 @@ export function ShopRow({
   accessibilityActions,
   onAccessibilityAction,
 }: RowProps) {
+  const photo = useList().photoFor(item);
   const toggle = () => {
     if (!onToggle) return;
     Haptics.impactAsync(checked ? Haptics.ImpactFeedbackStyle.Light : Haptics.ImpactFeedbackStyle.Medium);
@@ -117,6 +120,8 @@ export function ShopRow({
           {checked && <Check size={size.icon - spacing.sm} color={colors.onDark} strokeWidth={size.iconStroke + 1} />}
         </View>
       )}
+      {/* The family's photo of it, so the right one gets bought (tap to see it big) */}
+      <ItemPhotoThumb source={photo} name={item.name} />
       <View style={styles.flex}>
         <AppText
           variant="item"

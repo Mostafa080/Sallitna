@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
+import { ItemPhotoThumb } from '@/components/ItemPhoto';
 import { SwipeActions } from '@/components/SwipeActions';
 import { UndoToast } from '@/components/UndoToast';
 import { catalogToDraft, searchCatalogIn, type CatalogItem } from '@/data/fakeCatalog';
@@ -229,6 +230,8 @@ export function HelperHome({ helper, live, onExit }: Props) {
                             <Check size={size.iconSmall} color={colors.onDark} strokeWidth={size.iconStroke + 1} />
                           )}
                         </Pressable>
+
+                        <ItemPhotoThumb source={list.photoFor(item)} name={itemName(item)} />
 
                         <View style={styles.body}>
                           <View style={styles.nameLine}>

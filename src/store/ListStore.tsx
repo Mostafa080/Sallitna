@@ -43,6 +43,9 @@ export type Undo = {
   members?: Member[];
 };
 
+// Where a picture comes from: a private family photo (needs a temporary link) or a public address
+export type PhotoSource = { kind: 'family'; path: string } | { kind: 'url'; url: string };
+
 export type Toast = {
   id: number;
   message: string;
@@ -70,6 +73,7 @@ type State = {
   lists: api.ListSummary[]; // all my lists (live) — each is its own household with its own people
   hasSignupProfile: boolean; // needsHousehold: «عرّفنا عليك» already answered → go to «أنشئ قائمتك الأولى»
   activeTrips: ActiveTrip[]; // live: other people's trips still going («سارة في السوق»)
+  familyPhotos: Record<string, string>; // the family's own picture of each product: catalog id → photo
 };
 
 // loading: checking sign-in · signedOut: show welcome · needsHousehold: signed in, no household yet
@@ -89,6 +93,7 @@ type Action =
   | { type: 'remoteUpsert'; item: Item }
   | { type: 'remoteDelete'; id: string }
   | { type: 'loadedItems'; householdId: string; items: Item[] }
+  | { type: 'familyPhoto'; catalogId: string; path: string | null }
   | { type: 'loadedTrips'; householdId: string; trips: ActiveTrip[]; questions: Question[] }
   | { type: 'tripChanged'; trip: ActiveTrip; ended: boolean }
   | { type: 'questionChanged'; question: Question };
@@ -115,6 +120,7 @@ function initialState(mode: Mode = 'loading'): State {
     lists: [],
     hasSignupProfile: false,
     activeTrips: [],
+    familyPhotos: {},
   };
 }
 
@@ -263,6 +269,12 @@ function reducer(state: State, action: Action): State {
     }
     case 'remoteDelete':
       return { ...state, items: state.items.filter((i) => i.id !== action.id) };
+    case 'familyPhoto': {
+      const familyPhotos = { ...state.familyPhotos };
+      if (action.path) familyPhotos[action.catalogId] = action.path;
+      else delete familyPhotos[action.catalogId];
+      return { ...state, familyPhotos };
+    }
     case 'loadedItems':
       // Ignore a slow answer for a list we already left
       return state.householdId === action.householdId
@@ -442,6 +454,11 @@ function useListState() {
       });
 
     api
+      .loadFamilyProductPhotos(householdId)
+      .then((familyPhotos) => !cancelled && dispatch({ type: 'set', patch: { familyPhotos } }))
+      .catch((error) => __DEV__ && console.warn('[familyPhotos]', error));
+
+    api
       .loadTripState(householdId)
       .then(({ trips, questions }) => !cancelled && dispatch({ type: 'loadedTrips', householdId, trips, questions }))
       .catch((error) => __DEV__ && console.warn('[loadTripState]', error));
@@ -480,6 +497,10 @@ function useListState() {
       const known = itemsRef.current.some((i) => i.id === item.id);
       const before = itemsRef.current.find((i) => i.id === item.id);
       dispatch({ type: 'remoteUpsert', item });
+      // Someone took a photo of a known product: it's now the family's picture of it
+      if (item.photo_path && item.catalog_id && item.photo_path !== before?.photo_path) {
+        dispatch({ type: 'familyPhoto', catalogId: item.catalog_id, path: item.photo_path });
+      }
       // Someone (usually the helper) couldn't find it — my own changes are already local, so no note for those
       if (before && before.status !== 'not_found' && item.status === 'not_found') {
         dispatch({
@@ -643,6 +664,7 @@ function useListState() {
               activeTrips: state.activeTrips,
               summary: state.summary,
               itemsLoadedFor: state.itemsLoadedFor,
+              familyPhotos: state.familyPhotos,
             }
           : { inviteCode: null }),
         toast: welcome ? { id: ++toastCounter, message: welcome } : null,
@@ -683,6 +705,16 @@ function useListState() {
     },
     everyone,
     memberById,
+    // What picture to show for an item: its own photo → the family's photo of the product → the official picture
+    photoFor(item: Item): PhotoSource | null {
+      if (item.photo_path) return { kind: 'family', path: item.photo_path };
+      const catalogId = item.catalog_id ?? findCatalogMatch(item.name)?.id;
+      if (!catalogId) return null;
+      const familyPath = state.familyPhotos[catalogId];
+      if (familyPath) return { kind: 'family', path: familyPath };
+      const official = catalogById(catalogId)?.image;
+      return official ? { kind: 'url', url: official } : null;
+    },
 
     // Open item with this name (ignores أ/ا, ة/ه spelling differences)
     findOpenByName: openItemNamed,
@@ -1059,6 +1091,44 @@ function useListState() {
       };
       dispatch({ type: 'set', patch: { trip: null, summary, offline: false, pendingSync: [] } });
       if (handoff) showToast(t('toast.handoff'));
+    },
+
+    // «صوّرها عشان ما يغلط»: the photo goes on this item, and becomes the family's picture of the product
+    // (so the next time it's added it already has it). Other families never see it.
+    async setItemPhoto(itemId: string, uri: string): Promise<boolean> {
+      const item = find(itemId);
+      const hh = state.householdId;
+      if (!live || !item || !hh) return false;
+      try {
+        const path = await api.uploadFamilyPhoto(hh, uri);
+        patchItem(itemId, { photo_path: path });
+        const catalogId = item.catalog_id ?? findCatalogMatch(item.name)?.id;
+        if (catalogId) {
+          dispatch({ type: 'familyPhoto', catalogId, path });
+          await api.setFamilyProductPhoto(hh, catalogId, path, me);
+        }
+        return true;
+      } catch (error) {
+        if (__DEV__) console.warn('[photo]', error);
+        showToast(t('toast.photoFailed'));
+        return false;
+      }
+    },
+
+    // Take the photo off: from this item, and as the family's picture of the product if it was that one
+    removeItemPhoto(itemId: string) {
+      const item = find(itemId);
+      const hh = state.householdId;
+      if (!live || !item || !hh) return;
+      const catalogId = item.catalog_id ?? findCatalogMatch(item.name)?.id;
+      const familyPath = catalogId ? state.familyPhotos[catalogId] : undefined;
+      const path = item.photo_path ?? familyPath;
+      if (item.photo_path) patchItem(itemId, { photo_path: null });
+      if (catalogId && familyPath && familyPath === path) {
+        dispatch({ type: 'familyPhoto', catalogId, path: null });
+        api.removeFamilyProductPhoto(hh, catalogId).catch(itemsFailed);
+      }
+      if (path) api.deleteFamilyPhoto(path).catch((error) => __DEV__ && console.warn('[photo]', error));
     },
 
     // Leave shopping mode without a summary (nothing was bought)

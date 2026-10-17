@@ -39,6 +39,14 @@
           "supportsRTL": true,
           "forcesRTL": true
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "سلّتنا محتاجة صورك عشان تضيف صورة للحاجة اللي هتتشرى. Sallitna uses your photos to show what to buy.",
+          "cameraPermission": "سلّتنا محتاجة الكاميرا عشان تصوّر الحاجة اللي هتتشرى. Sallitna uses the camera to photograph what to buy.",
+          "microphonePermission": false
+        }
       ]
     ],
     "experiments": {

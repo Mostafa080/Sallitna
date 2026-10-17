@@ -60,6 +60,8 @@ export type Item = {
   requested_by: string[]; // member ids — more than one when several people asked
   claimed_by: string | null; // member who said "I'll get it"
   created_at: string; // ISO date
+  catalog_id?: string | null; // the product it is, when known (for its picture)
+  photo_path?: string | null; // a family photo of this item (file in the household's private folder)
   // Will come from catalog later:
   translations?: { en: string; hi: string };
   purchase_stats?: { times_this_month: number; last_bought_by: string };

@@ -935,3 +935,34 @@ Phone A = سلمى (iPhone 17 Pro), Phone B = أم علي, then Rahul (helper), 
 
 ### Known issues
 - The loading spinner is quick on a good connection, so it was checked in the code, not seen on screen.
+
+## Session 20 — 2026-10-17: Product photos («صوّرها عشان ميغلطش»)
+
+Agreed: a family's photo goes on the item **and** becomes that family's picture of the product (other families
+never see it); admins set official product pictures in the dashboard; new library `expo-image-picker` (approved).
+
+### Done
+- **Item screen**: «صوّرها عشان ميغلطش» → «صوّر دلوقتي» / «اختار من الصور» → the photo shows on the item with
+  «صورة العيلة · هتظهر كل مرة تضيفوها»; «غيّر الصورة» / «شيل الصورة». Photos are cropped 4:3 and compressed.
+- **Lists**: a small photo on the row (family list, shopping list, helper screen); tap → full screen.
+  Which picture shows: the item's own photo → the family's photo of that product → the official picture.
+- **Dashboard «المنتجات»**: a «صورة» column, and «صورة المنتج» in the edit form (upload / change / remove, max 5 MB).
+- **Database** (`20261016120000_product_photos.sql`, `20261017090000_product_photos_admin_list.sql`):
+  - `family-photos` storage (private): files under `<household id>/…`, only that household can see/add/remove.
+  - `product-photos` storage (public to view): only admins upload/replace/remove.
+  - `items.photo_path` (must be in the household's own folder), `catalog.image_path`,
+    `household_product_photos` table (one picture per product per family), `admin_set_product_image`.
+  - **Security tests 104/104** (16 new: strangers can't see/add/replace another family's photos or point an item at
+    them; non-admins can't upload or set official pictures; admins can).
+- Checked on the simulators: أم علي picked a gallery photo for «بيض» → saved → سلمى (same family) saw it on her list
+  and opened it full screen; saved as the family's picture of «بيض». Dashboard: uploaded a test picture to «باجيت»,
+  then removed it (file deleted too).
+- **Bug found and fixed while testing**: removing a picture in the dashboard left the file in storage (admins
+  couldn't "see" the files, which Storage needs to delete). Fixed with the second migration.
+
+### Known issues
+- The camera itself can't be tested on the simulator (no camera) — only "choose from photos". Try the camera on a phone.
+- No official pictures are uploaded yet — products show no picture until an admin adds one or a family takes one.
+- On the real App Store build the camera/photos permission text is the one in `app.json` (Arabic + English).
+- Noticed in the data: a shopping trip as سلمى started at 22:33 yesterday is still open, and «زبادي» was removed at
+  the same time (not from my test steps) — «خلصت» on Phone A will close it.

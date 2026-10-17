@@ -8,10 +8,12 @@ import { scheduleOnRN } from 'react-native-worklets';
 
 import { AppText } from '@/components/AppText';
 import { AvatarStack } from '@/components/Avatar';
+import { ItemPhotoThumb } from '@/components/ItemPhoto';
 import type { Item, Member } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { startSign } from '@/lib/direction';
 import { formatQuantity, formatRelativeTime } from '@/lib/format';
+import { useList } from '@/store/ListStore';
 import { colors, motion, radius, size, spacing } from '@/theme';
 
 type Props = {
@@ -49,6 +51,7 @@ export function ItemRow({
   onDelete,
 }: Props) {
   const [checked, setChecked] = useState(false);
+  const photo = useList().photoFor(item);
 
   // --- Swipe to reveal actions -------------------------------------------
   // `reveal` is how much of the actions panel shows: 0 (closed) → ACTIONS_WIDTH (open)
@@ -169,6 +172,9 @@ export function ItemRow({
               style={[styles.checkbox, checked && styles.checkboxChecked]}>
               {checked && <Check size={size.iconSmall} color={colors.onDark} strokeWidth={size.iconStroke + 1} />}
             </Pressable>
+
+            {/* Its photo, when the family took one (or the product has an official picture) */}
+            <ItemPhotoThumb source={photo} name={item.name} />
 
             <View style={styles.body}>
               <View style={styles.nameLine}>

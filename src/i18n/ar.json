@@ -201,7 +201,8 @@
     "answerArrived_m": "{{name}} ردّ: {{reply}}",
     "notFoundMarked": "«{{name}}» مش موجود · العيلة هتشوفها",
     "reopened": "«{{name}}» رجعت للقائمة",
-    "othersNotFound": "«{{item}}» ملقوهاش في المحل"
+    "othersNotFound": "«{{item}}» ملقوهاش في المحل",
+    "photoFailed": "الصورة ماتحفظتش — اتأكد من النت وجرّب تاني"
   },
   "empty": {
     "title": "السلة فاضية",
@@ -236,7 +237,17 @@
       "few": "اشتريتوها {{n}} مرات الشهر ده · آخر مرة {{name}}",
       "other": "اشتريتوها {{n}} مرة الشهر ده · آخر مرة {{name}}"
     },
-    "save": "حفظ"
+    "save": "حفظ",
+    "photoSourceTitle": "صورة للحاجة",
+    "photoTake": "صوّر دلوقتي",
+    "photoChoose": "اختار من الصور",
+    "photoCancel": "إلغاء",
+    "photoChange": "غيّر الصورة",
+    "photoRemove": "شيل الصورة",
+    "photoSaving": "بنحفظ الصورة…",
+    "photoFamily": "صورة العيلة · هتظهر كل مرة تضيفوها",
+    "photoOfficial": "صورة المنتج · صوّرها إنت لو شكلها عندكم مختلف",
+    "photoDenied": "محتاجين إذن الكاميرا أو الصور — افتحه من الإعدادات"
   },
   "dev": {
     "title": "بيانات تجريبية",
@@ -941,5 +952,9 @@
     "remove": "شيلها",
     "reopenA11y": "رجّع {{name}} للقائمة",
     "removeA11y": "شيل {{name}}"
+  },
+  "photo": {
+    "open": "كبّر صورة {{name}}",
+    "close": "اقفل الصورة"
   }
 }

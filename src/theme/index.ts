@@ -25,6 +25,7 @@ export const colors = {
   warningLine: '#E8D48A', // offline banner border
   warningInk: '#6B5310', // offline banner text and icon
   scrim: 'rgba(29, 27, 24, 0.55)', // behind bottom sheets (ink at 55%)
+  photoViewer: 'rgba(29, 27, 24, 0.94)', // behind a photo opened full screen
   lockScreen: '#2C3A34', // the phone's lock screen behind notifications (notifications.png)
   notification: '#F2F0EB', // a new notification card
   notificationOld: '#E7E5E0', // an older one, slightly greyer
@@ -116,6 +117,8 @@ export const size = {
   doneCheck: 112,
   border: 1,
   borderThick: 2,
+  photoThumb: 44, // a product photo on a list row (also its touch target)
+  photoPreview: 220, // the photo on the item screen
 } as const;
 
 export const layout = {

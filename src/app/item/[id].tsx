@@ -1,12 +1,24 @@
 import * as Haptics from 'expo-haptics';
+import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Camera, ChevronLeft, ChevronRight, Minus, Play, Plus, Trash2 } from 'lucide-react-native';
 import { useEffect, useState, type ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
+import { ItemPhotoPreview } from '@/components/ItemPhoto';
 import { UndoToast } from '@/components/UndoToast';
 import { commonUnits, type Unit } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
@@ -16,6 +28,9 @@ import { useList } from '@/store/ListStore';
 import { colors, fonts, fontSize, opacity, radius, size, spacing } from '@/theme';
 
 const MIN_QTY = 1;
+// Photos are squeezed a little before upload: clear enough to recognise a product, quick to send
+const PHOTO_QUALITY = 0.6;
+const PHOTO_ASPECT: [number, number] = [4, 3];
 // The back arrow points toward the start side
 const BackIcon = isRTLLayout ? ChevronRight : ChevronLeft;
 
@@ -29,6 +44,7 @@ export default function ItemDetailScreen() {
   const [qty, setQty] = useState(item?.qty ?? MIN_QTY);
   const [unit, setUnit] = useState<Unit>(item?.unit ?? 'count');
   const [note, setNote] = useState(item?.note ?? '');
+  const [savingPhoto, setSavingPhoto] = useState(false);
 
   useEffect(() => {
     if (!item) router.back();
@@ -43,6 +59,47 @@ export default function ItemDetailScreen() {
   const unitOptions = commonUnits.includes(item.unit) ? commonUnits : [...commonUnits, item.unit];
 
   const comingSoon = () => list.notify(t('toast.comingSoon'));
+
+  // «صوّرها عشان ما يغلط»: camera or gallery → saved on the item and as the family's picture of the product
+  const photo = list.photoFor(item);
+  const ownPhoto = photo?.kind === 'family';
+  const pickPhoto = async (from: 'camera' | 'library') => {
+    try {
+      if (from === 'camera' && !(await ImagePicker.requestCameraPermissionsAsync()).granted) {
+        return list.notify(t('detail.photoDenied'));
+      }
+      const options: ImagePicker.ImagePickerOptions = {
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: PHOTO_ASPECT,
+        quality: PHOTO_QUALITY,
+      };
+      const result =
+        from === 'camera' ? await ImagePicker.launchCameraAsync(options) : await ImagePicker.launchImageLibraryAsync(options);
+      const picked = result.canceled ? undefined : result.assets[0];
+      if (!picked) return;
+      setSavingPhoto(true);
+      const saved = await list.setItemPhoto(item.id, picked.uri);
+      setSavingPhoto(false);
+      if (saved) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (error) {
+      if (__DEV__) console.warn('[photo]', error);
+      setSavingPhoto(false);
+      list.notify(t('toast.photoFailed'));
+    }
+  };
+  const onPhoto = () => {
+    if (list.mode !== 'live') return comingSoon();
+    Alert.alert(t('detail.photoSourceTitle'), undefined, [
+      { text: t('detail.photoTake'), onPress: () => pickPhoto('camera') },
+      { text: t('detail.photoChoose'), onPress: () => pickPhoto('library') },
+      { text: t('detail.photoCancel'), style: 'cancel' },
+    ]);
+  };
+  const onRemovePhoto = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    list.removeItemPhoto(item.id);
+  };
 
   const changeQty = (delta: number) => {
     Haptics.selectionAsync();
@@ -178,10 +235,38 @@ export default function ItemDetailScreen() {
             multiline
             blurOnSubmit
           />
-          <Pressable onPress={comingSoon} style={styles.photoButton} accessibilityRole="button">
-            <Camera size={size.icon - spacing.xs} color={colors.ink} strokeWidth={size.iconStroke} />
-            <AppText variant="label">{t('detail.photo')}</AppText>
-          </Pressable>
+          {photo && (
+            <>
+              <ItemPhotoPreview source={photo} name={item.name} />
+              <AppText variant="meta" color="muted">
+                {t(ownPhoto ? 'detail.photoFamily' : 'detail.photoOfficial')}
+              </AppText>
+            </>
+          )}
+          <View style={styles.photoActions}>
+            <Pressable
+              onPress={onPhoto}
+              disabled={savingPhoto}
+              style={[styles.photoButton, styles.flex]}
+              accessibilityRole="button"
+              accessibilityState={{ busy: savingPhoto }}>
+              {savingPhoto ? (
+                <ActivityIndicator color={colors.muted} />
+              ) : (
+                <Camera size={size.icon - spacing.xs} color={colors.ink} strokeWidth={size.iconStroke} />
+              )}
+              <AppText variant="label">
+                {t(savingPhoto ? 'detail.photoSaving' : ownPhoto ? 'detail.photoChange' : 'detail.photo')}
+              </AppText>
+            </Pressable>
+            {ownPhoto && !savingPhoto && (
+              <Pressable onPress={onRemovePhoto} style={styles.photoRemove} accessibilityRole="button">
+                <AppText variant="label" color="danger">
+                  {t('detail.photoRemove')}
+                </AppText>
+              </Pressable>
+            )}
+          </View>
         </View>
 
         {/* Who added it + history */}
@@ -346,6 +431,16 @@ const styles = StyleSheet.create({
     fontSize: fontSize.label,
     textAlign: isRTLLayout ? 'right' : 'left',
     writingDirection: isRTLLayout ? 'rtl' : 'ltr',
+  },
+  photoActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  photoRemove: {
+    height: size.control,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.md,
   },
   photoButton: {
     height: size.control,

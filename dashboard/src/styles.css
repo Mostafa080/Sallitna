@@ -483,6 +483,35 @@ tr.is-blocked td {
   border-radius: var(--radius-pill);
 }
 
+/* --- Product pictures --- */
+.product-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--ground);
+  display: block;
+}
+.product-thumb.empty {
+  border: 1px dashed var(--line);
+}
+.product-image {
+  width: 160px;
+  height: 120px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--ground);
+}
+.image-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+.file-input {
+  display: none;
+}
+
 @media (max-width: 800px) {
   .shell {
     grid-template-columns: 1fr;

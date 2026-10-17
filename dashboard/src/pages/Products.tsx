@@ -1,14 +1,15 @@
 // The product list the app suggests while typing: add, edit, hide; manage the words that find each product.
 // Reading uses the normal product tables (everyone signed in can read them); changes go through admin-only doors.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import { rpc, supabase, type Alias, type Product } from '../supabase';
+import { PRODUCT_PHOTOS, productImageUrl, rpc, supabase, type Alias, type Product } from '../supabase';
 import { text } from '../text';
 
 const CATEGORIES = ['produce', 'dairy', 'bakery', 'pantry', 'cleaning', 'other'];
 const UNITS = ['count', 'kg', 'piece', 'box', 'carton', 'bag'];
 const DIALECTS = ['saudi', 'emirati', 'kuwaiti', 'egyptian', 'levantine', 'other'];
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // same limit as the storage bucket
 
 const normalize = (value: string) =>
   value
@@ -100,6 +101,7 @@ export function ProductsPage({ notify }: { notify: (message: string) => void }) 
           <table>
             <thead>
               <tr>
+                <th>{text.colImage}</th>
                 <th>{text.colProduct}</th>
                 <th>{text.colCategory}</th>
                 <th>{text.colDefault}</th>
@@ -112,6 +114,13 @@ export function ProductsPage({ notify }: { notify: (message: string) => void }) 
             <tbody>
               {shown.map((p) => (
                 <tr key={p.id} className={p.hidden ? 'is-blocked' : ''}>
+                  <td>
+                    {p.image_path ? (
+                      <img className="product-thumb" src={productImageUrl(p.image_path)} alt="" loading="lazy" />
+                    ) : (
+                      <span className="product-thumb empty" />
+                    )}
+                  </td>
                   <td>
                     <strong>{p.name}</strong>
                     {p.hidden && <span className="badge blocked">{text.badgeHidden}</span>}
@@ -195,6 +204,8 @@ function ProductEditor({ product, products, words, notify, onSaved, onClose }: E
   const [word, setWord] = useState('');
   const [wordDialect, setWordDialect] = useState('');
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!current) return;
@@ -231,6 +242,41 @@ function ProductEditor({ product, products, words, notify, onSaved, onClose }: E
     try {
       await rpc('admin_add_alias', { product_id: current.id, alias: word, dialect: wordDialect || null });
       setWord('');
+      onSaved(current.id);
+    } catch (error) {
+      notify(`${text.actionFailed}: ${(error as Error).message}`);
+    }
+  };
+
+  // Official picture: upload the file (admins only — the storage rules check), then point the product at it.
+  // A new file name each time so browsers and phones don't keep showing the old picture.
+  const uploadImage = async (file: File) => {
+    if (!current) return;
+    if (file.size > MAX_IMAGE_BYTES) return notify(text.imageTooBig);
+    setUploading(true);
+    try {
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${current.id}-${Date.now()}.${ext}`;
+      const upload = await supabase.storage.from(PRODUCT_PHOTOS).upload(path, file, { contentType: file.type });
+      if (upload.error) throw new Error(upload.error.message);
+      await rpc('admin_set_product_image', { product_id: current.id, image_path: path });
+      if (current.image_path) await supabase.storage.from(PRODUCT_PHOTOS).remove([current.image_path]);
+      notify(text.done);
+      onSaved(current.id);
+    } catch (error) {
+      notify(`${text.actionFailed}: ${(error as Error).message}`);
+    } finally {
+      setUploading(false);
+      if (fileInput.current) fileInput.current.value = '';
+    }
+  };
+
+  const removeImage = async () => {
+    if (!current?.image_path) return;
+    try {
+      await rpc('admin_set_product_image', { product_id: current.id, image_path: '' });
+      await supabase.storage.from(PRODUCT_PHOTOS).remove([current.image_path]);
+      notify(text.done);
       onSaved(current.id);
     } catch (error) {
       notify(`${text.actionFailed}: ${(error as Error).message}`);
@@ -320,6 +366,33 @@ function ProductEditor({ product, products, words, notify, onSaved, onClose }: E
             </button>
           </div>
         </form>
+
+        <hr className="divider" />
+
+        <h2>{text.imageTitle}</h2>
+        <p className="muted">{text.imageBody}</p>
+        {current ? (
+          <div className="image-row">
+            {current.image_path && <img className="product-image" src={productImageUrl(current.image_path)} alt="" />}
+            <input
+              ref={fileInput}
+              className="file-input"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0])}
+            />
+            <button className="btn" type="button" disabled={uploading} onClick={() => fileInput.current?.click()}>
+              {uploading ? text.uploading : current.image_path ? text.changeImage : text.uploadImage}
+            </button>
+            {current.image_path && !uploading && (
+              <button className="btn ghost" type="button" onClick={removeImage}>
+                {text.removeImage}
+              </button>
+            )}
+          </div>
+        ) : (
+          <p className="muted">{text.imageSaveFirst}</p>
+        )}
 
         <hr className="divider" />
 

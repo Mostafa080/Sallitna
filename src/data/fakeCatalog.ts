@@ -14,6 +14,7 @@ export type CatalogItem = {
   default_unit: Unit;
   translations?: { en: string; hi: string };
   alternative?: string; // catalog id to suggest when this isn't in the shop
+  image?: string; // official picture (address of a public file), set by admins in the dashboard
   habits?: {
     times_this_month: number;
     cadence_days?: number; // how often the household usually buys it

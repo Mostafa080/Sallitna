@@ -86,6 +86,7 @@ export const text = {
   colEnglish: 'English',
   colHindi: 'हिन्दी',
   colWords: 'كلمات بتلاقيه',
+  colImage: 'صورة',
   edit: 'عدّل',
   hide: 'اخفي',
   unhide: 'رجّعه',
@@ -110,6 +111,15 @@ export const text = {
   wordPlaceholder: 'كلمة، مثلًا: لبن',
   everyone: 'كل اللهجات',
   saveFirst: 'احفظ المنتج الأول، بعدين ضيف الكلمات.',
+  // Product picture
+  imageTitle: 'صورة المنتج',
+  imageBody: 'الصورة الرسمية: كل العائلات بتشوفها، إلا العيلة اللي صوّرت صورتها بنفسها.',
+  uploadImage: 'ارفع صورة',
+  changeImage: 'غيّر الصورة',
+  removeImage: 'شيل الصورة',
+  uploading: 'بنرفع الصورة…',
+  imageTooBig: 'الصورة أكبر من ٥ ميجا — صغّرها وجرّب تاني',
+  imageSaveFirst: 'احفظ المنتج الأول، بعدين ضيف الصورة.',
   categories: {
     produce: 'خضار وفاكهة',
     dairy: 'ألبان وبيض',

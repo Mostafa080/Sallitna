@@ -44,10 +44,15 @@ export type Product = {
   alternative_id: string | null;
   hidden: boolean;
   updated_at: string;
+  image_path: string | null;
 };
 export type Alias = { id: number; catalog_id: string; alias: string; dialect: string | null };
 
 export type Admin = { user_id: string; phone: string | null; name: string | null; added_at: string };
+
+// Official product pictures (public files; only admins can upload — checked by the database)
+export const PRODUCT_PHOTOS = 'product-photos';
+export const productImageUrl = (path: string) => supabase.storage.from(PRODUCT_PHOTOS).getPublicUrl(path).data.publicUrl;
 
 // Call an admin-only database function; throws with the database's message
 export async function rpc<T>(name: string, args?: Record<string, unknown>): Promise<T> {

@@ -158,6 +158,45 @@ select pg_temp.check_('everyone: can read the catalog', (select count(*) from pu
 select pg_temp.check_('everyone: cannot change the catalog',
   pg_temp.blocked($q$ update public.catalog set name = 'x' where id = 'c1' $q$));
 
+-- ---------- Photos («صوّرها عشان ما يغلط») ----------
+select pg_temp.act('umm');
+select pg_temp.check_('photos: a member can put a photo from her family''s folder on an item',
+  pg_temp.affected(format($q$ update public.items set photo_path = %L where id = %L $q$,
+    pg_temp.get('hhA') || '/products/c1.jpg', pg_temp.get('itemA'))) = 1);
+select pg_temp.check_('photos: an item cannot point at another family''s photo',
+  pg_temp.affected(format($q$ update public.items set photo_path = %L where id = %L $q$,
+    pg_temp.get('hhB') || '/products/c1.jpg', pg_temp.get('itemA'))) = -1);
+select pg_temp.check_('photos: a member can upload to her family''s folder',
+  not pg_temp.blocked(format($q$ insert into storage.objects (bucket_id, name) values ('family-photos', %L) $q$,
+    pg_temp.get('hhA') || '/products/c1.jpg')));
+select pg_temp.check_('photos: a member cannot upload to another family''s folder',
+  pg_temp.blocked(format($q$ insert into storage.objects (bucket_id, name) values ('family-photos', %L) $q$,
+    pg_temp.get('hhB') || '/products/c1.jpg')));
+select pg_temp.check_('photos: a member can make it her family''s picture of the product',
+  not pg_temp.blocked(format($q$ insert into public.household_product_photos (household_id, catalog_id, photo_path, updated_by)
+    values (%L, 'c1', %L, %L) $q$, pg_temp.get('hhA'), pg_temp.get('hhA') || '/products/c1.jpg', pg_temp.get('ummMember'))));
+select pg_temp.check_('photos: a non-admin cannot upload official product pictures',
+  pg_temp.blocked($q$ insert into storage.objects (bucket_id, name) values ('product-photos', 'c1.jpg') $q$));
+select pg_temp.check_('photos: a non-admin cannot see the official picture files list',
+  (select count(*) from storage.objects where bucket_id = 'product-photos') = 0);
+select pg_temp.check_('photos: a non-admin cannot set a product''s official picture',
+  pg_temp.blocked($q$ select public.admin_set_product_image('c1', 'c1.jpg') $q$));
+
+select pg_temp.act('eve');
+select pg_temp.check_('photos: a stranger sees none of A''s product pictures',
+  (select count(*) from public.household_product_photos where household_id = pg_temp.get('hhA')::uuid) = 0);
+select pg_temp.check_('photos: a stranger cannot see A''s photo files',
+  (select count(*) from storage.objects where bucket_id = 'family-photos' and name like pg_temp.get('hhA') || '/%') = 0);
+select pg_temp.check_('photos: a stranger cannot set A''s product picture',
+  pg_temp.blocked(format($q$ insert into public.household_product_photos (household_id, catalog_id, photo_path, updated_by)
+    values (%L, 'c2', %L, %L) $q$, pg_temp.get('hhA'), pg_temp.get('hhA') || '/products/c2.jpg', pg_temp.get('eveMember'))));
+select pg_temp.check_('photos: a stranger cannot replace A''s photo files',
+  pg_temp.affected(format($q$ update storage.objects set name = name where bucket_id = 'family-photos' and name like %L $q$,
+    pg_temp.get('hhA') || '/%')) <= 0);
+select pg_temp.check_('photos: a stranger cannot change A''s product picture',
+  pg_temp.affected(format($q$ update public.household_product_photos set photo_path = photo_path where household_id = %L $q$,
+    pg_temp.get('hhA'))) <= 0);
+
 -- ---------- Helper invite ----------
 select pg_temp.check_('helper invite: the join screen sees it is for a helper',
   (select role from public.get_invite(pg_temp.get('codeHelper'))) = 'helper'
@@ -322,6 +361,14 @@ select pg_temp.check_('admin: can remove a dialect word',
   (select count(*) from public.catalog_aliases where catalog_id = pg_temp.get('newProduct')) = 0);
 select public.admin_set_product_hidden(pg_temp.get('newProduct'), true);
 select pg_temp.check_('admin: can hide a product', (select hidden from public.catalog where id = pg_temp.get('newProduct')));
+select pg_temp.check_('admin: can upload an official product picture',
+  not pg_temp.blocked($q$ insert into storage.objects (bucket_id, name) values ('product-photos', 'test-product.jpg') $q$));
+select public.admin_set_product_image(pg_temp.get('newProduct'), 'test-product.jpg');
+-- (Storage refuses direct SQL deletes; seeing the file is what lets the Storage API delete it)
+select pg_temp.check_('admin: can see official picture files (needed to delete them)',
+  (select count(*) from storage.objects where bucket_id = 'product-photos' and name = 'test-product.jpg') = 1);
+select pg_temp.check_('admin: can set a product''s official picture',
+  (select image_path = 'test-product.jpg' from public.catalog where id = pg_temp.get('newProduct')));
 
 -- ---------- Deleting an account that added items ----------
 reset role;

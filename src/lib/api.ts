@@ -36,6 +36,7 @@ type CatalogRow = {
   translations: { en?: string; hi?: string } | null;
   alternative_id: string | null;
   hidden: boolean;
+  image_path?: string | null;
 };
 type AliasRow = { catalog_id: string; alias: string; dialect: DialectKey | null };
 type CatalogCache = { products: CatalogRow[]; aliases: AliasRow[] };
@@ -58,6 +59,7 @@ function applyCatalog({ products, aliases }: CatalogCache, dialect: DialectKey) 
     default_unit: r.default_unit,
     translations: r.translations?.en ? { en: r.translations.en, hi: r.translations.hi ?? r.translations.en } : undefined,
     alternative: r.alternative_id ?? undefined,
+    image: r.image_path ? productImageUrl(r.image_path) : undefined,
   });
   setCatalog(products.filter((r) => !r.hidden).map(toProduct), products.filter((r) => r.hidden).map(toProduct));
 }
@@ -71,7 +73,7 @@ export async function loadCachedCatalog(dialect: DialectKey) {
 // The latest list from the database (then remembered for next time)
 export async function loadCatalog(dialect: DialectKey) {
   const [products, aliases] = await Promise.all([
-    supabase.from('catalog').select('id, name, category, default_qty, default_unit, translations, alternative_id, hidden'),
+    supabase.from('catalog').select('id, name, category, default_qty, default_unit, translations, alternative_id, hidden, image_path'),
     supabase.from('catalog_aliases').select('catalog_id, alias, dialect'),
   ]);
   const fresh: CatalogCache = { products: check(products) as CatalogRow[], aliases: check(aliases) as AliasRow[] };
@@ -385,6 +387,7 @@ export type ItemRow = {
   requested_by: string[];
   claimed_by: string | null;
   created_at: string;
+  photo_path: string | null;
 };
 
 export const toItem = (row: ItemRow): Item => {
@@ -403,15 +406,19 @@ export const toItem = (row: ItemRow): Item => {
     requested_by: row.requested_by,
     claimed_by: row.claimed_by,
     created_at: row.created_at,
+    catalog_id: row.catalog_id ?? match?.id ?? null,
+    photo_path: row.photo_path,
     translations: match?.translations, // helper names come from the catalog
   };
 };
 
 // The fields anyone in the household may change (see the column grants in the database)
-export type ItemPatch = Partial<Pick<Item, 'name' | 'qty' | 'unit' | 'category' | 'status' | 'note' | 'requested_by' | 'claimed_by'>>;
+export type ItemPatch = Partial<
+  Pick<Item, 'name' | 'qty' | 'unit' | 'category' | 'status' | 'note' | 'requested_by' | 'claimed_by' | 'photo_path'>
+>;
 
 const pickPatch = (patch: Partial<Item>): ItemPatch => {
-  const keys = ['name', 'qty', 'unit', 'category', 'status', 'note', 'requested_by', 'claimed_by'] as const;
+  const keys = ['name', 'qty', 'unit', 'category', 'status', 'note', 'requested_by', 'claimed_by', 'photo_path'] as const;
   const out: Record<string, unknown> = {};
   for (const k of keys) if (patch[k] !== undefined) out[k] = patch[k];
   return out as ItemPatch;
@@ -438,7 +445,7 @@ export async function insertItems(householdId: string, items: Item[]) {
       items.map((i) => ({
         id: i.id,
         household_id: householdId,
-        catalog_id: findCatalogMatch(i.name)?.id ?? null,
+        catalog_id: i.catalog_id ?? findCatalogMatch(i.name)?.id ?? null,
         name: i.name,
         qty: i.qty,
         unit: i.unit,
@@ -450,8 +457,69 @@ export async function insertItems(householdId: string, items: Item[]) {
         voice_transcript: i.voice_transcript ?? null,
         requested_by: i.requested_by,
         claimed_by: i.claimed_by,
+        photo_path: i.photo_path ?? null,
       })),
     ),
+  );
+}
+
+// --- Photos («صوّرها عشان ما يغلط») ---------------------------------------------------------------
+// Family photos are private (only the household can open them); official product pictures are public.
+
+const FAMILY_PHOTOS = 'family-photos';
+const PRODUCT_PHOTOS = 'product-photos';
+const PHOTO_LINK_SECONDS = 24 * 60 * 60;
+
+export const productImageUrl = (path: string) => supabase.storage.from(PRODUCT_PHOTOS).getPublicUrl(path).data.publicUrl;
+
+// A private photo opens through a temporary link; reuse it for the day so pictures aren't downloaded again
+const photoLinks = new Map<string, { url: string; until: number }>();
+export async function familyPhotoUrl(path: string): Promise<string> {
+  const saved = photoLinks.get(path);
+  if (saved && saved.until > Date.now()) return saved.url;
+  const link = check(await supabase.storage.from(FAMILY_PHOTOS).createSignedUrl(path, PHOTO_LINK_SECONDS));
+  if (!link) throw new Error('no photo link');
+  const { signedUrl } = link;
+  photoLinks.set(path, { url: signedUrl, until: Date.now() + (PHOTO_LINK_SECONDS - 600) * 1000 });
+  return signedUrl;
+}
+
+// Upload a photo from the phone into the household's own folder; returns where it was saved
+export async function uploadFamilyPhoto(householdId: string, uri: string): Promise<string> {
+  const path = `${householdId}/${newItemId()}.jpg`;
+  const body = await (await fetch(uri)).arrayBuffer();
+  check(await supabase.storage.from(FAMILY_PHOTOS).upload(path, body, { contentType: 'image/jpeg' }));
+  return path;
+}
+
+export async function deleteFamilyPhoto(path: string) {
+  photoLinks.delete(path);
+  check(await supabase.storage.from(FAMILY_PHOTOS).remove([path]));
+}
+
+// The family's own picture of each product: { catalog id → photo }
+export async function loadFamilyProductPhotos(householdId: string): Promise<Record<string, string>> {
+  const rows = check(
+    await supabase.from('household_product_photos').select('catalog_id, photo_path').eq('household_id', householdId),
+  ) as { catalog_id: string; photo_path: string }[];
+  return Object.fromEntries(rows.map((r) => [r.catalog_id, r.photo_path]));
+}
+
+export async function setFamilyProductPhoto(householdId: string, catalogId: string, path: string, memberId: string) {
+  check(
+    await supabase.from('household_product_photos').upsert({
+      household_id: householdId,
+      catalog_id: catalogId,
+      photo_path: path,
+      updated_by: memberId,
+      updated_at: new Date().toISOString(),
+    }),
+  );
+}
+
+export async function removeFamilyProductPhoto(householdId: string, catalogId: string) {
+  check(
+    await supabase.from('household_product_photos').delete().eq('household_id', householdId).eq('catalog_id', catalogId),
   );
 }
 

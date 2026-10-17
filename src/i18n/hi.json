@@ -181,7 +181,8 @@
     "answerArrived_m": "{{name}} replied: {{reply}}",
     "notFoundMarked": "“{{name}}” नहीं मिला · परिवार को दिखेगा",
     "reopened": "“{{name}}” फिर से लिस्ट में",
-    "othersNotFound": "“{{item}}” दुकान में नहीं मिला"
+    "othersNotFound": "“{{item}}” दुकान में नहीं मिला",
+    "photoFailed": "फ़ोटो सेव नहीं हुई — इंटरनेट जाँचें और फिर कोशिश करें"
   },
   "empty": {
     "title": "The basket is empty",
@@ -214,7 +215,17 @@
       "one": "Bought once this month · last by {{name}}",
       "other": "Bought {{n}} times this month · last by {{name}}"
     },
-    "save": "Save"
+    "save": "Save",
+    "photoSourceTitle": "चीज़ की फ़ोटो",
+    "photoTake": "फ़ोटो लें",
+    "photoChoose": "फ़ोटो में से चुनें",
+    "photoCancel": "रद्द करें",
+    "photoChange": "फ़ोटो बदलें",
+    "photoRemove": "फ़ोटो हटाएँ",
+    "photoSaving": "फ़ोटो सेव हो रही है…",
+    "photoFamily": "परिवार की फ़ोटो · हर बार जोड़ने पर दिखेगी",
+    "photoOfficial": "प्रोडक्ट की फ़ोटो · अलग दिखे तो अपनी फ़ोटो लें",
+    "photoDenied": "कैमरा या फ़ोटो की अनुमति चाहिए — सेटिंग्स में चालू करें"
   },
   "dev": {
     "title": "Demo data",
@@ -899,5 +910,9 @@
     "remove": "हटाएँ",
     "reopenA11y": "{{name}} वापस लिस्ट में डालें",
     "removeA11y": "{{name}} हटाएँ"
+  },
+  "photo": {
+    "open": "{{name}} की फ़ोटो बड़ी करें",
+    "close": "फ़ोटो बंद करें"
   }
 }
