@@ -2,22 +2,22 @@
 
 @font-face {
   font-family: 'Norsal';
-  src: url('../../assets/fonts/Norsal-Regular.ttf') format('truetype');
+  src: url('../../mobile/assets/fonts/Norsal-Regular.ttf') format('truetype');
   font-weight: 400;
 }
 @font-face {
   font-family: 'Norsal';
-  src: url('../../assets/fonts/Norsal-Medium.ttf') format('truetype');
+  src: url('../../mobile/assets/fonts/Norsal-Medium.ttf') format('truetype');
   font-weight: 500;
 }
 @font-face {
   font-family: 'Norsal';
-  src: url('../../assets/fonts/Norsal-SemiBold.ttf') format('truetype');
+  src: url('../../mobile/assets/fonts/Norsal-SemiBold.ttf') format('truetype');
   font-weight: 600;
 }
 @font-face {
   font-family: 'Norsal';
-  src: url('../../assets/fonts/Norsal-Bold.ttf') format('truetype');
+  src: url('../../mobile/assets/fonts/Norsal-Bold.ttf') format('truetype');
   font-weight: 700;
 }
 

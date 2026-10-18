@@ -40,8 +40,8 @@ yarn-error.*
 example
 
 # generated native folders
-/ios
-/android
+frontend/mobile/ios
+frontend/mobile/android
 
 # Template with placeholders only (no real values)
 !.env.example

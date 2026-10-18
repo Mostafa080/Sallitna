@@ -1,6 +1,6 @@
 -- Security tests for Row Level Security and the safe-door functions.
 -- Runs inside one transaction and rolls everything back, so nothing stays in the database.
--- Run: npx supabase db query --linked -f supabase/tests/rls_test.sql
+-- Run (from backend/): npx supabase db query --linked -f supabase/tests/rls_test.sql
 --
 -- People:
 --   umm    — manager of household A («بيت أبو خالد»)

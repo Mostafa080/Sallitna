@@ -12,6 +12,12 @@ I'm a product designer, not a developer.
 - Keep changes small. One feature per session.
 - When done, tell me exactly how to test it on my phone.
 
+## Folders
+- `frontend/mobile` — the Expo app (run Expo/npm commands for the app here)
+- `frontend/dashboard` — the admin website (uses the same public keys from `frontend/mobile/.env`)
+- `backend/supabase` — migrations, security tests, seed data (run Supabase CLI commands from `backend/`)
+- Shortcuts in the top-level `package.json`: `npm run app | dashboard | db:push | db:test | typecheck`
+
 ## Stack
 - Expo (current SDK) + TypeScript + expo-router
 - Supabase: Postgres, Auth (phone OTP), Realtime, Storage, Edge Functions

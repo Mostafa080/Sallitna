@@ -979,3 +979,24 @@ show up as suggestions, and an admin approves one to make it official for everyo
   (it's a flowers test photo). Both family photos are kept.
 - Note: an approved picture reaches phones the next time the app is opened.
 - Privacy: admins can see family product photos to review them — this should be mentioned in the privacy policy.
+
+## Session 21 — 2026-10-18: Project folders (frontend / backend)
+
+Agreed: `frontend/mobile` (phone app), `frontend/dashboard` (admin website), `backend/supabase` (database);
+design and notes stay at the top. Also your standard for future projects.
+
+### Done
+- Moved everything with git (history kept). No code behaviour changed; the online database is untouched.
+- Fixed the paths that pointed to the old places: dashboard keys and fonts (now from `frontend/mobile`),
+  the app's typecheck settings, `.gitignore`, preview settings.
+- New top-level `package.json` with shortcuts only (no libraries): `npm run app`, `dashboard`, `db:push`, `db:test`,
+  `typecheck`. README and CLAUDE.md describe the new layout.
+- Checked: both apps typecheck; security tests 109/109 from `backend/`; all 19 database changes match online;
+  the app runs on the simulators from `frontend/mobile` (same address exp://192.168.1.39:8081); the dashboard runs
+  with its font and live numbers.
+
+### Known issues
+- Your old «expo server» terminal tab was stopped (it ran from the old folder). The app now runs in the
+  «app server» tab — start it next time with `npm run app` from the top folder.
+- Noticed in the data (not from the move): on 17/10 at 14:07–14:08 سلمى deleted «المصيف», «بيت أهلي», «الشغل» and
+  created «الصحاب». The «بيت أهلي» photo suggestions no longer show in the dashboard (deleted lists are left out).
