@@ -120,6 +120,14 @@ export const text = {
   uploading: 'بنرفع الصورة…',
   imageTooBig: 'الصورة أكبر من ٥ ميجا — صغّرها وجرّب تاني',
   imageSaveFirst: 'احفظ المنتج الأول، بعدين ضيف الصورة.',
+  // Family photos suggested as the official picture
+  suggestedFilter: (n: number) => `صور مقترحة (${n})`,
+  suggestedBadge: 'صورة مقترحة',
+  suggestionsTitle: 'صور من العائلات',
+  suggestionsBody: 'صور صوّرتها عائلات في التطبيق. «اعتمدها» تخليها الصورة الرسمية، فكل العائلات تشوفها.',
+  approve: 'اعتمدها',
+  approving: 'بنعتمدها…',
+  fromList: (list: string) => `من «${list}»`,
   categories: {
     produce: 'خضار وفاكهة',
     dairy: 'ألبان وبيض',

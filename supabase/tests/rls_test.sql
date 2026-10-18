@@ -179,6 +179,8 @@ select pg_temp.check_('photos: a non-admin cannot upload official product pictur
   pg_temp.blocked($q$ insert into storage.objects (bucket_id, name) values ('product-photos', 'c1.jpg') $q$));
 select pg_temp.check_('photos: a non-admin cannot see the official picture files list',
   (select count(*) from storage.objects where bucket_id = 'product-photos') = 0);
+select pg_temp.check_('photos: a non-admin cannot list photo suggestions',
+  pg_temp.blocked($q$ select * from public.admin_photo_suggestions() $q$));
 select pg_temp.check_('photos: a non-admin cannot set a product''s official picture',
   pg_temp.blocked($q$ select public.admin_set_product_image('c1', 'c1.jpg') $q$));
 
@@ -364,6 +366,19 @@ select pg_temp.check_('admin: can hide a product', (select hidden from public.ca
 select pg_temp.check_('admin: can upload an official product picture',
   not pg_temp.blocked($q$ insert into storage.objects (bucket_id, name) values ('product-photos', 'test-product.jpg') $q$));
 select public.admin_set_product_image(pg_temp.get('newProduct'), 'test-product.jpg');
+select pg_temp.put('hhPhotos', public.create_household('بيت الصور', 'أم خالد', 'f')::text);
+insert into public.household_product_photos (household_id, catalog_id, photo_path, updated_by)
+  values (pg_temp.get('hhPhotos')::uuid, 'c2', pg_temp.get('hhPhotos') || '/products/c2.jpg',
+    (select private.my_member_id(pg_temp.get('hhPhotos')::uuid)));
+select pg_temp.check_('admin: sees families'' photos as suggestions',
+  (select count(*) from public.admin_photo_suggestions() where catalog_id = 'c2' and list_name = 'بيت الصور') = 1);
+select pg_temp.check_('admin: photos from a deleted list are not suggested',
+  (select count(*) from public.admin_photo_suggestions() where list_name = 'بيت أبو خالد') = 0);
+select pg_temp.check_('admin: can open a family photo file to review it',
+  (select count(*) from storage.objects where bucket_id = 'family-photos' and name = pg_temp.get('hhA') || '/products/c1.jpg') = 1);
+select pg_temp.check_('admin: still cannot change a family''s photo files',
+  pg_temp.affected(format($q$ update storage.objects set name = name where bucket_id = 'family-photos' and name like %L $q$,
+    pg_temp.get('hhA') || '/%')) <= 0);
 -- (Storage refuses direct SQL deletes; seeing the file is what lets the Storage API delete it)
 select pg_temp.check_('admin: can see official picture files (needed to delete them)',
   (select count(*) from storage.objects where bucket_id = 'product-photos' and name = 'test-product.jpg') = 1);

@@ -966,3 +966,16 @@ never see it); admins set official product pictures in the dashboard; new librar
 - On the real App Store build the camera/photos permission text is the one in `app.json` (Arabic + English).
 - Noticed in the data: a shopping trip as سلمى started at 22:33 yesterday is still open, and «زبادي» was removed at
   the same time (not from my test steps) — «خلصت» on Phone A will close it.
+
+### Follow-up: family photos as suggestions (your request — "images not updated in dashboard")
+Your «عيش فينو» photo was saved correctly, but the dashboard only showed official pictures. Agreed: family photos
+show up as suggestions, and an admin approves one to make it official for everyone.
+- Database (`20261017100000_photo_suggestions.sql`): admins can *look at* families' product photos (not change or
+  remove them); `admin_photo_suggestions()` lists them (photos from deleted lists are left out).
+  **Security tests 109/109.**
+- Dashboard «المنتجات»: «صور مقترحة (N)» filter, «صورة مقترحة» badge on the product, and «صور من العائلات» in the
+  edit form with «من «اسم القائمة»» and «اعتمدها» (copies the photo into the official pictures).
+- Checked: your «عيش فينو» photo appeared as a suggestion → «اعتمدها» made it official → removed again afterwards
+  (it's a flowers test photo). Both family photos are kept.
+- Note: an approved picture reaches phones the next time the app is opened.
+- Privacy: admins can see family product photos to review them — this should be mentioned in the privacy policy.

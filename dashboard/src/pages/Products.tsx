@@ -3,13 +3,23 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { PRODUCT_PHOTOS, productImageUrl, rpc, supabase, type Alias, type Product } from '../supabase';
+import {
+  FAMILY_PHOTOS,
+  PRODUCT_PHOTOS,
+  productImageUrl,
+  rpc,
+  supabase,
+  type Alias,
+  type Product,
+  type Suggestion,
+} from '../supabase';
 import { text } from '../text';
 
 const CATEGORIES = ['produce', 'dairy', 'bakery', 'pantry', 'cleaning', 'other'];
 const UNITS = ['count', 'kg', 'piece', 'box', 'carton', 'bag'];
 const DIALECTS = ['saudi', 'emirati', 'kuwaiti', 'egyptian', 'levantine', 'other'];
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // same limit as the storage bucket
+const REVIEW_LINK_SECONDS = 60 * 60; // family photos are private: admins look at them through temporary links
 
 const normalize = (value: string) =>
   value
@@ -27,6 +37,9 @@ export function ProductsPage({ notify }: { notify: (message: string) => void }) 
   const [category, setCategory] = useState('all');
   const [showHidden, setShowHidden] = useState(false);
   const [editing, setEditing] = useState<Product | 'new' | null>(null);
+  // Family photos suggested as official pictures, with a temporary link to look at each one
+  const [suggestions, setSuggestions] = useState<(Suggestion & { url: string })[]>([]);
+  const [onlySuggested, setOnlySuggested] = useState(false);
 
   const load = async () => {
     setFailed(false);
@@ -37,7 +50,25 @@ export function ProductsPage({ notify }: { notify: (message: string) => void }) 
     if (p.error || a.error) return setFailed(true);
     setProducts(p.data as Product[]);
     setAliases(a.data as Alias[]);
+    loadSuggestions();
   };
+
+  const loadSuggestions = async () => {
+    try {
+      const rows = await rpc<Suggestion[]>('admin_photo_suggestions');
+      if (rows.length === 0) return setSuggestions([]);
+      const links = await supabase.storage.from(FAMILY_PHOTOS).createSignedUrls(
+        rows.map((r) => r.photo_path),
+        REVIEW_LINK_SECONDS,
+      );
+      const urlOf = new Map((links.data ?? []).map((l) => [l.path, l.signedUrl]));
+      setSuggestions(rows.flatMap((r) => (urlOf.get(r.photo_path) ? [{ ...r, url: urlOf.get(r.photo_path)! }] : [])));
+    } catch {
+      setSuggestions([]);
+    }
+  };
+  const suggestionsFor = (id: string) => suggestions.filter((x) => x.catalog_id === id);
+  const suggestedIds = new Set(suggestions.map((x) => x.catalog_id));
   useEffect(() => {
     load();
   }, []);
@@ -49,6 +80,7 @@ export function ProductsPage({ notify }: { notify: (message: string) => void }) 
   const shown = (products ?? []).filter((p) => {
     if (p.hidden && !showHidden) return false;
     if (category !== 'all' && p.category !== category) return false;
+    if (onlySuggested && !suggestedIds.has(p.id)) return false;
     if (!q) return true;
     const words = [p.name, p.translations?.en ?? '', p.translations?.hi ?? '', ...wordsOf(p.id).map((a) => a.alias)];
     return words.some((w) => normalize(w).includes(q));
@@ -90,6 +122,11 @@ export function ProductsPage({ notify }: { notify: (message: string) => void }) 
         <button className={`chip ${showHidden ? 'active' : ''}`} onClick={() => setShowHidden(!showHidden)}>
           {text.showHidden}
         </button>
+        {suggestedIds.size > 0 && (
+          <button className={`chip ${onlySuggested ? 'active' : ''}`} onClick={() => setOnlySuggested(!onlySuggested)}>
+            {text.suggestedFilter(suggestedIds.size)}
+          </button>
+        )}
         {products && <span className="muted">{text.productsCount(shown.length)}</span>}
       </div>
 
@@ -124,6 +161,7 @@ export function ProductsPage({ notify }: { notify: (message: string) => void }) 
                   <td>
                     <strong>{p.name}</strong>
                     {p.hidden && <span className="badge blocked">{text.badgeHidden}</span>}
+                    {suggestedIds.has(p.id) && <span className="badge suggested">{text.suggestedBadge}</span>}
                     {p.alternative_id && (
                       <div className="muted small-text">
                         {text.fieldAlternative}: {nameOf(p.alternative_id)}
@@ -167,6 +205,7 @@ export function ProductsPage({ notify }: { notify: (message: string) => void }) 
           product={editing === 'new' ? null : editing}
           products={products}
           words={editing === 'new' ? [] : wordsOf(editing.id)}
+          suggestions={editing === 'new' ? [] : suggestionsFor(editing.id)}
           notify={notify}
           onSaved={async (id) => {
             await load();
@@ -184,12 +223,13 @@ type EditorProps = {
   product: Product | null;
   products: Product[];
   words: Alias[];
+  suggestions: (Suggestion & { url: string })[];
   notify: (message: string) => void;
   onSaved: (id: string) => void;
   onClose: () => void;
 };
 
-function ProductEditor({ product, products, words, notify, onSaved, onClose }: EditorProps) {
+function ProductEditor({ product, products, words, suggestions, notify, onSaved, onClose }: EditorProps) {
   // A just-created product arrives as {id} only — fill it from the fresh list
   const current = product ? (products.find((p) => p.id === product.id) ?? product) : null;
   const [form, setForm] = useState({
@@ -205,6 +245,7 @@ function ProductEditor({ product, products, words, notify, onSaved, onClose }: E
   const [wordDialect, setWordDialect] = useState('');
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [approving, setApproving] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -250,24 +291,44 @@ function ProductEditor({ product, products, words, notify, onSaved, onClose }: E
 
   // Official picture: upload the file (admins only — the storage rules check), then point the product at it.
   // A new file name each time so browsers and phones don't keep showing the old picture.
+  const setOfficialImage = async (image: Blob, ext: string) => {
+    if (!current) return;
+    const path = `${current.id}-${Date.now()}.${ext}`;
+    const upload = await supabase.storage
+      .from(PRODUCT_PHOTOS)
+      .upload(path, image, { contentType: image.type || 'image/jpeg' });
+    if (upload.error) throw new Error(upload.error.message);
+    await rpc('admin_set_product_image', { product_id: current.id, image_path: path });
+    if (current.image_path) await supabase.storage.from(PRODUCT_PHOTOS).remove([current.image_path]);
+    notify(text.done);
+    onSaved(current.id);
+  };
+
   const uploadImage = async (file: File) => {
     if (!current) return;
     if (file.size > MAX_IMAGE_BYTES) return notify(text.imageTooBig);
     setUploading(true);
     try {
-      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-      const path = `${current.id}-${Date.now()}.${ext}`;
-      const upload = await supabase.storage.from(PRODUCT_PHOTOS).upload(path, file, { contentType: file.type });
-      if (upload.error) throw new Error(upload.error.message);
-      await rpc('admin_set_product_image', { product_id: current.id, image_path: path });
-      if (current.image_path) await supabase.storage.from(PRODUCT_PHOTOS).remove([current.image_path]);
-      notify(text.done);
-      onSaved(current.id);
+      await setOfficialImage(file, (file.name.split('.').pop() || 'jpg').toLowerCase());
     } catch (error) {
       notify(`${text.actionFailed}: ${(error as Error).message}`);
     } finally {
       setUploading(false);
       if (fileInput.current) fileInput.current.value = '';
+    }
+  };
+
+  // A family's photo becomes the official picture: copy it into the public pictures (the family keeps theirs)
+  const approve = async (s: Suggestion & { url: string }) => {
+    setApproving(s.photo_path);
+    try {
+      const response = await fetch(s.url);
+      if (!response.ok) throw new Error(String(response.status));
+      await setOfficialImage(await response.blob(), 'jpg');
+    } catch (error) {
+      notify(`${text.actionFailed}: ${(error as Error).message}`);
+    } finally {
+      setApproving(null);
     }
   };
 
@@ -392,6 +453,28 @@ function ProductEditor({ product, products, words, notify, onSaved, onClose }: E
           </div>
         ) : (
           <p className="muted">{text.imageSaveFirst}</p>
+        )}
+
+        {suggestions.length > 0 && (
+          <>
+            <h2>{text.suggestionsTitle}</h2>
+            <p className="muted">{text.suggestionsBody}</p>
+            <div className="suggestions">
+              {suggestions.map((s) => (
+                <div className="suggestion" key={s.photo_path}>
+                  <img className="product-image" src={s.url} alt="" />
+                  <span className="muted small-text">{text.fromList(s.list_name)}</span>
+                  <button
+                    className="btn small"
+                    type="button"
+                    disabled={approving !== null || uploading}
+                    onClick={() => approve(s)}>
+                    {approving === s.photo_path ? text.approving : text.approve}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
         <hr className="divider" />

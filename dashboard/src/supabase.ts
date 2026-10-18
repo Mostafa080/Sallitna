@@ -46,6 +46,9 @@ export type Product = {
   updated_at: string;
   image_path: string | null;
 };
+export type Suggestion = { catalog_id: string; product: string; photo_path: string; list_name: string; updated_at: string };
+export const FAMILY_PHOTOS = 'family-photos';
+
 export type Alias = { id: number; catalog_id: string; alias: string; dialect: string | null };
 
 export type Admin = { user_id: string; phone: string | null; name: string | null; added_at: string };

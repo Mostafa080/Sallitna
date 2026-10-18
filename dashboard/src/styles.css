@@ -507,9 +507,26 @@ tr.is-blocked td {
   align-items: center;
   gap: var(--space-md);
   flex-wrap: wrap;
+  margin-bottom: var(--space-xl);
 }
 .file-input {
   display: none;
+}
+
+.suggestions {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+.suggestion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  align-items: flex-start;
+}
+.badge.suggested {
+  background: var(--accent-tint);
+  color: var(--accent-ink);
 }
 
 @media (max-width: 800px) {
