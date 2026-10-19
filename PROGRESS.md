@@ -1000,3 +1000,23 @@ design and notes stay at the top. Also your standard for future projects.
   «app server» tab — start it next time with `npm run app` from the top folder.
 - Noticed in the data (not from the move): on 17/10 at 14:07–14:08 سلمى deleted «المصيف», «بيت أهلي», «الشغل» and
   created «الصحاب». The «بيت أهلي» photo suggestions no longer show in the dashboard (deleted lists are left out).
+
+## Session 22 — 2026-10-19: Dashboard on Vercel + official pictures in the app
+
+### Done
+- **Dashboard online** at https://sallitna.vercel.app/ (Vercel, Root Directory `frontend/dashboard`, Vite).
+  Two variables in Vercel: `EXPO_PUBLIC_SUPABASE_URL` (no `/rest/v1/` at the end) and `EXPO_PUBLIC_SUPABASE_KEY`
+  (publishable key only). Supabase "integration" in Vercel was skipped on purpose (it would add the secret key).
+  Every change merged to main republishes it. Checked: the build works with the keys coming from Vercel.
+- **Bug fixed — official pictures didn't show in the app** (found with «باجيت»): the latest product list arrived
+  but the screen wasn't redrawn, so pictures added in the dashboard stayed invisible. Now the list redraws when the
+  product list arrives, and the product list is downloaded again when the app comes back to the front
+  (`ListStore.tsx`). App typecheck passes.
+
+### Next
+- Remaining wording from session 21 (one-person list, «للمرة الجاية» title, helper toast in Arabic).
+- Hindi translations (only ~130 of ~750 texts are in Hindi so far).
+
+### Known issues
+- Not yet seen on a phone: a picture approved in the dashboard should now appear after switching back to the app.
+- A family's own photo of a product still wins over the official picture (by design).

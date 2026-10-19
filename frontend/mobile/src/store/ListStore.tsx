@@ -343,18 +343,6 @@ function useListState() {
   }
   const live = state.mode === 'live';
 
-  // Product list for search: the copy saved on the phone right away, then the latest from the database.
-  // Words depend on my dialect («عيش» = bread in Egypt, rice in the Gulf).
-  const myDialect = state.mode === 'live' ? meMember?.dialect : undefined;
-  useEffect(() => {
-    if (!myDialect) return;
-    api
-      .loadCachedCatalog(myDialect)
-      .catch(() => {})
-      .then(() => api.loadCatalog(myDialect))
-      .catch((error) => __DEV__ && console.warn('[catalog]', error));
-  }, [myDialect]);
-
   // On launch: signed in? in a household? (the splash stays until we know)
   useEffect(() => {
     let cancelled = false;
@@ -422,6 +410,25 @@ function useListState() {
     });
     return () => sub.remove();
   }, []);
+
+  // Product list for search and official pictures: the copy saved on the phone right away, then the latest from
+  // the database — again when coming back (an admin may have approved a new picture). Words depend on my dialect
+  // («عيش» = bread in Egypt, rice in the Gulf). The list lives outside React, so redraw once it arrives.
+  const myDialect = state.mode === 'live' ? meMember?.dialect : undefined;
+  const [, setCatalogLoads] = useState(0);
+  useEffect(() => {
+    if (!myDialect) return;
+    let cancelled = false;
+    const redraw = () => !cancelled && setCatalogLoads((n) => n + 1);
+    (resync > 0 ? Promise.resolve() : api.loadCachedCatalog(myDialect).then(redraw))
+      .catch(() => {})
+      .then(() => api.loadCatalog(myDialect))
+      .then(redraw)
+      .catch((error) => __DEV__ && console.warn('[catalog]', error));
+    return () => {
+      cancelled = true;
+    };
+  }, [myDialect, resync]);
 
   useEffect(() => {
     if (!householdId) return;
