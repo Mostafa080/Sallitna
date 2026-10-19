@@ -267,6 +267,11 @@ export default function ItemDetailScreen() {
               </Pressable>
             )}
           </View>
+          {ownPhoto && !savingPhoto && (
+            <AppText variant="meta" color="muted">
+              {t('detail.photoChangeHint')}
+            </AppText>
+          )}
         </View>
 
         {/* Who added it + history */}

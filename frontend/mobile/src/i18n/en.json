@@ -223,6 +223,7 @@
     "photoCancel": "Cancel",
     "photoChange": "Change photo",
     "photoRemove": "Remove photo",
+    "photoChangeHint": "Changing it updates it for everyone on this list",
     "photoSaving": "Saving the photo…",
     "photoFamily": "Family photo · shows every time you add it",
     "photoOfficial": "Product picture · take your own if yours looks different",
