@@ -57,6 +57,16 @@ export type Admin = { user_id: string; phone: string | null; name: string | null
 export const PRODUCT_PHOTOS = 'product-photos';
 export const productImageUrl = (path: string) => supabase.storage.from(PRODUCT_PHOTOS).getPublicUrl(path).data.publicUrl;
 
+// Make a picture the product's official one: upload the file (admins only — the storage rules check), point the
+// product at it, then delete the old file. A new file name each time so browsers and phones don't keep the old one.
+export async function setProductImage(product: Pick<Product, 'id' | 'image_path'>, image: Blob, ext: string) {
+  const path = `${product.id}-${Date.now()}.${ext}`;
+  const upload = await supabase.storage.from(PRODUCT_PHOTOS).upload(path, image, { contentType: image.type || 'image/jpeg' });
+  if (upload.error) throw new Error(upload.error.message);
+  await rpc('admin_set_product_image', { product_id: product.id, image_path: path });
+  if (product.image_path) await supabase.storage.from(PRODUCT_PHOTOS).remove([product.image_path]);
+}
+
 // Call an admin-only database function; throws with the database's message
 export async function rpc<T>(name: string, args?: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase.rpc(name, args);
