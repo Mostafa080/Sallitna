@@ -1020,3 +1020,19 @@ design and notes stay at the top. Also your standard for future projects.
 ### Known issues
 - Not yet seen on a phone: a picture approved in the dashboard should now appear after switching back to the app.
 - A family's own photo of a product still wins over the official picture (by design).
+
+## Session 23 — 2026-10-19: One photo per product in each list (agreed: option A)
+
+Agreed: a list keeps **one** photo per product — the latest one. Anyone in the list can replace it, and the new photo
+shows for everyone in that list. Photos never reach other lists; the dashboard's main picture is the fallback when a
+list has no photo; family photos stay suggestions in the dashboard. (Sharing the latest photo with *all* lists was
+dropped: privacy of home photos, and no one would check them first.)
+
+### Done
+- This was already how the app works; added one line under the photo buttons on the item screen so people know:
+  «الصورة الجديدة هتظهر لكل أعضاء القائمة مكان القديمة» (ar/en/hi, new key `detail.photoChangeHint`).
+  App typecheck passes.
+
+### Known issues
+- When a photo is replaced, the old file stays in storage (not visible anywhere). Worth a cleanup later.
+- Not seen on a phone yet.
