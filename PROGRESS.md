@@ -1036,3 +1036,31 @@ dropped: privacy of home photos, and no one would check them first.)
 ### Known issues
 - When a photo is replaced, the old file stays in storage (not visible anywhere). Worth a cleanup later.
 - Not seen on a phone yet.
+
+## Session 24 — 2026-10-19: Upload many product pictures at once (dashboard)
+
+Agreed: a bulk upload in the dashboard for all ~285 products; pictures in one consistent style (source still open —
+AI-generated recommended).
+
+### Done
+- Dashboard «المنتجات» → **«رفع صور كتير»**:
+  1. **«نزّل القائمة»**: a spreadsheet (opens in Excel, Arabic OK) of every visible product: the file name its picture
+     should have (from the English name, e.g. `baguette.jpg`; the id is added when two products share a name), Arabic
+     and English names, category, whether it has a picture, and a ready **AI prompt** in one style (plain cream
+     background #F6F4EF, no brands, 4:3).
+  2. Pick or drag the images → each is matched by file name (list name, Arabic name, or product id), with a preview
+     table: ready / already has a picture (kept unless «استبدل الصور اللي موجودة» is ticked) / no matching product /
+     second picture for the same product.
+  3. **«ارفع N صورة»**: pictures are shrunk to 1200px JPEG in the browser first, uploaded 3 at a time with progress;
+     failed ones can be retried with the same button.
+- Uses the admin sign-in like the single upload (same code now shared: `setProductImage` in `supabase.ts`).
+  No database changes, no new libraries.
+- Checked: dashboard typecheck + build; clicked through in a browser with sample products and fake uploads
+  (matching by English/Arabic/id, duplicates, keep vs replace, a failed upload + retry, a 3000px PNG shrunk).
+
+### Next
+- Make the pictures (run the prompts from the spreadsheet), then upload them with «رفع صور كتير».
+
+### Known issues
+- Not tried against the real database from here (no access from the cloud workspace) — first real run is yours.
+- Products added later need their picture added the same way (download the list again).

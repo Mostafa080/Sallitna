@@ -8,12 +8,14 @@ import {
   PRODUCT_PHOTOS,
   productImageUrl,
   rpc,
+  setProductImage,
   supabase,
   type Alias,
   type Product,
   type Suggestion,
 } from '../supabase';
 import { text } from '../text';
+import { BulkImages } from './BulkImages';
 
 const CATEGORIES = ['produce', 'dairy', 'bakery', 'pantry', 'cleaning', 'other'];
 const UNITS = ['count', 'kg', 'piece', 'box', 'carton', 'bag'];
@@ -37,6 +39,7 @@ export function ProductsPage({ notify }: { notify: (message: string) => void }) 
   const [category, setCategory] = useState('all');
   const [showHidden, setShowHidden] = useState(false);
   const [editing, setEditing] = useState<Product | 'new' | null>(null);
+  const [bulkOpen, setBulkOpen] = useState(false);
   // Family photos suggested as official pictures, with a temporary link to look at each one
   const [suggestions, setSuggestions] = useState<(Suggestion & { url: string })[]>([]);
   const [onlySuggested, setOnlySuggested] = useState(false);
@@ -104,9 +107,14 @@ export function ProductsPage({ notify }: { notify: (message: string) => void }) 
           <h1>{text.navProducts}</h1>
           <div className="muted">{text.productsBody}</div>
         </div>
-        <button className="btn" onClick={() => setEditing('new')}>
-          + {text.addProduct}
-        </button>
+        <div className="actions">
+          <button className="btn ghost" onClick={() => setBulkOpen(true)} disabled={!products}>
+            {text.bulkOpen}
+          </button>
+          <button className="btn" onClick={() => setEditing('new')}>
+            + {text.addProduct}
+          </button>
+        </div>
       </div>
 
       <div className="toolbar">
@@ -215,6 +223,8 @@ export function ProductsPage({ notify }: { notify: (message: string) => void }) 
           onClose={() => setEditing(null)}
         />
       )}
+
+      {bulkOpen && products && <BulkImages products={products} onUploaded={load} onClose={() => setBulkOpen(false)} />}
     </>
   );
 }
@@ -289,17 +299,10 @@ function ProductEditor({ product, products, words, suggestions, notify, onSaved,
     }
   };
 
-  // Official picture: upload the file (admins only — the storage rules check), then point the product at it.
-  // A new file name each time so browsers and phones don't keep showing the old picture.
+  // Official picture
   const setOfficialImage = async (image: Blob, ext: string) => {
     if (!current) return;
-    const path = `${current.id}-${Date.now()}.${ext}`;
-    const upload = await supabase.storage
-      .from(PRODUCT_PHOTOS)
-      .upload(path, image, { contentType: image.type || 'image/jpeg' });
-    if (upload.error) throw new Error(upload.error.message);
-    await rpc('admin_set_product_image', { product_id: current.id, image_path: path });
-    if (current.image_path) await supabase.storage.from(PRODUCT_PHOTOS).remove([current.image_path]);
+    await setProductImage(current, image, ext);
     notify(text.done);
     onSaved(current.id);
   };
