@@ -1136,3 +1136,28 @@ The invite screen showed `sallitna.app/j/CODE` — a placeholder domain we don't
 - «افتح سلّتنا» needs the real installed app; Expo Go can't be opened this way — there, type the code instead.
 - Opening the app straight from the link (no page in between) needs the App Store / Play build + two small files on
   sallitna.online — do it with publishing.
+
+## Session 26 — 2026-10-21: «بلّغ العيلة» follows who the list is for
+
+Agreed: ask when creating a list — «القائمة دي لمين؟» العيلة · الصحاب · الشغل · غير كده (changeable later).
+
+### Done
+- **Database** (`20261021120000_list_kind.sql`): `households.kind` (family / friends / work / other; existing lists =
+  family). Only the manager changes it; `create_household` takes it. **Security tests 117/117** (6 new).
+- **Create list:** a «القائمة دي لمين؟» chip row under the name; picking a suggested name also picks its group
+  («البيت» → العيلة, «الشغل» → الشغل, «الصحاب» → الصحاب).
+- **«حسابي» → القائمة:** the manager can change it with the same chips; others see it.
+- **Wording follows the open list** (ar/en/hi), through two automatic words in the texts:
+  `{{group}}` العيلة / صحابك / زمايلك / الكل and `{{members}}` أهل البيت / الصحاب / الزمايل / أعضاء القائمة.
+  E.g. «بلّغ صحابك وارجع للقائمة», «اسأل زمايلك», «ادعي الصحاب», «بلّغنا الكل إنك هنا». Sentences were reworded so the
+  group is never the subject (no «العيلة عارفة / صحابك عارفين» agreement problem).
+- Texts before a list exists (welcome, join, «عرّفنا عليك») still say «العيلة». Helper texts and «صورة العيلة» became
+  neutral («أي حاجة تتضاف للقائمة…», «صورتكم»).
+- Checked: app typecheck; every group in ar/en/hi printed; create-list screen in a browser.
+
+### Your steps
+1. Merge the pull request; on your Mac: `git pull origin main`, `npm run db:push`, `npm run db:test` (expect 117).
+2. Restart the app. Make a list called «الصحاب» → the shopping buttons say «اسأل صحابك» / «بلّغ صحابك».
+
+### Known issues
+- Invite previews (before joining) don't know the list's group yet, so join screens keep «العيلة».

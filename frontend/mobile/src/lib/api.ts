@@ -5,6 +5,7 @@ import { findCatalogMatch, setCatalog, type CatalogItem } from '@/data/fakeCatal
 import {
   defaultSettings,
   type DialectKey,
+  type HouseholdKind,
   type HouseholdSettings,
   type Item,
   type LanguageKey,
@@ -113,6 +114,7 @@ const toMember = (row: MemberRow): Member => ({
 export type Membership = {
   householdId: string;
   householdName: string;
+  householdKind: HouseholdKind; // who the list is for (sets the wording: «بلّغ العيلة / صحابك…»)
   meId: string;
   members: Member[]; // everyone still in the household
   formerMembers: Member[]; // removed/left — kept so old items still show who added them
@@ -179,13 +181,15 @@ export async function loadMyLists(householdId?: string): Promise<{ membership: M
   const [rowsResult, remembered] = await Promise.all([
     supabase
       .from('members')
-      .select('*, households(name, members(*))')
+      .select('*, households(name, kind, members(*))')
       .eq('user_id', uid)
       .is('left_at', null)
       .order('joined_at', { ascending: false }),
     householdId ? Promise.resolve(null) : rememberedHousehold(),
   ]);
-  const mineAll = check(rowsResult) as (MemberRow & { households: { name: string; members: MemberRow[] } | null })[];
+  const mineAll = check(rowsResult) as (MemberRow & {
+    households: { name: string; kind: HouseholdKind | null; members: MemberRow[] } | null;
+  })[];
   const byJoined = (a: MemberRow, b: MemberRow) => a.joined_at.localeCompare(b.joined_at);
 
   const lists: ListSummary[] = mineAll.map((r) => {
@@ -215,6 +219,7 @@ export async function loadMyLists(householdId?: string): Promise<{ membership: M
     membership: {
       householdId: mine.household_id,
       householdName: mine.households?.name ?? '',
+      householdKind: mine.households?.kind ?? 'family',
       meId: mine.id,
       members: rows.filter((r) => !r.left_at).map(toMember),
       formerMembers: rows.filter((r) => r.left_at).map(toMember),
@@ -249,7 +254,7 @@ export async function getSignupProfile(): Promise<Profile | null> {
 }
 
 // Returns the new household's id
-export async function createHousehold(householdName: string, p: Profile): Promise<string> {
+export async function createHousehold(householdName: string, p: Profile, kind: HouseholdKind): Promise<string> {
   return check(
     await supabase.rpc('create_household', {
       household_name: householdName.trim(),
@@ -257,6 +262,7 @@ export async function createHousehold(householdName: string, p: Profile): Promis
       gender: p.gender,
       dialect: p.dialect,
       view_language: p.viewLanguage,
+      kind,
     }),
   ) as string;
 }
@@ -364,6 +370,11 @@ export async function leaveHousehold(householdId: string) {
 
 export async function renameHousehold(householdId: string, name: string) {
   check(await supabase.from('households').update({ name: name.trim() }).eq('id', householdId));
+}
+
+// «القائمة دي لمين؟» — managers only (the database checks)
+export async function setHouseholdKind(householdId: string, kind: HouseholdKind) {
+  check(await supabase.from('households').update({ kind }).eq('id', householdId));
 }
 
 // --- List items ----------------------------------------------------------------------------------

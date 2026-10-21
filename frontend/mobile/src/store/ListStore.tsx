@@ -18,6 +18,7 @@ import {
   members as demoMembers,
   pendingInvites,
   type Basic,
+  type HouseholdKind,
   type HouseholdSettings,
   type Item,
   type DialectKey,
@@ -27,7 +28,7 @@ import {
   type PendingInvite,
   type StoreKey,
 } from '@/data/fakeHousehold';
-import { getLanguage, setLanguage, t } from '@/i18n';
+import { getLanguage, setGroup, setLanguage, t } from '@/i18n';
 import * as api from '@/lib/api';
 import { normalizeArabic } from '@/lib/arabic';
 import { supabase } from '@/lib/supabase';
@@ -64,6 +65,7 @@ type State = {
   members: Member[];
   invites: PendingInvite[];
   householdName: string;
+  householdKind: HouseholdKind; // who the list is for — sets «العيلة / صحابك / زمايلك / الكل» in texts
   settings: HouseholdSettings;
   meId: string; // the person using this phone
   mode: Mode;
@@ -111,6 +113,7 @@ function initialState(mode: Mode = 'loading'): State {
     members: [],
     invites: [],
     householdName: '',
+    householdKind: 'family',
     settings: defaultSettings,
     meId: '',
     mode,
@@ -138,6 +141,7 @@ function demoState(): State {
     members: demoMembers,
     invites: pendingInvites,
     householdName: household.name,
+    householdKind: 'family',
     settings: defaultSettings,
     meId: demoMeId,
     lists: [
@@ -159,6 +163,7 @@ const liveState = (m: api.Membership, items: Item[] = [], lists: api.ListSummary
   members: m.members,
   formerMembers: m.formerMembers,
   householdName: m.householdName,
+  householdKind: m.householdKind,
   householdId: m.householdId,
   meId: m.meId,
   settings: m.settings,
@@ -341,6 +346,7 @@ function useListState() {
     const appLanguage = isHelper && meMember ? meMember.view_language : 'ar';
     if (getLanguage() !== appLanguage) setLanguage(appLanguage);
   }
+  setGroup(state.householdKind);
   const live = state.mode === 'live';
 
   // On launch: signed in? in a household? (the splash stays until we know)
@@ -445,6 +451,7 @@ function useListState() {
               members: membership.members,
               formerMembers: membership.formerMembers,
               householdName: membership.householdName,
+              householdKind: membership.householdKind,
               lists,
             },
           });
@@ -586,7 +593,12 @@ function useListState() {
         m &&
         dispatch({
           type: 'set',
-          patch: { members: m.members, formerMembers: m.formerMembers, householdName: m.householdName },
+          patch: {
+            members: m.members,
+            formerMembers: m.formerMembers,
+            householdName: m.householdName,
+            householdKind: m.householdKind,
+          },
         }),
     );
   };
@@ -694,6 +706,7 @@ function useListState() {
     members: state.members,
     invites: state.invites,
     householdName: state.householdName,
+    householdKind: state.householdKind,
     settings: state.settings,
     mode: state.mode,
     householdId: state.householdId,
@@ -1225,6 +1238,13 @@ function useListState() {
       dispatch({ type: 'set', patch: { householdName: trimmed } });
       if (live && state.householdId) api.renameHousehold(state.householdId, trimmed).catch(failed);
       showToast(t('toast.listRenamed', { name: trimmed }));
+    },
+
+    // «القائمة دي لمين؟» (managers): the wording follows straight away — «بلّغ صحابك», «أهل البيت» → «الصحاب»…
+    setHouseholdKind(kind: HouseholdKind) {
+      if (kind === state.householdKind) return;
+      dispatch({ type: 'set', patch: { householdKind: kind } });
+      if (live && state.householdId) api.setHouseholdKind(state.householdId, kind).catch(failed);
     },
 
     // Rename any of my lists (from «…» on its card in «قوايمي»); the card and the open list update right away

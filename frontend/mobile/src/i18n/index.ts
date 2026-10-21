@@ -24,6 +24,15 @@ export function getLanguage(): Language {
   return currentLanguage;
 }
 
+// Who the open list is for. Texts can say {{group}} («بلّغ {{group}}» → «بلّغ صحابك») or {{members}}
+// («أهل البيت» / «الصحاب»…) and get the right words for this list, in their own language.
+type GroupKind = 'family' | 'friends' | 'work' | 'other';
+let currentGroup: GroupKind = 'family';
+
+export function setGroup(kind: GroupKind) {
+  currentGroup = kind;
+}
+
 function pluralForm(language: Language, n: number): PluralForm {
   if (language === 'ar') {
     const mod100 = n % 100;
@@ -48,11 +57,14 @@ function lookup(language: Language, key: string): unknown {
     );
 }
 
-function interpolate(template: string, params?: Params): string {
-  if (!params) return template;
-  return template.replace(/\{\{(\w+)\}\}/g, (match, name) =>
-    params[name] !== undefined ? String(params[name]) : match,
-  );
+const GROUP_WORDS = ['group', 'members'];
+
+function interpolate(language: Language, template: string, params?: Params): string {
+  return template.replace(/\{\{(\w+)\}\}/g, (match, name) => {
+    if (params?.[name] !== undefined) return String(params[name]);
+    if (GROUP_WORDS.includes(name)) return tIn(language, `groups.${currentGroup}.${name}`);
+    return match;
+  });
 }
 
 export function t(key: string, params?: Params): string {
@@ -64,13 +76,13 @@ export function t(key: string, params?: Params): string {
 export function tIn(language: Language, key: string, params?: Params): string {
   const value = lookup(language, key) ?? lookup('en', key);
 
-  if (typeof value === 'string') return interpolate(value, params);
+  if (typeof value === 'string') return interpolate(language, value, params);
 
   if (value && typeof value === 'object') {
     const forms = value as Partial<Record<PluralForm, string>>;
     const n = Number(params?.n ?? 0);
     const template = forms[pluralForm(language, n)] ?? forms.other;
-    if (template) return interpolate(template, params);
+    if (template) return interpolate(language, template, params);
   }
 
   if (__DEV__) console.warn(`[i18n] Missing key: ${key}`);
