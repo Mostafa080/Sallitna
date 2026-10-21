@@ -78,6 +78,14 @@ select pg_temp.put('hhA', public.create_household('بيت أبو خالد', 'أ�
 select pg_temp.put('codeMember', (select code from public.create_invite(pg_temp.get('hhA')::uuid)));
 select pg_temp.put('codeHelper', (select code from public.create_invite(pg_temp.get('hhA')::uuid, 'helper')));
 select pg_temp.put('ummMember', (select id::text from public.members where user_id = auth.uid()));
+select pg_temp.check_('new list: a family list unless chosen otherwise',
+  (select kind from public.households where id = pg_temp.get('hhA')::uuid) = 'family');
+select pg_temp.check_('manager: can change who the list is for',
+  pg_temp.affected(format($q$ update public.households set kind = 'friends' where id = %L $q$, pg_temp.get('hhA'))) = 1);
+select pg_temp.check_('manager: can change it back',
+  pg_temp.affected(format($q$ update public.households set kind = 'family' where id = %L $q$, pg_temp.get('hhA'))) = 1);
+select pg_temp.check_('a list is only for family, friends, work or other',
+  pg_temp.blocked(format($q$ update public.households set kind = 'party' where id = %L $q$, pg_temp.get('hhA'))));
 select pg_temp.check_('manager: is owner', (select role from public.members where user_id = auth.uid()) = 'owner');
 
 insert into public.items (household_id, name, added_by)
@@ -102,6 +110,8 @@ select pg_temp.check_('member: cannot change his role column directly',
   pg_temp.blocked(format($q$ update public.members set role = 'owner' where id = %L $q$, pg_temp.get('khalidMember'))));
 select pg_temp.check_('member: cannot rename the household',
   pg_temp.affected($q$ update public.households set name = 'hacked' $q$) <= 0);
+select pg_temp.check_('member: cannot change who the list is for',
+  pg_temp.affected($q$ update public.households set kind = 'work' $q$) <= 0);
 select pg_temp.check_('member: cannot pretend someone else added an item',
   pg_temp.blocked(format($q$ insert into public.items (household_id, name, added_by) values (%L, 'x', %L) $q$,
     pg_temp.get('hhA'), pg_temp.get('ummMember'))));
@@ -400,6 +410,13 @@ select pg_temp.check_('deleting Khalid''s account works even though he shopped a
   not pg_temp.blocked($q$ delete from auth.users where id = '00000000-0000-4000-a000-000000000002' $q$));
 select pg_temp.check_('the question stays (who asked cleared)',
   (select count(*) from public.questions where household_id = pg_temp.get('hhA')::uuid and from_member is null) = 1);
+
+-- ---------- Who a list is for ----------
+select pg_temp.act('umm');
+select pg_temp.put('hhFriends',
+  public.create_household('الصحاب', 'أم خالد', 'f', 'egyptian', 'ar', 'friends')::text);
+select pg_temp.check_('new list: keeps the chosen kind (friends)',
+  (select kind from public.households where id = pg_temp.get('hhFriends')::uuid) = 'friends');
 
 reset role;
 select

@@ -13,10 +13,14 @@ import { BackIcon, CircleButton } from '@/components/family/FamilyParts';
 import { ChipRow, ChoiceChip, Field, StepDashes } from '@/components/onboarding/OnboardingParts';
 import { SheetButton } from '@/components/shop/Sheet';
 import { UndoToast } from '@/components/UndoToast';
+import { householdKindOrder, type HouseholdKind } from '@/data/fakeHousehold';
 import { t, tList } from '@/i18n';
 import * as api from '@/lib/api';
 import { useList } from '@/store/ListStore';
 import { colors, size, spacing } from '@/theme';
+
+// Who each suggested name is for, in the order of lists.suggestions («البيت، الشغل، الصحاب، المصيف، الرحلة، بيت أهلي»)
+const SUGGESTION_KINDS: HouseholdKind[] = ['family', 'work', 'friends', 'other', 'other', 'family'];
 
 export default function NewListScreen() {
   const router = useRouter();
@@ -25,12 +29,15 @@ export default function NewListScreen() {
   const me = list.memberById(list.currentMemberId);
 
   const [name, setName] = useState('');
+  const [kind, setKind] = useState<HouseholdKind>('family');
   const [saving, setSaving] = useState(false);
   const trimmed = name.trim();
 
   // Don't suggest names I already use
   const taken = new Set(list.lists.map((l) => l.name.trim()));
-  const suggestions = tList('lists.suggestions').filter((s) => !taken.has(s));
+  const suggestions = tList('lists.suggestions')
+    .map((label, i) => ({ label, kind: SUGGESTION_KINDS[i] ?? 'other' }))
+    .filter((s) => !taken.has(s.label));
 
   // No list open yet = this is the sign-up flow
   const first = list.mode !== 'live' && list.mode !== 'demo';
@@ -46,7 +53,7 @@ export default function NewListScreen() {
         router.replace('/about-you');
         return;
       }
-      const id = await api.createHousehold(trimmed, profile);
+      const id = await api.createHousehold(trimmed, profile, kind);
       await list.refreshHousehold(first ? undefined : t('lists.created', { name: trimmed }), id);
     } catch (error) {
       if (__DEV__) console.warn('[newList]', error);
@@ -93,10 +100,25 @@ export default function NewListScreen() {
         {suggestions.length > 0 && (
           <ChipRow>
             {suggestions.map((s) => (
-              <ChoiceChip key={s} label={s} selected={trimmed === s} onPress={() => setName(s)} />
+              <ChoiceChip
+                key={s.label}
+                label={s.label}
+                selected={trimmed === s.label}
+                onPress={() => {
+                  setName(s.label);
+                  setKind(s.kind);
+                }}
+              />
             ))}
           </ChipRow>
         )}
+
+        {/* «بلّغ العيلة» or «بلّغ صحابك»…: the app's wording follows who the list is for */}
+        <ChipRow label={t('lists.kindLabel')}>
+          {householdKindOrder.map((k) => (
+            <ChoiceChip key={k} label={t(`groups.${k}.label`)} selected={kind === k} onPress={() => setKind(k)} />
+          ))}
+        </ChipRow>
       </ScrollView>
 
       <UndoToast bottomOffset={insets.bottom + size.button + spacing.xxl} />

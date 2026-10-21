@@ -11,7 +11,7 @@
     "markBoughtA11y": "Mark {{name}} as bought",
     "emptyFilter": "Nothing added today",
     "openItemA11y": "Open {{name}}",
-    "membersA11y": "Household members",
+    "membersA11y": "{{members}}",
     "typeField": "Type an item…",
     "atStore": "I'm at the store",
     "backToShop": "Back to shopping",
@@ -157,7 +157,7 @@
     "answerSent": "{{name}} got your reply",
     "askedFamily": "Asked the family: need anything?",
     "handoff": "Sent the rest to the family",
-    "tripReported": "Family told · back to the list",
+    "tripReported": "Told {{group}} · back to the list",
     "claimedTrip": "“{{name}}” is yours now",
     "memberSaved": "Saved {{name}}'s details",
     "memberRemoved": "Removed {{name}} from the household",
@@ -180,7 +180,7 @@
     "askedYou_m": "{{name}} is asking about “{{item}}”",
     "answerArrived_f": "{{name}} replied: {{reply}}",
     "answerArrived_m": "{{name}} replied: {{reply}}",
-    "notFoundMarked": "“{{name}}” not found · the family will see it",
+    "notFoundMarked": "“{{name}}” not found · we’ll tell {{group}}",
     "reopened": "“{{name}}” is back on the list",
     "othersNotFound": "“{{item}}” wasn’t found in the shop",
     "photoFailed": "The photo wasn't saved — check your connection and try again"
@@ -225,7 +225,7 @@
     "photoRemove": "Remove photo",
     "photoChangeHint": "Changing it updates it for everyone on this list",
     "photoSaving": "Saving the photo…",
-    "photoFamily": "Family photo · shows every time you add it",
+    "photoFamily": "Your photo · shows every time you add it",
     "photoOfficial": "Product picture · take your own if yours looks different",
     "photoDenied": "We need access to the camera or photos — allow it in Settings"
   },
@@ -360,8 +360,8 @@
     "soloTitle": "I'll get everything",
     "soloBody_f": "We'll tell {{name}} you've got the whole list",
     "soloBody_m": "We'll tell {{name}} you've got the whole list",
-    "notify_f": "We'll tell the family you're going, so they can add what's missing",
-    "notify_m": "We'll tell the family you're going, so they can add what's missing",
+    "notify_f": "We'll tell {{group}} you're going, so they can add what's missing",
+    "notify_m": "We'll tell {{group}} you're going, so they can add what's missing",
     "start_f": "Start shopping",
     "start_m": "Start shopping",
     "close": "Close"
@@ -376,7 +376,7 @@
     "splitTitle_m": "You and {{name}} are shopping",
     "splitSubtitle_f": "What you take disappears for {{name}}, and the other way round",
     "splitSubtitle_m": "What you take disappears for {{name}}, and the other way round",
-    "familyKnows": "The family knows you're here",
+    "familyKnows": "We told {{group}} you're here",
     "started": "Started {{time}} · new items show up here right away",
     "progress": "{{done}} of {{total}} in the cart",
     "left": "{{n}} left",
@@ -409,11 +409,11 @@
   },
   "shopEmpty": {
     "title": "Nothing to buy",
-    "body_f": "The list is empty. Ask the family if they need anything while you’re there?",
-    "body_m": "The list is empty. Ask the family if they need anything while you’re there?",
+    "body_f": "The list is empty. Ask {{group}} if they need anything while you’re there?",
+    "body_m": "The list is empty. Ask {{group}} if they need anything while you’re there?",
     "notifyLabel": "They get a notification:",
     "notifyText": "“{{name}} is at {{store}} now. Need anything?”",
-    "ask": "Ask the family",
+    "ask": "Ask {{group}}",
     "leave_f": "Leave shopping mode",
     "leave_m": "Leave shopping mode"
   },
@@ -425,7 +425,7 @@
     "askBody_m": "We send a question and he can reply while you shop",
     "askBody_f": "We send a question and she can reply while you shop",
     "next": "Leave it for next time",
-    "nextBody": "Goes back on the list and we tell the family",
+    "nextBody": "Goes back on the list and we tell {{group}}",
     "remove": "Remove from the list",
     "removeBody": "We don't need it anymore",
     "previewLabel": "{{name}} gets a notification:",
@@ -443,7 +443,7 @@
     "title_m": "Leaving before you finish?",
     "left": "{{n}} left: {{names}}",
     "keep": "Keep the rest on the list",
-    "keepBody": "We tell the family {{count}} weren't bought",
+    "keepBody": "We tell {{group}} {{count}} weren't bought",
     "handoff_f": "Ask someone to finish",
     "handoff_m": "Ask someone to finish",
     "handoffBody": "They get a notification with what’s left",
@@ -475,7 +475,7 @@
     "amount": "Amount",
     "currency": "EGP",
     "receiptA11y": "Photo of the receipt",
-    "finish": "Tell the family and go back",
+    "finish": "Tell {{group}} and go back",
     "share": "Share summary",
     "shareText": "Sallitna — {{store}} trip: bought {{bought}}, not found {{notFound}}, added meanwhile {{added}}.",
     "shareAmount": " We paid {{amount}} EGP."
@@ -526,7 +526,7 @@
     "other": "Fusha / other"
   },
   "members": {
-    "title": "Household",
+    "title": "{{members}}",
     "count": {
       "one": "1 person",
       "other": "{{n}} people"
@@ -577,7 +577,7 @@
     "save": "Save"
   },
   "invite": {
-    "title": "Invite your household",
+    "title": "Invite people",
     "body": "Whoever adds and whoever shops, all on one list. Even the driver and housekeeper, in their language.",
     "whatsapp": "Send invite on WhatsApp",
     "copy": "Copy link",
@@ -591,7 +591,7 @@
     "waiting_f": "Waiting",
     "waiting_m": "Waiting",
     "start": "Start the list",
-    "later": "You can invite them later from “Household”",
+    "later": "You can invite them later from “{{members}}”",
     "message_f": "{{name}} invited you to “{{list}}” on Sallitna: {{link}}\nInvite code: {{code}}",
     "message_m": "{{name}} invited you to “{{list}}” on Sallitna: {{link}}\nInvite code: {{code}}",
     "loading": "Getting the link ready…",
@@ -656,7 +656,7 @@
     "plus": " + {{name}}",
     "new": "New",
     "empty": "Nothing left to buy",
-    "emptyBody": "Anything the family adds shows up here right away.",
+    "emptyBody": "Anything added to the list shows up here right away.",
     "speak": "Speak",
     "store_f": "I'm going to the store",
     "store_m": "I'm going to the store",
@@ -673,7 +673,7 @@
     "cancel": "Cancel",
     "swipeBought": "Got it",
     "swipeNotFound": "Not found",
-    "notFound": "“{{name}}” not found · the family will know"
+    "notFound": "“{{name}}” not found · we’ll tell {{group}}"
   },
   "dialectsShort": {
     "saudi": "Saudi",
@@ -787,7 +787,7 @@
     "enter_f": "Open the list",
     "enter_m": "Open the list",
     "failed": "Couldn't add you to the list. The invite may have expired — ask for a new link.",
-    "tipTick": "Tick an item when you buy it — the family sees it right away",
+    "tipTick": "Tick an item when you buy it — everyone sees it right away",
     "tipAdd": "Add anything that’s missing by typing it"
   },
   "notifications": {
@@ -824,7 +824,7 @@
     "title": "Account",
     "profileA11y": "Edit your profile",
     "household": "Home",
-    "members": "Household",
+    "members": "{{members}}",
     "membersCount": "{{count}}",
     "invite": "Invite someone",
     "editProfile": "Edit"
@@ -885,7 +885,8 @@
     "rename": "Rename",
     "renameBody": "Everyone sees the new name",
     "renameTitle": "List name",
-    "renameSave": "Save"
+    "renameSave": "Save",
+    "kindLabel": "Who's this list for?"
   },
   "firstList": {
     "title": "Create your first list",
@@ -901,7 +902,7 @@
   "market": {
     "whichList": "Which list are you shopping for?",
     "more": " · ⁦+{{n}}⁩",
-    "emptyHint": "The list is empty. Start and we’ll ask the family if they need anything."
+    "emptyHint": "The list is empty. Start and we’ll ask {{group}} if they need anything."
   },
   "notFoundCard": {
     "title": "Not found in the shop · {{n}}",
@@ -913,5 +914,27 @@
   "photo": {
     "open": "Enlarge the photo of {{name}}",
     "close": "Close the photo"
+  },
+  "groups": {
+    "family": {
+      "label": "Family",
+      "group": "the family",
+      "members": "Household"
+    },
+    "friends": {
+      "label": "Friends",
+      "group": "your friends",
+      "members": "Friends"
+    },
+    "work": {
+      "label": "Work",
+      "group": "your colleagues",
+      "members": "Colleagues"
+    },
+    "other": {
+      "label": "Other",
+      "group": "everyone",
+      "members": "List members"
+    }
   }
 }

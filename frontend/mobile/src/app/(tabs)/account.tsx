@@ -10,8 +10,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { Card, ForwardIcon, Row, SectionLabel, Toggle } from '@/components/family/FamilyParts';
+import { ChipRow, ChoiceChip } from '@/components/onboarding/OnboardingParts';
 import { UndoToast } from '@/components/UndoToast';
-import { type HouseholdSettings } from '@/data/fakeHousehold';
+import { householdKindOrder, type HouseholdSettings } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { isRTLLayout } from '@/lib/direction';
 import { features } from '@/lib/features';
@@ -199,6 +200,26 @@ export default function AccountScreen() {
               onPress={canManage ? () => setEditingName(true) : undefined}
             />
           )}
+          {/* «القائمة دي لمين؟» — the manager picks; everyone else just sees it */}
+          {canManage ? (
+            <View style={[styles.kindBlock, styles.divider]}>
+              <ChipRow label={t('lists.kindLabel')}>
+                {householdKindOrder.map((k) => (
+                  <ChoiceChip
+                    key={k}
+                    label={t(`groups.${k}.label`)}
+                    selected={list.householdKind === k}
+                    onPress={() => {
+                      Haptics.selectionAsync();
+                      list.setHouseholdKind(k);
+                    }}
+                  />
+                ))}
+              </ChipRow>
+            </View>
+          ) : (
+            <Row title={t('lists.kindLabel')} value={t(`groups.${list.householdKind}.label`)} divider />
+          )}
         </Card>
 
         <SectionLabel>{t('settings.sectionNotify')}</SectionLabel>
@@ -265,6 +286,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     borderRadius: radius.card + spacing.xs,
     backgroundColor: colors.surface,
+  },
+  kindBlock: {
+    paddingVertical: spacing.md,
+  },
+  divider: {
+    borderTopWidth: size.border,
+    borderTopColor: colors.line,
   },
   nameRow: {
     minHeight: size.toast,

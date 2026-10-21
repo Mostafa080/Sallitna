@@ -10,6 +10,8 @@ export type Unit = 'count' | 'kg' | 'piece' | 'box' | 'carton' | 'bag';
 export type CategoryKey = 'produce' | 'dairy' | 'bakery' | 'pantry' | 'cleaning' | 'other';
 export type LanguageKey = 'ar' | 'en' | 'hi';
 export type DialectKey = 'saudi' | 'emirati' | 'kuwaiti' | 'egyptian' | 'levantine' | 'other'; // 'other' = Fusha / other
+// Who a list is for («القائمة دي لمين؟») — sets the wording: «بلّغ العيلة» / «بلّغ صحابك» / «بلّغ زمايلك» / «بلّغ الكل»
+export type HouseholdKind = 'family' | 'friends' | 'work' | 'other';
 
 export type Member = {
   id: string;
@@ -118,6 +120,7 @@ export const pendingInvites: PendingInvite[] = [
 ];
 
 export const languageOrder: LanguageKey[] = ['ar', 'en', 'hi'];
+export const householdKindOrder: HouseholdKind[] = ['family', 'friends', 'work', 'other'];
 export const dialectOrder: DialectKey[] = ['saudi', 'emirati', 'kuwaiti', 'egyptian', 'levantine', 'other'];
 
 // Fake invite link. Later: a one-time code from an Edge Function, valid 7 days.
