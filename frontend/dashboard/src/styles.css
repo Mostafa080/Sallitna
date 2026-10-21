@@ -269,7 +269,7 @@ h2 {
   text-align: left;
 }
 td.ltr {
-  white-space: nowrap; /* keep a phone number on one line */
+  white-space: nowrap; /* keep an email on one line */
 }
 
 .toolbar {
@@ -447,26 +447,6 @@ tr.is-blocked td {
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-}
-.phone-row {
-  display: flex;
-  direction: ltr;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--surface);
-  overflow: hidden;
-}
-.phone-row span {
-  padding: var(--space-md) var(--space-lg);
-  border-right: 1px solid var(--line);
-  font-weight: 600;
-}
-.phone-row input {
-  flex: 1;
-  border: 0;
-  outline: none;
-  padding: var(--space-md) var(--space-lg);
-  background: transparent;
 }
 .error {
   color: var(--danger);

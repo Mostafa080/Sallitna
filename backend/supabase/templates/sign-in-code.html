@@ -1,0 +1,49 @@
+<!doctype html>
+<!-- Sallitna sign-in code (Supabase «Confirm signup» and «Magic Link» emails). {{ .Token }} is the 6-digit code.
+     Simple tables and inline styles so it looks the same in Gmail, Outlook and Apple Mail. -->
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>كود الدخول لسلّتنا</title>
+  </head>
+  <body style="margin:0; padding:0; background:#F6F4EF;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F6F4EF;">
+      <tr>
+        <td align="center" style="padding:32px 16px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+            style="max-width:440px; background:#FFFFFF; border-radius:18px; border:1px solid #E6E1D6;">
+            <tr>
+              <td dir="rtl" style="padding:32px 28px; font-family:Tahoma, Arial, sans-serif; color:#1D1B18; text-align:right;">
+                <p style="margin:0 0 24px; font-size:20px; font-weight:bold;">
+                  <span style="display:inline-block; width:12px; height:12px; border-radius:999px; background:#E8731A;"></span>
+                  &nbsp;سلّتنا
+                </p>
+                <p style="margin:0 0 8px; font-size:18px; font-weight:bold;">كود الدخول</p>
+                <p style="margin:0 0 20px; font-size:15px; line-height:1.7; color:#615C53;">
+                  اكتبوا الكود ده في التطبيق. صالح لمدة 10 دقايق.
+                </p>
+                <p dir="ltr"
+                  style="margin:0 0 20px; padding:16px; background:#FDEBD8; border-radius:12px; text-align:center;
+                    font-family:'Courier New', monospace; font-size:32px; font-weight:bold; letter-spacing:8px; color:#1D1B18;">
+                  {{ .Token }}
+                </p>
+                <p style="margin:0; font-size:13px; line-height:1.7; color:#615C53;">
+                  متشاركوش الكود ده مع حد. ولو مطلبتوش كود، تجاهلوا الإيميل ده.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td dir="ltr"
+                style="padding:16px 28px 24px; border-top:1px solid #E6E1D6; font-family:Arial, sans-serif; font-size:13px;
+                  line-height:1.6; color:#615C53; text-align:left;">
+                Your Sallitna code — valid for 10 minutes. Don't share it with anyone.<br />
+                आपका Sallitna कोड — 10 मिनट तक मान्य। इसे किसी के साथ साझा न करें।
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

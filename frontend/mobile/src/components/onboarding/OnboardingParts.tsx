@@ -1,37 +1,26 @@
-// Building blocks for sign-up and joining (welcome, phone + code, name your home, join).
+// Building blocks for sign-up and joining (welcome, email + code, name your home, join).
 
 import { ShoppingBasket } from 'lucide-react-native';
 import { useContext, type ReactNode } from 'react';
 import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 
 import { AppText } from '@/components/AppText';
-import { OTP_LENGTH, PHONE_PREFIX } from '@/data/fakeHousehold';
+import { OTP_LENGTH } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { isRTLLayout, LayoutDirectionContext } from '@/lib/direction';
 import { colors, fonts, fontSize, layout, radius, size, spacing } from '@/theme';
 
-// Phone numbers and codes always read left-to-right; in an RTL screen that's the end side
-const END_ALIGN = isRTLLayout ? 'left' : 'right';
+// Emails and codes always read left-to-right, even inside an Arabic screen
 const START_ALIGN = isRTLLayout ? 'right' : 'left';
 
-// --- Phone helpers -----------------------------------------------------------------
+// --- Email helpers -----------------------------------------------------------------
 
-// Egyptian mobile: 10 digits starting with 10, 11, 12 or 15 (after +20)
-export const PHONE_DIGITS = 10;
-export const isValidPhone = (digits: string) => /^1[0125]\d{8}$/.test(digits);
-
-// "1001234567" → "10 0123 4567"
-export const formatPhone = (digits: string) =>
-  [digits.slice(0, 2), digits.slice(2, 6), digits.slice(6, 10)].filter(Boolean).join(' ');
-
-// People in Egypt usually type the local 0 first («010…»), or paste «+20 10…» — keep just the 10 digits
-const toLocalDigits = (text: string) =>
-  onlyDigits(text)
-    .replace(/^(?:0020|20(?=1[0125]\d{8}$)|0)/, '')
-    .slice(0, PHONE_DIGITS);
+// Spaces and capitals don't matter in an email address
+export const cleanEmail = (text: string) => text.trim().toLowerCase();
+export const isValidEmail = (text: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cleanEmail(text));
 
 // Wrapped in left-to-right isolate marks so it doesn't get flipped inside an Arabic sentence
-export const fullPhone = (digits: string) => `\u2066${PHONE_PREFIX} ${formatPhone(digits)}\u2069`;
+export const ltrEmail = (email: string) => `\u2066${cleanEmail(email)}\u2069`;
 
 const onlyDigits = (text: string) => text.replace(/\D/g, '');
 
@@ -84,21 +73,22 @@ export function Field({ label, ...input }: FieldProps) {
   );
 }
 
-// --- +20 phone field -----------------------------------------------------------------------
+// --- Email field -------------------------------------------------------------------------
 
-type PhoneFieldProps = {
-  digits: string;
-  onChange?: (digits: string) => void; // leave out for a read-only number
+type EmailFieldProps = {
+  value: string;
+  onChange?: (email: string) => void; // leave out for a read-only email
   onEdit?: () => void; // shows «تعديل» on the start side
+  onSubmit?: () => void; // the keyboard's «send» key
   autoFocus?: boolean;
   label: string;
 };
 
-export function PhoneField({ digits, onChange, onEdit, autoFocus, label }: PhoneFieldProps) {
+export function EmailField({ value, onChange, onEdit, onSubmit, autoFocus, label }: EmailFieldProps) {
   return (
-    <View style={styles.phoneField}>
+    <View style={styles.emailField}>
       {onEdit && (
-        <Pressable onPress={onEdit} hitSlop={spacing.sm} style={styles.phoneEdit} accessibilityRole="button">
+        <Pressable onPress={onEdit} hitSlop={spacing.sm} style={styles.emailEdit} accessibilityRole="button">
           <AppText variant="label" weight="bold">
             {t('verify.edit')}
           </AppText>
@@ -106,30 +96,28 @@ export function PhoneField({ digits, onChange, onEdit, autoFocus, label }: Phone
       )}
       {onChange ? (
         <TextInput
-          value={formatPhone(digits)}
-          onChangeText={(text) => onChange(toLocalDigits(text))}
-          placeholder={t('verify.phonePlaceholder')}
+          value={value}
+          onChangeText={(text) => onChange(text.replace(/\s/g, ''))}
+          onSubmitEditing={onSubmit}
+          placeholder={t('verify.emailPlaceholder')}
           placeholderTextColor={colors.muted}
-          keyboardType="phone-pad"
-          textContentType="telephoneNumber"
-          autoComplete="tel"
+          keyboardType="email-address"
+          textContentType="emailAddress"
+          autoComplete="email"
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="send"
           autoFocus={autoFocus}
-          style={[styles.phoneInput, styles.phoneText]}
+          style={[styles.emailInput, styles.emailText]}
           accessibilityLabel={label}
         />
       ) : (
-        // Sits on the end side, next to +20
-        <View style={styles.phoneReadOnly}>
-          <AppText variant="item" style={styles.ltrText} accessibilityLabel={label}>
-            {formatPhone(digits)}
+        <View style={styles.emailReadOnly}>
+          <AppText variant="item" numberOfLines={1} style={styles.ltrText} accessibilityLabel={label}>
+            {cleanEmail(value)}
           </AppText>
         </View>
       )}
-      <View style={styles.prefix}>
-        <AppText variant="item" weight="semibold" style={styles.ltrText}>
-          {PHONE_PREFIX}
-        </AppText>
-      </View>
     </View>
   );
 }
@@ -144,7 +132,7 @@ type CodeBoxesProps = {
   autoFocus?: boolean;
 };
 
-// One hidden text field under four boxes, so the phone can auto-fill the code from the message
+// One hidden text field under the boxes, so the phone can offer the code from the email
 export function CodeBoxes({ value, onChange, error, disabled, autoFocus }: CodeBoxesProps) {
   return (
     <View style={styles.codeRow}>
@@ -279,8 +267,8 @@ const styles = StyleSheet.create({
     fontSize: fontSize.item,
     textAlign: START_ALIGN,
   },
-  phoneField: {
-    direction: 'rtl', // same look in every language: «+20» on the left edge, the number next to it
+  emailField: {
+    direction: 'rtl', // same look in every language: «تعديل» on the right, the email filling the rest
     minHeight: size.button + spacing.md,
     flexDirection: 'row',
     alignItems: 'stretch',
@@ -290,37 +278,30 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     overflow: 'hidden',
   },
-  phoneEdit: {
+  emailEdit: {
     justifyContent: 'center',
     paddingHorizontal: spacing.md,
   },
-  phoneInput: {
+  emailInput: {
     flex: 1,
     alignSelf: 'center',
     paddingHorizontal: spacing.lg,
   },
-  phoneText: {
+  emailText: {
     color: colors.ink,
     fontFamily: fonts.regular,
     fontSize: fontSize.item,
-    textAlign: END_ALIGN,
+    textAlign: 'left',
     writingDirection: 'ltr',
   },
-  phoneReadOnly: {
+  emailReadOnly: {
     flex: 1,
-    alignItems: 'flex-end',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
   },
   ltrText: {
-    textAlign: END_ALIGN,
+    textAlign: 'left',
     writingDirection: 'ltr',
-  },
-  prefix: {
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-    borderStartWidth: size.border,
-    borderStartColor: colors.line,
   },
   codeRow: {
     direction: 'ltr', // first digit on the left, like the number itself

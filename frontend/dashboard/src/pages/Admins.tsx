@@ -1,14 +1,14 @@
-// The admin team: who can open this dashboard. Add by phone (they must have used the app once), or remove.
+// The admin team: who can open this dashboard. Add by email (they must have used the app once), or remove.
 
 import { useEffect, useState } from 'react';
 
-import { formatDate } from '../format';
+import { formatDate, isEmail } from '../format';
 import { rpc, type Admin } from '../supabase';
 import { text } from '../text';
 
 export function AdminsPage({ me, notify }: { me: string; notify: (message: string) => void }) {
   const [admins, setAdmins] = useState<Admin[] | null>(null);
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
 
   const load = () => {
@@ -21,8 +21,8 @@ export function AdminsPage({ me, notify }: { me: string; notify: (message: strin
   const add = async () => {
     setBusy(true);
     try {
-      await rpc('admin_add_admin', { phone });
-      setPhone('');
+      await rpc('admin_add_admin', { email });
+      setEmail('');
       notify(text.done);
       load();
     } catch (error) {
@@ -33,7 +33,7 @@ export function AdminsPage({ me, notify }: { me: string; notify: (message: strin
   };
 
   const remove = async (admin: Admin) => {
-    if (!window.confirm(text.confirmRemoveAdmin(admin.name ?? admin.phone ?? ''))) return;
+    if (!window.confirm(text.confirmRemoveAdmin(admin.name ?? admin.contact ?? ''))) return;
     try {
       await rpc('admin_remove_admin', { target: admin.user_id });
       notify(text.done);
@@ -56,16 +56,17 @@ export function AdminsPage({ me, notify }: { me: string; notify: (message: strin
         className="toolbar"
         onSubmit={(e) => {
           e.preventDefault();
-          if (phone.replace(/\D/g, '').length >= 10) add();
+          if (isEmail(email)) add();
         }}>
         <input
           className="input ltr"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value.trim())}
           placeholder={text.addAdminPlaceholder}
-          inputMode="tel"
+          autoComplete="off"
         />
-        <button className="btn" type="submit" disabled={busy || phone.replace(/\D/g, '').length < 10}>
+        <button className="btn" type="submit" disabled={busy || !isEmail(email)}>
           {text.addAdmin}
         </button>
       </form>
@@ -77,7 +78,7 @@ export function AdminsPage({ me, notify }: { me: string; notify: (message: strin
             <thead>
               <tr>
                 <th>{text.colName}</th>
-                <th>{text.colPhone}</th>
+                <th>{text.colContact}</th>
                 <th>{text.colAdminSince}</th>
                 <th>{text.colActions}</th>
               </tr>
@@ -89,7 +90,7 @@ export function AdminsPage({ me, notify }: { me: string; notify: (message: strin
                     {a.name ?? <span className="muted">{text.noName}</span>}
                     {a.user_id === me && <span className="muted"> {text.you}</span>}
                   </td>
-                  <td className="ltr">{a.phone}</td>
+                  <td className="ltr">{a.contact}</td>
                   <td>{formatDate(a.added_at)}</td>
                   <td>
                     {a.user_id !== me && (
