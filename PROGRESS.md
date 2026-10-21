@@ -1109,3 +1109,30 @@ Supabase: custom SMTP = Resend, email rate limit 100/h, site URL = the dashboard
 - One old test line ran two checks at once and passed only by luck of order; split into two checks.
 - Follow-up: «the new admin is on the team» counted exactly 2 admins, but the real database also has the old
   phone test admin (+20 1000000001), so it failed (110/111). It now checks that Khalid is on the team.
+
+## Session 25b — 2026-10-21: Invite links that work (sallitna.online/j/CODE)
+
+The invite screen showed `sallitna.app/j/CODE` — a placeholder domain we don't own (the code itself was real).
+
+### Done
+- **App:** invite links are now `https://sallitna.online/j/CODE` (`invite.tsx`, for family and helper invites).
+- **New folder `frontend/invite`** (plain web pages, no libraries — agreed): the public site for sallitna.online.
+  - `/j/CODE`: «اتدعيت لقائمة البيت على سلّتنا», the code in big letters with «انسخ الكود», **«افتح سلّتنا»**
+    (opens the installed app on its join screen with the code filled in: `sallitna://join?code=CODE`), steps for
+    people without the app («عندي دعوة من العيلة» → type the code), and an English + Hindi card for helpers.
+    A broken link shows «اللينك ده ناقص».
+  - `/`: a simple front page («قريبًا على App Store وGoogle Play»). Later: privacy policy + support (stores need them).
+- Checked here: app typecheck; both pages at phone size with a local copy of Vercel's address rule.
+
+### Your steps
+1. Vercel → **Add New → Project** → the same GitHub repo → Root Directory **`frontend/invite`**, Framework **Other**,
+   no build command, no environment variables → Deploy.
+2. That project → Settings → **Domains** → add **`sallitna.online`** (and `www.sallitna.online` → redirect to it).
+3. Namecheap → Advanced DNS: **delete** the parking records (`www` → parkingpage.namecheap.com and the `@` URL
+   Redirect), then add the records Vercel shows (usually an **A** record `@` and a **CNAME** `www`).
+   Keep `admin`, `send`, `rsend`, `resend._domainkey` and `_dmarc` as they are.
+
+### Known issues
+- «افتح سلّتنا» needs the real installed app; Expo Go can't be opened this way — there, type the code instead.
+- Opening the app straight from the link (no page in between) needs the App Store / Play build + two small files on
+  sallitna.online — do it with publishing.
