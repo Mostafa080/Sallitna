@@ -20,7 +20,7 @@ I'm a product designer, not a developer.
 
 ## Stack
 - Expo (current SDK) + TypeScript + expo-router
-- Supabase: Postgres, Auth (phone OTP), Realtime, Storage, Edge Functions
+- Supabase: Postgres, Auth (email OTP — 6-digit code sent through Resend from sallitna.online), Realtime, Storage, Edge Functions
 - npm as package manager
 
 ## Design (match the screens in /design)

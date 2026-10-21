@@ -30,11 +30,11 @@ export function UsersPage({ me, notify }: { me: string; notify: (message: string
     if (filter === 'new' && !isWithinDays(u.created_at, NEW_DAYS)) return false;
     if (filter === 'blocked' && !u.blocked) return false;
     if (!q) return true;
-    return (u.name ?? '').toLowerCase().includes(q) || (u.phone ?? '').replace(/\D/g, '').includes(q.replace(/\D/g, '') || '\u0000');
+    return (u.name ?? '').toLowerCase().includes(q) || (u.contact ?? '').toLowerCase().includes(q);
   });
 
   const act = async (user: AdminUser, action: 'block' | 'unblock' | 'delete') => {
-    const name = user.name ?? user.phone ?? text.noName;
+    const name = user.name ?? user.contact ?? text.noName;
     const question =
       action === 'block' ? text.confirmBlock(name) : action === 'unblock' ? text.confirmUnblock(name) : text.confirmDelete(name);
     if (!window.confirm(question)) return;
@@ -87,7 +87,7 @@ export function UsersPage({ me, notify }: { me: string; notify: (message: string
             <thead>
               <tr>
                 <th>{text.colName}</th>
-                <th>{text.colPhone}</th>
+                <th>{text.colContact}</th>
                 <th>{text.colJoined}</th>
                 <th>{text.colLastSeen}</th>
                 <th>{text.colLists}</th>
@@ -105,7 +105,7 @@ export function UsersPage({ me, notify }: { me: string; notify: (message: string
                     {u.is_admin && <span className="badge admin">{text.badgeAdmin}</span>}
                     {u.id === me && <span className="muted"> {text.you}</span>}
                   </td>
-                  <td className="ltr">{u.phone}</td>
+                  <td className="ltr">{u.contact}</td>
                   <td>{formatDate(u.created_at)}</td>
                   <td>{u.last_sign_in_at ? formatDate(u.last_sign_in_at) : <span className="muted">{text.never}</span>}</td>
                   <td>

@@ -1,31 +1,26 @@
-// Phone number (+20) → 6-digit code, the same sign-in as the app.
+// Email → 6-digit code, the same sign-in as the app (the code is emailed through Resend).
 
 import { useState } from 'react';
 
 import { BrandMark } from '../BrandMark';
+import { isEmail } from '../format';
 import { supabase } from '../supabase';
 import { text } from '../text';
 
-const PREFIX = '+20';
-// Egyptian mobile: 10 digits starting 10/11/12/15; the local 0 or a pasted +20 is dropped
-const toLocal = (value: string) =>
-  value
-    .replace(/\D/g, '')
-    .replace(/^(?:0020|20(?=1[0125]\d{8}$)|0)/, '')
-    .slice(0, 10);
-const isValid = (digits: string) => /^1[0125]\d{8}$/.test(digits);
-
 export function LoginPage() {
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
-  const [step, setStep] = useState<'phone' | 'code'>('phone');
+  const [step, setStep] = useState<'email' | 'code'>('email');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const address = email.trim().toLowerCase();
 
   const send = async () => {
     setBusy(true);
     setError(null);
-    const { error } = await supabase.auth.signInWithOtp({ phone: PREFIX + phone });
+    // Only people who already use the app can sign in here (no new accounts from the dashboard)
+    const { error } = await supabase.auth.signInWithOtp({ email: address, options: { shouldCreateUser: false } });
     setBusy(false);
     if (error) return setError(text.sendFailed);
     setStep('code');
@@ -34,7 +29,7 @@ export function LoginPage() {
   const verify = async () => {
     setBusy(true);
     setError(null);
-    const { error } = await supabase.auth.verifyOtp({ phone: PREFIX + phone, token: code, type: 'sms' });
+    const { error } = await supabase.auth.verifyOtp({ email: address, token: code, type: 'email' });
     setBusy(false);
     if (error) setError(text.wrongCode);
   };
@@ -45,7 +40,7 @@ export function LoginPage() {
         className="login card"
         onSubmit={(e) => {
           e.preventDefault();
-          if (step === 'phone' && isValid(phone)) send();
+          if (step === 'email' && isEmail(email)) send();
           if (step === 'code' && code.length === 6) verify();
         }}>
         <div className="brand">
@@ -58,18 +53,17 @@ export function LoginPage() {
         </div>
 
         <label>
-          <div className="muted">{text.phoneLabel}</div>
-          <div className="phone-row">
-            <span>{PREFIX}</span>
-            <input
-              value={phone}
-              onChange={(e) => setPhone(toLocal(e.target.value))}
-              placeholder={text.phonePlaceholder}
-              inputMode="tel"
-              autoFocus
-              disabled={step === 'code'}
-            />
-          </div>
+          <div className="muted">{text.emailLabel}</div>
+          <input
+            className="input ltr"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value.trim())}
+            placeholder={text.emailPlaceholder}
+            autoComplete="email"
+            autoFocus
+            disabled={step === 'code'}
+          />
         </label>
 
         {step === 'code' && (
@@ -88,8 +82,8 @@ export function LoginPage() {
 
         {error && <div className="error">{error}</div>}
 
-        {step === 'phone' ? (
-          <button className="btn wide" type="submit" disabled={!isValid(phone) || busy}>
+        {step === 'email' ? (
+          <button className="btn wide" type="submit" disabled={!isEmail(email) || busy}>
             {text.sendCode}
           </button>
         ) : (
@@ -101,10 +95,10 @@ export function LoginPage() {
               className="btn ghost wide"
               type="button"
               onClick={() => {
-                setStep('phone');
+                setStep('email');
                 setCode('');
               }}>
-              {text.changeNumber}
+              {text.changeEmail}
             </button>
           </>
         )}

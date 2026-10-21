@@ -24,7 +24,7 @@ export type Overview = {
 
 export type AdminUser = {
   id: string;
-  phone: string | null;
+  contact: string | null; // partly hidden email (or phone, for accounts made before email sign-in)
   name: string | null;
   created_at: string;
   last_sign_in_at: string | null;
@@ -51,7 +51,7 @@ export const FAMILY_PHOTOS = 'family-photos';
 
 export type Alias = { id: number; catalog_id: string; alias: string; dialect: string | null };
 
-export type Admin = { user_id: string; phone: string | null; name: string | null; added_at: string };
+export type Admin = { user_id: string; contact: string | null; name: string | null; added_at: string };
 
 // Official product pictures (public files; only admins can upload — checked by the database)
 export const PRODUCT_PHOTOS = 'product-photos';

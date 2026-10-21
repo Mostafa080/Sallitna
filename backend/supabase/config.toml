@@ -157,7 +157,8 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://localhost:3000"
+# Sallitna: the admin dashboard (set the same in Supabase → Authentication → URL Configuration)
+site_url = "https://admin.sallitna.online"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
@@ -197,7 +198,7 @@ password_requirements = ""
 
 [auth.rate_limit]
 # Number of emails that can be sent per hour. Requires auth.email.smtp to be enabled.
-email_sent = 2
+email_sent = 100
 # Number of SMS messages that can be sent per hour. Requires auth.sms to be enabled.
 sms_sent = 30
 # Number of anonymous sign-ins that can be made per hour per IP address. Requires enable_anonymous_sign_ins = true.
@@ -230,19 +231,32 @@ secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
 max_frequency = "1m0s"
 # Number of characters used in the email OTP.
-otp_length = 8
+# Sallitna signs in with a 6-digit code sent by email, valid 10 minutes.
+otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
-otp_expiry = 3600
+otp_expiry = 600
 
-# Use a production-ready SMTP server
-# [auth.email.smtp]
-# enabled = true
-# host = "smtp.sendgrid.net"
-# port = 587
-# user = "apikey"
-# pass = "env(SENDGRID_API_KEY)"
-# admin_email = "admin@email.com"
-# sender_name = "Admin"
+# Sign-in codes are sent through Resend (domain sallitna.online). The API key lives only in Supabase:
+# DO NOT commit it. Before any `supabase config push`, set SUPABASE_AUTH_SMTP_PASS in your terminal, or the push
+# would replace the key with an empty one.
+[auth.email.smtp]
+enabled = true
+host = "smtp.resend.com"
+port = 465
+user = "resend"
+pass = "env(SUPABASE_AUTH_SMTP_PASS)"
+admin_email = "no-reply@sallitna.online"
+sender_name = "سلّتنا"
+
+# The sign-in code email (Arabic first, with English and Hindi for helpers). Supabase uses «confirmation» for
+# someone new and «magic_link» for someone signing in again — both just show the code.
+[auth.email.template.confirmation]
+subject = "كود الدخول لسلّتنا · Your Sallitna code"
+content_path = "./supabase/templates/sign-in-code.html"
+
+[auth.email.template.magic_link]
+subject = "كود الدخول لسلّتنا · Your Sallitna code"
+content_path = "./supabase/templates/sign-in-code.html"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]
@@ -256,22 +270,15 @@ otp_expiry = 3600
 # content_path = "./supabase/templates/password_changed_notification.html"
 
 [auth.sms]
+# Sallitna signs in by email now; phone sign-in is off.
 # Allow/disallow new user signups via SMS to your project.
-enable_signup = true
+enable_signup = false
 # If enabled, users need to confirm their phone number before signing in.
 enable_confirmations = false
 # Template for sending OTP to users
 template = "Your code is {{ .Code }}"
 # Controls the minimum amount of time that must pass before sending another sms otp.
 max_frequency = "5s"
-
-# Use pre-defined map of phone number to OTP for testing.
-# Sallitna test numbers (no SMS is sent): +20 10 0000 0001 … 0004, code 123456.
-[auth.sms.test_otp]
-201000000001 = "123456"
-201000000002 = "123456"
-201000000003 = "123456"
-201000000004 = "123456"
 
 # Configure logged in session timeouts.
 # [auth.sessions]
@@ -291,13 +298,11 @@ max_frequency = "5s"
 # uri = "pg-functions://<database>/<schema>/<hook_name>"
 
 # Configure one of the supported SMS providers: `twilio`, `twilio_verify`, `messagebird`, `textlocal`, `vonage`.
-# Placeholder until real SMS is set up before launch: phone sign-in needs a provider switched on,
-# but test numbers above never reach it. Put real values (and the token as an env var) here later.
+# None: Sallitna sends sign-in codes by email.
 [auth.sms.twilio]
-enabled = true
-account_sid = "ACplaceholder00000000000000000000"
-message_service_sid = "MGplaceholder00000000000000000000"
-# DO NOT commit your Twilio auth token to git. Use environment variable substitution instead:
+enabled = false
+account_sid = ""
+message_service_sid = ""
 auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
 
 # Multi-factor-authentication is available to Supabase Pro plan.

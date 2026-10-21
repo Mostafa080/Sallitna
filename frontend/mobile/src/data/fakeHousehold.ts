@@ -123,12 +123,12 @@ export const dialectOrder: DialectKey[] = ['saudi', 'emirati', 'kuwaiti', 'egypt
 // Fake invite link. Later: a one-time code from an Edge Function, valid 7 days.
 export const inviteCode = '8KD2';
 
-// Sign-in code: Supabase sends 6 digits. Attempts before a wait (shown in the app), resend timer.
+// Sign-in code: Supabase emails 6 digits. Attempts before a wait (shown in the app), resend timer
+// (Supabase sends at most one email a minute to the same person).
 export const OTP_LENGTH = 6;
 export const OTP_MAX_ATTEMPTS = 3;
 export const OTP_LOCK_MINUTES = 10;
-export const OTP_RESEND_SECONDS = 30;
-export const PHONE_PREFIX = '+20';
+export const OTP_RESEND_SECONDS = 60;
 export const INVITE_VALID_DAYS = 7;
 
 export const defaultSettings: HouseholdSettings = {

@@ -14,7 +14,7 @@ import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { DirectionView, directionOf } from '@/components/DirectionView';
 import { backIconFor, CircleButton } from '@/components/family/FamilyParts';
-import { Brand, ChipRow, ChoiceChip, isValidPhone, PhoneField } from '@/components/onboarding/OnboardingParts';
+import { Brand, ChipRow, ChoiceChip, EmailField, isValidEmail } from '@/components/onboarding/OnboardingParts';
 import { SheetButton } from '@/components/shop/Sheet';
 import { languageOrder, type LanguageKey } from '@/data/fakeHousehold';
 import { setLanguage as setAppLanguage, t, tIn } from '@/i18n';
@@ -36,7 +36,7 @@ export default function JoinScreen() {
   const [code, setCode] = useState(cleanCode(params.code ?? ''));
   const [invite, setInvite] = useState<api.InvitePreview | null>(null);
   const [status, setStatus] = useState<'idle' | 'checking' | 'notFound'>('idle');
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [language, setLanguage] = useState<LanguageKey>('ar');
   const helper = invite?.role === 'helper';
   // Text in the screen's language (asked for explicitly, so it updates the moment a helper switches)
@@ -92,7 +92,7 @@ export default function JoinScreen() {
     Haptics.selectionAsync();
     router.push({
       pathname: '/verify',
-      params: { mode: 'join', phone, lang: language, code, list: invite.householdName, role: invite.role },
+      params: { mode: 'join', email, lang: language, code, list: invite.householdName, role: invite.role },
     });
   };
 
@@ -182,9 +182,9 @@ export default function JoinScreen() {
               )}
               <View style={styles.block}>
                 <AppText variant="label" weight="bold">
-                  {tr('join.phoneLabel')}
+                  {tr('join.emailLabel')}
                 </AppText>
-                <PhoneField digits={phone} onChange={setPhone} label={tr('join.phoneLabel')} autoFocus={!helper} />
+                <EmailField value={email} onChange={setEmail} label={tr('join.emailLabel')} autoFocus={!helper} />
               </View>
               {!helper && (
                 <ChipRow label={tr(helper ? 'join.languageHelper' : 'join.language')}>
@@ -210,7 +210,7 @@ export default function JoinScreen() {
 
         {invite && (
           <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
-            <SheetButton label={tr('join.send')} onPress={onSend} disabled={!isValidPhone(phone)} />
+            <SheetButton label={tr('join.send')} onPress={onSend} disabled={!isValidEmail(email)} />
             <AppText variant="body" color="muted" style={styles.center}>
               {tr('join.note')}
             </AppText>

@@ -1064,3 +1064,46 @@ AI-generated recommended).
 ### Known issues
 - Not tried against the real database from here (no access from the cloud workspace) — first real run is yours.
 - Products added later need their picture added the same way (download the list again).
+
+## Session 25 — 2026-10-21: Sign in with email (instead of phone)
+
+Agreed: email only — a 6-digit code by email (free, through Resend), no SMS. New domain **sallitna.online**
+(Namecheap): the dashboard is now at **https://admin.sallitna.online** (CNAME `admin` → Vercel), and emails come
+from **no-reply@sallitna.online** (Resend, Ireland; DNS records `resend._domainkey`, `send`, `rsend`, `_dmarc`).
+Supabase: custom SMTP = Resend, email rate limit 100/h, site URL = the dashboard.
+(Default product pictures: 306 illustrated icons made and uploaded through «رفع صور كتير»; the zip is in
+`design/sallitna-default-pictures/` on your Mac.)
+
+### Done
+- **App:** «إيميلك» instead of «رقم موبايلك» on the sign-in and join screens (email keyboard, no capitals, the
+  address reads left-to-right inside Arabic). Same 6-digit code boxes; «بعتنا الكود على إيميلك», a Spam tip, resend
+  after 60 s (Supabase allows one email a minute), «الإيميل غلط؟ عدّله». WhatsApp/SMS buttons and the test-number
+  hint are gone. Texts in ar/en/hi; sign-out and demo messages say «ترجعلها بإيميلك».
+- **The email** (`backend/supabase/templates/sign-in-code.html`): Arabic first, app colours, big code, valid 10 minutes,
+  a short English + Hindi line for helpers.
+- **Dashboard:** sign in by email (only people who already use the app — no new accounts from here); users page shows a
+  hidden email («mo•••@gmail.com», older phone accounts still show a hidden number); «ضيف مسؤول» takes an email.
+- **Database** (`20261021090000_email_sign_in.sql`): hidden email for admins, admins added by email (any capitals or
+  spaces). **Security tests 111/111** (new: emails are hidden, adding by email, unknown email refused).
+- `config.toml` now matches the Supabase dashboard (Resend SMTP with the key from an env var, 6-digit code, 10 minutes,
+  the email, phone sign-in off, test numbers and the Twilio placeholder removed).
+- Checked here: app + dashboard typecheck; all migrations + tests on a local Postgres copy; sign-in, wrong code and
+  joining (member and helper) clicked through in a browser with Supabase faked; the email rendered.
+
+### Your steps (in this order)
+1. Merge the pull request (Vercel updates the dashboard).
+2. On your Mac: `git pull origin main`, then `npm run db:push` and `npm run db:test` (expect 111 passed).
+3. Supabase → Authentication → **Sign In / Providers → Email**: "Email OTP Length" **6**, "Email OTP Expiration" **600**.
+   **Phone**: switch off.
+4. Supabase → Authentication → **Emails → Templates**: in «Confirm signup» and «Magic Link», set the subject
+   `كود الدخول لسلّتنا · Your Sallitna code` and paste the whole of `backend/supabase/templates/sign-in-code.html`.
+5. Restart the app (`npm run app`), sign up with your email.
+6. Make yourself admin once — Supabase → SQL Editor:
+   `insert into private.admins (user_id) select id from auth.users where email = 'YOUR@EMAIL' on conflict do nothing;`
+   Then sign in at https://admin.sallitna.online with the same email.
+- Don't run `supabase config push` unless `SUPABASE_AUTH_SMTP_PASS` is set in the terminal (it would blank the key).
+
+### Known issues
+- Old phone accounts (the 4 test numbers) can't sign in any more; everyone signs up once with email.
+- Not tried against the real Supabase from here (no access) — the first real code email is your test.
+- One old test line ran two checks at once and passed only by luck of order; split into two checks.

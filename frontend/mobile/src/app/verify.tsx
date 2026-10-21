@@ -1,10 +1,9 @@
-// Phone number → 6-digit code, with Supabase phone sign-in.
-// While building, only the test numbers work (see supabase/config.toml): +20 1000000001…4, code 123456.
-// mode=create: new household (phone is typed here). mode=join: phone, invite code and list name come from join.
+// Email → 6-digit code, with Supabase email sign-in (the code is emailed through Resend, see supabase/config.toml).
+// mode=create: new household (email is typed here). mode=join: email, invite code and list name come from join.
 
 import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { AlertCircle, MessageCircle, Pencil, RefreshCw, type LucideIcon } from 'lucide-react-native';
+import { AlertCircle, Pencil, RefreshCw, type LucideIcon } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { DirectionView, directionOf } from '@/components/DirectionView';
 import { backIconFor, CircleButton } from '@/components/family/FamilyParts';
-import { CodeBoxes, fullPhone, isValidPhone, PhoneField } from '@/components/onboarding/OnboardingParts';
+import { cleanEmail, CodeBoxes, EmailField, isValidEmail, ltrEmail } from '@/components/onboarding/OnboardingParts';
 import { SheetButton } from '@/components/shop/Sheet';
 import { UndoToast } from '@/components/UndoToast';
 import {
@@ -29,14 +28,14 @@ import { colors, opacity, radius, size, spacing } from '@/theme';
 
 type Params = {
   mode?: 'create' | 'join';
-  phone?: string;
+  email?: string;
   lang?: LanguageKey;
   code?: string;
   list?: string;
   role?: 'member' | 'helper';
 };
 
-const clock = (seconds: number) => `0:${String(seconds).padStart(2, '0')}`;
+const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 
 export default function VerifyScreen() {
   const router = useRouter();
@@ -48,8 +47,8 @@ export default function VerifyScreen() {
   const [language] = useState(getLanguage);
   const tr = (key: string, p?: Record<string, string | number>) => tIn(language, key, p);
 
-  const [phone, setPhone] = useState(params.phone ?? '');
-  const [step, setStep] = useState<'phone' | 'code'>(params.phone ? 'code' : 'phone');
+  const [email, setEmail] = useState(params.email ?? '');
+  const [step, setStep] = useState<'email' | 'code'>(params.email ? 'code' : 'email');
   const [code, setCode] = useState('');
   const [wrongTries, setWrongTries] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(0);
@@ -59,17 +58,12 @@ export default function VerifyScreen() {
   const showError = wrongTries > 0;
   const codeIsWrong = showError && code.length === OTP_LENGTH;
 
-  const sendCode = async (via: 'sms' | 'whatsapp'): Promise<boolean> => {
-    if (via === 'whatsapp') {
-      list.notify(tr('verify.whatsappSoon'));
-      return false;
-    }
+  const sendCode = async (): Promise<boolean> => {
     setCode('');
     setBusy(true);
     try {
-      await api.sendCode(phone);
+      await api.sendCode(cleanEmail(email));
       setSecondsLeft(OTP_RESEND_SECONDS);
-      if (__DEV__) list.notify(tr('verify.testHint'));
       return true;
     } catch (error) {
       if (__DEV__) console.warn('[sendCode]', error);
@@ -80,9 +74,9 @@ export default function VerifyScreen() {
     }
   };
 
-  // Joining arrives with the number already typed — "send" straight away
+  // Joining arrives with the email already typed — "send" straight away
   useEffect(() => {
-    if (step === 'code') sendCode('sms');
+    if (step === 'code') sendCode();
   }, []);
 
   // Resend countdown
@@ -93,24 +87,25 @@ export default function VerifyScreen() {
   }, [secondsLeft]);
 
   const onSendFirst = async () => {
+    if (!isValidEmail(email) || busy) return;
     Haptics.selectionAsync();
-    if (await sendCode('sms')) setStep('code');
+    if (await sendCode()) setStep('code');
   };
 
-  const onEditNumber = () => {
+  const onEditEmail = () => {
     if (joining) {
       router.back();
       return;
     }
     setCode('');
-    setStep('phone');
+    setStep('email');
   };
 
   const check = async (value: string) => {
     if (busy || locked) return;
     setBusy(true);
     try {
-      await api.verifyCode(phone, value);
+      await api.verifyCode(cleanEmail(email), value);
     } catch {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       setWrongTries((n) => n + 1);
@@ -169,7 +164,7 @@ export default function VerifyScreen() {
                   {tr('verify.codeTitle')}
                 </AppText>
                 <AppText variant="item" color="muted">
-                  {tr('verify.sentTo', { phone: fullPhone(phone) })}
+                  {tr('verify.sentTo', { email: ltrEmail(email) })}
                 </AppText>
               </View>
 
@@ -193,44 +188,47 @@ export default function VerifyScreen() {
               <View style={styles.card}>
                 <OptionRow
                   icon={RefreshCw}
-                  label={tr('verify.newCode')}
-                  onPress={() => sendCode('sms')}
-                  disabled={locked}
+                  label={
+                    secondsLeft > 0
+                      ? `${tr('verify.newCode')}${tr('item.metaSeparator')}${clock(secondsLeft)}`
+                      : tr('verify.newCode')
+                  }
+                  onPress={() => sendCode()}
+                  disabled={locked || secondsLeft > 0}
                 />
-                <OptionRow
-                  icon={MessageCircle}
-                  label={tr('verify.sendWhatsapp')}
-                  onPress={() => sendCode('whatsapp')}
-                  disabled={locked}
-                  divider
-                />
-                <OptionRow icon={Pencil} label={tr('verify.wrongNumber')} onPress={onEditNumber} divider />
+                <OptionRow icon={Pencil} label={tr('verify.wrongEmail')} onPress={onEditEmail} divider />
               </View>
             </>
           ) : (
-            // Phone number, then the code (verify.png)
+            // Email, then the code (verify.png, with an email field instead of the phone number)
             <>
               <View style={styles.intro}>
                 <AppText variant="title" weight="bold" style={styles.title} accessibilityRole="header">
-                  {tr('verify.phoneTitle')}
+                  {tr('verify.emailTitle')}
                 </AppText>
                 <AppText variant="item" color="muted">
-                  {tr('verify.phoneBody')}
+                  {tr('verify.emailBody')}
                 </AppText>
               </View>
 
               <View style={styles.block}>
                 <AppText variant="label" weight="bold">
-                  {tr('verify.phoneLabel')}
+                  {tr('verify.emailLabel')}
                 </AppText>
-                {step === 'phone' ? (
-                  <PhoneField digits={phone} onChange={setPhone} autoFocus label={tr('verify.phoneLabel')} />
+                {step === 'email' ? (
+                  <EmailField
+                    value={email}
+                    onChange={setEmail}
+                    onSubmit={onSendFirst}
+                    autoFocus
+                    label={tr('verify.emailLabel')}
+                  />
                 ) : (
-                  <PhoneField digits={phone} onEdit={onEditNumber} label={tr('verify.phoneLabel')} />
+                  <EmailField value={email} onEdit={onEditEmail} label={tr('verify.emailLabel')} />
                 )}
-                {step === 'phone' && (
+                {step === 'email' && (
                   <AppText variant="body" color="muted">
-                    {tr('verify.phoneHint')}
+                    {tr('verify.emailHint')}
                   </AppText>
                 )}
               </View>
@@ -244,7 +242,7 @@ export default function VerifyScreen() {
                     <CodeBoxes value={code} onChange={onCodeChange} autoFocus />
                     <View style={styles.resendLine}>
                       <AppText variant="body" color="muted">
-                        {tr('verify.sentSms')}
+                        {tr('verify.sentEmail')}
                         {tr('item.metaSeparator')}
                       </AppText>
                       {secondsLeft > 0 ? (
@@ -252,7 +250,7 @@ export default function VerifyScreen() {
                           {tr('verify.resendIn', { time: clock(secondsLeft) })}
                         </AppText>
                       ) : (
-                        <Pressable onPress={() => sendCode('sms')} hitSlop={spacing.md} accessibilityRole="button">
+                        <Pressable onPress={() => sendCode()} hitSlop={spacing.md} accessibilityRole="button">
                           <AppText variant="body" weight="bold" color="accentInk">
                             {tr('verify.resend')}
                           </AppText>
@@ -261,15 +259,9 @@ export default function VerifyScreen() {
                     </View>
                   </View>
 
-                  <Pressable
-                    onPress={() => sendCode('whatsapp')}
-                    style={styles.whatsappButton}
-                    accessibilityRole="button">
-                    <MessageCircle size={size.icon - spacing.xs} color={colors.ink} strokeWidth={size.iconStroke} />
-                    <AppText variant="label" weight="semibold">
-                      {tr('verify.whatsappInstead')}
-                    </AppText>
-                  </Pressable>
+                  <AppText variant="body" color="muted">
+                    {tr('verify.spamHint')}
+                  </AppText>
                 </>
               )}
             </>
@@ -283,8 +275,8 @@ export default function VerifyScreen() {
             <AppText variant="body" color="muted" style={styles.center}>
               {tr('verify.lockNote', { attempts: OTP_MAX_ATTEMPTS, minutes: OTP_LOCK_MINUTES })}
             </AppText>
-          ) : step === 'phone' ? (
-            <SheetButton label={tr('verify.send')} onPress={onSendFirst} disabled={!isValidPhone(phone) || busy} />
+          ) : step === 'email' ? (
+            <SheetButton label={tr('verify.send')} onPress={onSendFirst} disabled={!isValidEmail(email) || busy} />
           ) : (
             <>
               <SheetButton
@@ -351,17 +343,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
-  },
-  whatsappButton: {
-    minHeight: size.button,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    borderRadius: radius.card,
-    borderWidth: size.border,
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
   },
   errorLine: {
     flexDirection: 'row',

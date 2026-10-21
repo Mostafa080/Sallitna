@@ -4,7 +4,6 @@
 import { findCatalogMatch, setCatalog, type CatalogItem } from '@/data/fakeCatalog';
 import {
   defaultSettings,
-  PHONE_PREFIX,
   type DialectKey,
   type HouseholdSettings,
   type Item,
@@ -81,9 +80,6 @@ export async function loadCatalog(dialect: DialectKey) {
   AsyncStorage.setItem(CATALOG_KEY, JSON.stringify(fresh)).catch(() => {});
 }
 
-// "+201001234567" from "1001234567"
-const e164 = (digits: string) => `${PHONE_PREFIX}${digits}`;
-
 type MemberRow = {
   id: string;
   household_id: string;
@@ -131,12 +127,13 @@ function check<T>(result: { data: T; error: { message: string } | null }): T {
 
 // --- Sign-in --------------------------------------------------------------------------------
 
-export async function sendCode(phoneDigits: string) {
-  check(await supabase.auth.signInWithOtp({ phone: e164(phoneDigits) }));
+// A 6-digit code by email (new people get an account on the way)
+export async function sendCode(email: string) {
+  check(await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } }));
 }
 
-export async function verifyCode(phoneDigits: string, code: string) {
-  check(await supabase.auth.verifyOtp({ phone: e164(phoneDigits), token: code, type: 'sms' }));
+export async function verifyCode(email: string, code: string) {
+  check(await supabase.auth.verifyOtp({ email, token: code, type: 'email' }));
 }
 
 export async function signOut() {

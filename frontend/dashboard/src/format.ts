@@ -8,3 +8,6 @@ export const formatNumber = (n: number) => new Intl.NumberFormat('en-US').format
 
 const DAY = 24 * 60 * 60 * 1000;
 export const isWithinDays = (iso: string | null, days: number) => !!iso && Date.now() - new Date(iso).getTime() < days * DAY;
+
+// Looks like an email address (spaces and capitals don't matter)
+export const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());

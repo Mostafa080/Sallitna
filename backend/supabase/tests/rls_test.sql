@@ -15,11 +15,12 @@ create temp table ctx (k text primary key, v text) on commit drop;
 grant all on results, ctx to authenticated, anon;
 grant usage on sequence results_n_seq to authenticated, anon;
 
-insert into auth.users (id, aud, role, phone) values
-  ('00000000-0000-4000-a000-000000000001', 'authenticated', 'authenticated', '999000000001'),
-  ('00000000-0000-4000-a000-000000000002', 'authenticated', 'authenticated', '999000000002'),
-  ('00000000-0000-4000-a000-000000000003', 'authenticated', 'authenticated', '999000000003'),
-  ('00000000-0000-4000-a000-000000000004', 'authenticated', 'authenticated', '999000000004');
+-- Sign-in is by email; Eve's account is an older one made with a phone number
+insert into auth.users (id, aud, role, email, phone) values
+  ('00000000-0000-4000-a000-000000000001', 'authenticated', 'authenticated', 'umm@example.com', null),
+  ('00000000-0000-4000-a000-000000000002', 'authenticated', 'authenticated', 'khalid@example.com', null),
+  ('00000000-0000-4000-a000-000000000003', 'authenticated', 'authenticated', 'rahul@example.com', null),
+  ('00000000-0000-4000-a000-000000000004', 'authenticated', 'authenticated', null, '999000000004');
 
 -- Act as someone: act('umm') etc. (sets the role and who auth.uid() returns)
 create function pg_temp.act(who text) returns void language plpgsql as $$
@@ -302,16 +303,17 @@ select pg_temp.check_('normal user: cannot block someone',
 select pg_temp.check_('normal user: cannot delete someone',
   pg_temp.blocked($q$ select public.admin_delete_user('00000000-0000-4000-a000-000000000004') $q$));
 select pg_temp.check_('normal user: cannot make themselves admin',
-  pg_temp.blocked($q$ select public.admin_add_admin('999000000001') $q$)
+  pg_temp.blocked($q$ select public.admin_add_admin('umm@example.com') $q$)
   and pg_temp.blocked($q$ insert into private.admins (user_id) values (auth.uid()) $q$));
 reset role;
 insert into private.admins (user_id) values ('00000000-0000-4000-a000-000000000001');
 select pg_temp.act('umm');
 select pg_temp.check_('admin: sees the numbers and the users',
   public.admin_me() and (public.admin_overview() ->> 'users_total')::int >= 4
-  and (select count(*) from public.admin_users() where phone like '+99 90••%') >= 4);
-select pg_temp.check_('admin: phones are partly hidden',
-  not exists (select 1 from public.admin_users() where phone like '%999000000004%'));
+  and (select count(*) from public.admin_users() where contact like '%•••@example.com') >= 3
+  and (select count(*) from public.admin_users() where contact like '+99 90••%') >= 1);
+select pg_temp.check_('admin: emails and older phone numbers are partly hidden',
+  not exists (select 1 from public.admin_users() where contact like '%umm@%' or contact like '%999000000004%'));
 select pg_temp.check_('admin: can block someone',
   not pg_temp.blocked($q$ select public.admin_set_blocked('00000000-0000-4000-a000-000000000004', true) $q$));
 select pg_temp.check_('admin: blocked person shows as blocked',
@@ -323,9 +325,12 @@ select pg_temp.check_('admin: unblocked person shows as not blocked',
 select pg_temp.check_('admin: cannot block or delete themselves',
   pg_temp.blocked($q$ select public.admin_set_blocked('00000000-0000-4000-a000-000000000001', true) $q$)
   and pg_temp.blocked($q$ select public.admin_delete_user('00000000-0000-4000-a000-000000000001') $q$));
-select pg_temp.check_('admin: can add another admin by phone',
-  not pg_temp.blocked($q$ select public.admin_add_admin('+999 000 000 002') $q$)
-  and (select count(*) from public.admin_list_admins()) = 2);
+select pg_temp.check_('admin: can add another admin by email (any capitals or spaces)',
+  not pg_temp.blocked($q$ select public.admin_add_admin(' Khalid@Example.com ') $q$));
+select pg_temp.check_('admin: the new admin is on the team',
+  (select count(*) from public.admin_list_admins()) = 2);
+select pg_temp.check_('admin: adding an email nobody signed up with is refused',
+  pg_temp.blocked($q$ select public.admin_add_admin('nobody@example.com') $q$));
 select pg_temp.check_('admin: can delete an account',
   not pg_temp.blocked($q$ select public.admin_delete_user('00000000-0000-4000-a000-000000000004') $q$));
 select pg_temp.check_('admin: the deleted account is gone',
