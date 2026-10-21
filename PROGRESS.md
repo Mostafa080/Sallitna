@@ -1107,3 +1107,5 @@ Supabase: custom SMTP = Resend, email rate limit 100/h, site URL = the dashboard
 - Old phone accounts (the 4 test numbers) can't sign in any more; everyone signs up once with email.
 - Not tried against the real Supabase from here (no access) — the first real code email is your test.
 - One old test line ran two checks at once and passed only by luck of order; split into two checks.
+- Follow-up: «the new admin is on the team» counted exactly 2 admins, but the real database also has the old
+  phone test admin (+20 1000000001), so it failed (110/111). It now checks that Khalid is on the team.
