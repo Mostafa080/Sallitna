@@ -1182,3 +1182,21 @@ The page said «اتدعيت لقائمة البيت» for every invite (it only
    `EXPO_PUBLIC_SUPABASE_KEY` (same values as the dashboard; publishable key only) → Redeploy.
 3. On your Mac: `git pull origin main`, `npm run db:push`, `npm run db:test` (expect 118).
 4. Open the app's invite link → the page shows the list's real name.
+
+## Session 27 — 2026-10-21: Landing page for sallitna.online
+
+Agreed: Arabic only, no sign-up form («قريبًا»), contact hello@sallitna.online. (Push notifications were planned —
+see the plan in this conversation — and paused; nothing installed.)
+
+### Done
+- `frontend/invite/index.html` + `landing.css` (plain HTML/CSS, no libraries): logo, hero «قائمة مشتريات واحدة للبيت
+  كله» with a phone showing the list, «إزاي بتشتغل؟» (3 steps), 6 feature cards (live updates, «أنا في السوق», asking
+  from the store, helpers in their language, a list per group, «صوّرها»), 4 phone screens from /design
+  (`img/*.jpg`, ~220 KB), a closing «قريبًا على App Store وGoogle Play» + «ابعتلنا», footer with the email and
+  «سياسة الخصوصية — قريبًا». Works from phone width to desktop; invite links (/j/…) unchanged.
+- No voice promise in the text (voice is off), but the list screenshot still shows the mic button.
+
+### Next
+- Set up hello@sallitna.online forwarding (Namecheap «Redirect Email» → your Gmail).
+- Privacy policy page (needed for the stores) — the footer link is ready for it.
+- Push notifications (planned, waiting for: library OK, which messages, Expo + Apple accounts).
