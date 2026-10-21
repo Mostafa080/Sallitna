@@ -1200,3 +1200,15 @@ see the plan in this conversation — and paused; nothing installed.)
 - Set up hello@sallitna.online forwarding (Namecheap «Redirect Email» → your Gmail).
 - Privacy policy page (needed for the stores) — the footer link is ready for it.
 - Push notifications (planned, waiting for: library OK, which messages, Expo + Apple accounts).
+
+## Session 27b — 2026-10-21: Landing screenshots from the current app
+
+### Done
+- The 4 phone screens on sallitna.online («شكلها من جوه» + the top of the page) are now real screenshots of the
+  current app, not the old /design mockups: the list («البيت», with «سارة في السوق دلوقتي»), «إنتي في السوق»,
+  «سؤال من سارة», and the helper's English list. Taken from the app running in a browser with sample family data
+  (same names as the designs); the browser-only tab bar was hidden.
+- (A dark subscrr-style redesign was tried and dropped — the light landing page stays.)
+
+### Known issues
+- The screens have no product photos (the sample data has none).
