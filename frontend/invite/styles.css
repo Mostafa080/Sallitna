@@ -140,6 +140,28 @@ p {
   display: none;
 }
 
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* The people already in the list, like the faces on the app's join screen */
+.faces {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.face {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--ground);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+
 /* English names inside Arabic text («App Store», «Google Play») stay on one line */
 bdi {
   white-space: nowrap;

@@ -98,6 +98,8 @@ select pg_temp.check_('history: adding an item is logged automatically',
 select pg_temp.act('khalid');
 select pg_temp.check_('join screen: invite shows the household name',
   (select household_name from public.get_invite(pg_temp.get('codeMember'))) = 'بيت أبو خالد');
+select pg_temp.check_('join screen: invite shows who the list is for',
+  (select kind from public.get_invite(pg_temp.get('codeMember'))) = 'family');
 select pg_temp.check_('before joining: cannot see household A items', (select count(*) from public.items) = 0);
 select public.join_household(pg_temp.get('codeMember'), 'خالد', 'm');
 select pg_temp.put('khalidMember', (select id::text from public.members where user_id = auth.uid()));
