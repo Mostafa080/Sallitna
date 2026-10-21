@@ -328,7 +328,7 @@ select pg_temp.check_('admin: cannot block or delete themselves',
 select pg_temp.check_('admin: can add another admin by email (any capitals or spaces)',
   not pg_temp.blocked($q$ select public.admin_add_admin(' Khalid@Example.com ') $q$));
 select pg_temp.check_('admin: the new admin is on the team',
-  (select count(*) from public.admin_list_admins()) = 2);
+  exists (select 1 from public.admin_list_admins() where user_id = '00000000-0000-4000-a000-000000000002'));
 select pg_temp.check_('admin: adding an email nobody signed up with is refused',
   pg_temp.blocked($q$ select public.admin_add_admin('nobody@example.com') $q$));
 select pg_temp.check_('admin: can delete an account',

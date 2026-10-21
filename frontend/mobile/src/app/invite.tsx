@@ -20,7 +20,8 @@ import { t, tIn } from '@/i18n';
 import { useList } from '@/store/ListStore';
 import { colors, radius, size, spacing } from '@/theme';
 
-const INVITE_HOST = 'sallitna.app/j/';
+// Opens the invite page on sallitna.online (frontend/invite), which opens the app with the code
+const INVITE_HOST = 'sallitna.online/j/';
 
 type Person = (Member | PendingInvite) & { joined: boolean };
 

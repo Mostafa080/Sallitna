@@ -1,0 +1,93 @@
+<!doctype html>
+<!-- sallitna.online/j/CODE — what an invite link opens. With the app: «افتح سلّتنا» opens its join screen with the code.
+     Without it: the code, and how to join once the app is installed. Arabic first, English + Hindi for helpers. -->
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>دعوة لسلّتنا · Sallitna invite</title>
+    <meta name="description" content="اتدعيت لقائمة مشتريات البيت على سلّتنا" />
+    <meta property="og:title" content="دعوة لقائمة على سلّتنا" />
+    <meta property="og:description" content="قائمة مشتريات واحدة للبيت كله" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&family=Readex+Pro:wght@400;600;700&display=swap" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main>
+      <div class="brand">
+        <span class="logo" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1D1B18" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="m15 11-1 9" /><path d="m19 11-4-7" /><path d="M2 11h20" />
+            <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4" />
+            <path d="M4.5 15.5h15" /><path d="m5 11 4-7" /><path d="m9 11 1 9" />
+          </svg>
+        </span>
+        سلّتنا
+      </div>
+
+      <div id="invite">
+        <h1>اتدعيت لقائمة البيت على سلّتنا</h1>
+        <p class="muted">قائمة مشتريات واحدة للبيت كله. اللي بيضيف واللي بيشتري بيشوفوا نفس القائمة في نفس اللحظة.</p>
+      </div>
+
+      <div class="card" id="code-card">
+        <p class="muted small">كود الدعوة</p>
+        <p class="code" id="code"></p>
+        <button class="btn ghost" type="button" id="copy">انسخ الكود</button>
+      </div>
+
+      <a class="btn primary" id="open">افتح سلّتنا</a>
+
+      <div class="card">
+        <p><strong>لسه معندكش سلّتنا؟</strong></p>
+        <ol class="steps muted">
+          <li>نزّل سلّتنا — قريبًا على <bdi>App Store</bdi> و<bdi>Google Play</bdi>.</li>
+          <li>افتحها واختار «عندي دعوة من العيلة».</li>
+          <li>اكتب كود الدعوة اللي فوق.</li>
+        </ol>
+      </div>
+
+      <div class="card other-languages small" lang="en">
+        <p><strong>You're invited to a Sallitna list.</strong></p>
+        <p class="muted">Open Sallitna, tap “I have an invite from my family” and enter the invite code above.</p>
+        <p lang="hi" class="muted">
+          आपको Sallitna लिस्ट में बुलाया गया है। Sallitna खोलें, “I have an invite from my family” दबाएँ और ऊपर दिया
+          इनविटेशन कोड डालें।
+        </p>
+      </div>
+
+      <p class="muted small hidden" id="missing">
+        اللينك ده ناقص. اطلب من اللي بعتهولك يبعته تاني. · This link is incomplete — ask for it again.
+      </p>
+    </main>
+
+    <script>
+      // The code is the last part of the address: sallitna.online/j/YAN9WHHT (same letters the app accepts)
+      var code = decodeURIComponent(location.pathname.split('/').filter(Boolean).pop() || '')
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, '')
+        .slice(0, 8);
+      if (code.length < 4 || location.pathname.indexOf('/j/') !== 0) {
+        document.getElementById('code-card').classList.add('hidden');
+        document.getElementById('open').classList.add('hidden');
+        document.getElementById('missing').classList.remove('hidden');
+      } else {
+        document.getElementById('code').textContent = code;
+        // Opens the installed app on its join screen with the code filled in
+        document.getElementById('open').href = 'sallitna://join?code=' + code;
+        var copy = document.getElementById('copy');
+        copy.addEventListener('click', function () {
+          navigator.clipboard.writeText(code).then(function () {
+            copy.textContent = 'اتنسخ ✓';
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
