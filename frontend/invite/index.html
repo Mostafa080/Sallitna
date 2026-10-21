@@ -1,20 +1,23 @@
 <!doctype html>
-<!-- sallitna.online — a simple front page until the app is in the stores. -->
+<!-- sallitna.online — the landing page (Arabic). Until the app is in the stores: «قريبًا». -->
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>سلّتنا · Sallitna</title>
-    <meta name="description" content="قائمة مشتريات واحدة للبيت كله — بالصوت وباللهجة" />
+    <title>سلّتنا · قائمة مشتريات واحدة للبيت كله</title>
+    <meta name="description" content="العيلة كلها بتضيف للقائمة وبتشوفها في نفس اللحظة، واللي في السوق يعرف يجيب إيه بالظبط." />
+    <meta property="og:title" content="سلّتنا · قائمة مشتريات واحدة للبيت كله" />
+    <meta property="og:description" content="العيلة كلها بتضيف للقائمة وبتشوفها في نفس اللحظة. قريبًا على App Store وGoogle Play." />
+    <meta property="og:image" content="https://sallitna.online/img/home.jpg" />
+    <meta name="theme-color" content="#F6F4EF" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&family=Readex+Pro:wght@400;600;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;600;700&display=swap" />
     <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/landing.css" />
   </head>
-  <body>
-    <main>
+  <body class="landing">
+    <header class="top">
       <div class="brand">
         <span class="logo" aria-hidden="true">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1D1B18" stroke-width="2"
@@ -26,12 +29,132 @@
         </span>
         سلّتنا
       </div>
-      <h1>قائمة مشتريات واحدة للبيت كله</h1>
-      <p class="muted">العيلة كلها بتضيف للقائمة وبتشوفها في نفس اللحظة — بالصوت وباللهجة. حتى السواق والمساعدة بلغتهم.</p>
-      <div class="card">
-        <p><strong>قريبًا على <bdi>App Store</bdi> و<bdi>Google Play</bdi></strong></p>
-        <p class="muted small" lang="en" dir="ltr">Coming soon to the App Store and Google Play.</p>
+      <span class="pill">قريبًا</span>
+    </header>
+
+    <section class="hero">
+      <div class="hero-text">
+        <h1>قائمة مشتريات واحدة للبيت كله</h1>
+        <p class="lead">
+          العيلة كلها بتضيف للقائمة وبتشوفها في نفس اللحظة. واللي في السوق يعرف يجيب إيه بالظبط — من غير لخبطة جروب
+          الواتساب.
+        </p>
+        <div class="soon">
+          <strong>قريبًا على <bdi>App Store</bdi> و<bdi>Google Play</bdi></strong>
+          <span class="muted small">عندك دعوة من العيلة؟ افتح اللينك اللي وصلك على الواتساب.</span>
+        </div>
       </div>
-    </main>
+      <div class="phone hero-phone">
+        <img src="/img/home.jpg" alt="قائمة البيت في سلّتنا: طماطم، بصل أحمر، ليمون، لبن، بيض" width="585" height="1266" />
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>إزاي بتشتغل؟</h2>
+      <ol class="how">
+        <li>
+          <span class="num">1</span>
+          <strong>اعمل قائمة</strong>
+          <span class="muted">للبيت، للصحاب أو للشغل.</span>
+        </li>
+        <li>
+          <span class="num">2</span>
+          <strong>ادعي اللي معاك</strong>
+          <span class="muted">ابعتلهم لينك على الواتساب، وينضموا في ثانية.</span>
+        </li>
+        <li>
+          <span class="num">3</span>
+          <strong>كله يضيف، واللي في السوق يشتري</strong>
+          <span class="muted">كل حاجة بتظهر عند الكل على طول.</span>
+        </li>
+      </ol>
+    </section>
+
+    <section class="block">
+      <h2>كل اللي محتاجه البيت</h2>
+      <div class="features">
+        <div class="feature">
+          <span class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" />
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" /></svg>
+          </span>
+          <strong>بتتحدّث عند الكل لحظتها</strong>
+          <p class="muted">أي حاجة تتضاف أو تتشال بتظهر عند الكل في نفس الثانية.</p>
+        </div>
+        <div class="feature">
+          <span class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" />
+              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
+          </span>
+          <strong>«أنا في السوق»</strong>
+          <p class="muted">اللي بيشتري يشوف القائمة مرتبة حسب أقسام السوبرماركت، ويعلّم على اللي اشتراه.</p>
+        </div>
+        <div class="feature">
+          <span class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>
+          </span>
+          <strong>اسأل من السوق</strong>
+          <p class="muted">مفيش لبن خالي؟ اسأل من جوه السوبرماركت، والرد يوصلك على طول.</p>
+        </div>
+        <div class="feature">
+          <span class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="m5 8 6 6" /><path d="m4 14 6-6 2-3" /><path d="M2 5h12" /><path d="M7 2h1" />
+              <path d="m22 22-5-10-5 10" /><path d="M14 18h6" /></svg>
+          </span>
+          <strong>السواق والمساعدة بلغتهم</strong>
+          <p class="muted">يشوفوا نفس القائمة بالإنجليزي أو بالهندي.</p>
+        </div>
+        <div class="feature">
+          <span class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+          </span>
+          <strong>لكل مجموعة قائمتها</strong>
+          <p class="muted">البيت، الصحاب، الشغل… كل قائمة ليها ناسها.</p>
+        </div>
+        <div class="feature">
+          <span class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+              <circle cx="12" cy="13" r="3" /></svg>
+          </span>
+          <strong>صوّرها عشان ميغلطش</strong>
+          <p class="muted">صورة للحاجة اللي عايزها بالظبط، وتفضل معاكم كل مرة.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>شكلها من جوه</h2>
+      <div class="screens">
+        <figure>
+          <div class="phone"><img src="/img/home.jpg" alt="القائمة" width="585" height="1266" loading="lazy" /></div>
+          <figcaption>القائمة</figcaption>
+        </figure>
+        <figure>
+          <div class="phone"><img src="/img/shopper.jpg" alt="أنا في السوق" width="585" height="1266" loading="lazy" /></div>
+          <figcaption>أنا في السوق</figcaption>
+        </figure>
+        <figure>
+          <div class="phone"><img src="/img/answer.jpg" alt="سؤال من السوق" width="585" height="1266" loading="lazy" /></div>
+          <figcaption>سؤال من السوق</figcaption>
+        </figure>
+        <figure>
+          <div class="phone"><img src="/img/helper.jpg" alt="المساعد بيشوفها بالإنجليزي" width="585" height="1266" loading="lazy" /></div>
+          <figcaption>المساعد بلغته</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="cta">
+      <h2>قريبًا على <bdi>App Store</bdi> و<bdi>Google Play</bdi></h2>
+      <p class="muted">بنجهّزها للعيلة. لو عندك سؤال أو اقتراح، ابعتلنا.</p>
+      <a class="btn primary" href="mailto:hello@sallitna.online">ابعتلنا</a>
+    </section>
+
+    <footer class="foot">
+      <span>© 2026 سلّتنا</span>
+      <a href="mailto:hello@sallitna.online" dir="ltr">hello@sallitna.online</a>
+      <span class="muted">سياسة الخصوصية — قريبًا</span>
+    </footer>
   </body>
 </html>
