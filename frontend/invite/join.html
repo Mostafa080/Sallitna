@@ -1,15 +1,16 @@
 <!doctype html>
-<!-- sallitna.online/j/CODE — what an invite link opens. With the app: «افتح سلّتنا» opens its join screen with the code.
-     Without it: the code, and how to join once the app is installed. Arabic first, English + Hindi for helpers. -->
+<!-- sallitna.online/j/CODE — what an invite link opens. Looks the code up (/api/invite) to show the real list: its name,
+     who invited, who it's for. With the app: «افتح سلّتنا» opens its join screen with the code. Without it: the code,
+     and how to join once the app is installed. Arabic first, English + Hindi for helpers. -->
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex" />
     <title>دعوة لسلّتنا · Sallitna invite</title>
-    <meta name="description" content="اتدعيت لقائمة مشتريات البيت على سلّتنا" />
+    <meta name="description" content="اتدعيت لقائمة على سلّتنا" />
     <meta property="og:title" content="دعوة لقائمة على سلّتنا" />
-    <meta property="og:description" content="قائمة مشتريات واحدة للبيت كله" />
+    <meta property="og:description" content="قائمة مشتريات واحدة للكل" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -31,9 +32,17 @@
         سلّتنا
       </div>
 
-      <div id="invite">
-        <h1>اتدعيت لقائمة البيت على سلّتنا</h1>
-        <p class="muted">قائمة مشتريات واحدة للبيت كله. اللي بيضيف واللي بيشتري بيشوفوا نفس القائمة في نفس اللحظة.</p>
+      <div class="intro">
+        <p class="muted hidden" id="inviter"></p>
+        <h1 id="title">اتدعيت لقائمة على سلّتنا</h1>
+        <div class="faces hidden" id="faces"></div>
+        <p class="muted" id="body">قائمة مشتريات واحدة للكل. اللي بيضيف واللي بيشتري بيشوفوا نفس القائمة في نفس اللحظة.</p>
+      </div>
+
+      <div class="card hidden" id="expired">
+        <p><strong>الدعوة دي خلصت</strong></p>
+        <p class="muted" id="expired-body">لينكات الدعوة بتشتغل 7 أيام بس. اطلب لينك جديد.</p>
+        <p class="muted small" lang="en" dir="ltr">This invite has expired — ask for a new link.</p>
       </div>
 
       <div class="card" id="code-card">
@@ -44,7 +53,7 @@
 
       <a class="btn primary" id="open">افتح سلّتنا</a>
 
-      <div class="card">
+      <div class="card" id="no-app">
         <p><strong>لسه معندكش سلّتنا؟</strong></p>
         <ol class="steps muted">
           <li>نزّل سلّتنا — قريبًا على <bdi>App Store</bdi> و<bdi>Google Play</bdi>.</li>
@@ -53,8 +62,8 @@
         </ol>
       </div>
 
-      <div class="card other-languages small" lang="en">
-        <p><strong>You're invited to a Sallitna list.</strong></p>
+      <div class="card other-languages small" lang="en" id="other-languages">
+        <p><strong id="title-en">You're invited to a Sallitna list.</strong></p>
         <p class="muted">Open Sallitna, tap “I have an invite from my family” and enter the invite code above.</p>
         <p lang="hi" class="muted">
           आपको Sallitna लिस्ट में बुलाया गया है। Sallitna खोलें, “I have an invite from my family” दबाएँ और ऊपर दिया
@@ -68,25 +77,80 @@
     </main>
 
     <script>
+      var $ = function (id) {
+        return document.getElementById(id);
+      };
+      var show = function (id, visible) {
+        $(id).classList.toggle('hidden', !visible);
+      };
+
       // The code is the last part of the address: sallitna.online/j/YAN9WHHT (same letters the app accepts)
       var code = decodeURIComponent(location.pathname.split('/').filter(Boolean).pop() || '')
         .toUpperCase()
         .replace(/[^A-Z0-9]/g, '')
         .slice(0, 8);
+
+      // Who the list is for — the same words as the app («قائمة الصحاب»…); "other" has no label
+      var KIND_LIST = { family: 'قائمة العيلة', friends: 'قائمة الصحاب', work: 'قائمة الشغل' };
+      // The app's avatar colours (theme) and which of them need dark letters
+      var COLORS = { ink: '#1D1B18', info: '#2F5D8A', accent: '#E8731A', success: '#2E7A4E', danger: '#9B2C1F',
+        muted: '#615C53', accentTint: '#FDEBD8', line: '#E6E1D6', surface: '#FFFFFF', ground: '#F6F4EF' };
+      var LIGHT = ['accentTint', 'line', 'surface', 'ground'];
+
+      // Fill the page with the real list (names go in as text, never as HTML)
+      function showInvite(invite) {
+        if (invite.inviter) {
+          $('inviter').textContent = invite.inviter + (invite.inviterGender === 'm' ? ' بيدعيك' : ' بتدعيك');
+          show('inviter', true);
+        }
+        $('title').textContent = 'انضم لقائمة «' + invite.list + '»';
+        var parts = [];
+        if (KIND_LIST[invite.kind]) parts.push(KIND_LIST[invite.kind]);
+        var n = invite.memberCount;
+        parts.push(n === 1 ? 'فيها فرد واحد' : n === 2 ? 'فيها فردين' : 'فيها ' + n + (n <= 10 ? ' أفراد' : ' فرد'));
+        $('body').textContent = parts.join(' · ') + '. اللي بيضيف واللي بيشتري بيشوفوا نفس القائمة في نفس اللحظة.';
+        invite.members.forEach(function (m) {
+          var face = document.createElement('span');
+          face.className = 'face';
+          face.textContent = m.initial;
+          face.style.background = COLORS[m.color] || COLORS.ink;
+          face.style.color = LIGHT.indexOf(m.color) >= 0 ? COLORS.ink : '#FFFFFF';
+          $('faces').appendChild(face);
+        });
+        show('faces', invite.members.length > 0);
+        $('title-en').textContent = 'You’re invited to “' + invite.list + '” on Sallitna.';
+        if (invite.expired) {
+          if (invite.inviter) $('expired-body').textContent = 'لينكات الدعوة بتشتغل 7 أيام بس. اطلب من ' + invite.inviter + ' لينك جديد.';
+          show('expired', true);
+          show('code-card', false);
+          show('open', false);
+          show('no-app', false);
+          show('other-languages', false);
+        }
+      }
+
       if (code.length < 4 || location.pathname.indexOf('/j/') !== 0) {
-        document.getElementById('code-card').classList.add('hidden');
-        document.getElementById('open').classList.add('hidden');
-        document.getElementById('missing').classList.remove('hidden');
+        show('code-card', false);
+        show('open', false);
+        show('missing', true);
       } else {
-        document.getElementById('code').textContent = code;
+        $('code').textContent = code;
         // Opens the installed app on its join screen with the code filled in
-        document.getElementById('open').href = 'sallitna://join?code=' + code;
-        var copy = document.getElementById('copy');
-        copy.addEventListener('click', function () {
+        $('open').href = 'sallitna://join?code=' + code;
+        $('copy').addEventListener('click', function () {
           navigator.clipboard.writeText(code).then(function () {
-            copy.textContent = 'اتنسخ ✓';
+            $('copy').textContent = 'اتنسخ ✓';
           });
         });
+        // If the lookup fails, the neutral title stays — never the wrong list
+        fetch('/api/invite?code=' + encodeURIComponent(code))
+          .then(function (r) {
+            return r.ok ? r.json() : null;
+          })
+          .then(function (invite) {
+            if (invite && invite.found) showInvite(invite);
+          })
+          .catch(function () {});
       }
     </script>
   </body>

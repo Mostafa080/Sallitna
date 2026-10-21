@@ -1161,3 +1161,24 @@ Agreed: ask when creating a list — «القائمة دي لمين؟» العي
 
 ### Known issues
 - Invite previews (before joining) don't know the list's group yet, so join screens keep «العيلة».
+
+## Session 26b — 2026-10-21: The invite page shows the real list
+
+The page said «اتدعيت لقائمة البيت» for every invite (it only knew the code).
+
+### Done
+- **Database** (`20261021150000_get_invite_kind.sql`): the invite lookup also returns who the list is for.
+  **Security tests 118/118.**
+- **Invite site:** a small Vercel function `frontend/invite/api/invite.js` (`/api/invite?code=…`) asks Supabase with the
+  public key (kept in Vercel's settings, not in the page) and returns only: list name, inviter, kind, member count +
+  initials, expired. The page then shows «احمد حسن بيدعيك · انضم لقائمة «الشغل»», the member circles, «قائمة الشغل ·
+  فيها 3 أفراد». Expired codes: «الدعوة دي خلصت — اطلب من سارة لينك جديد». Unknown code or no answer: the neutral
+  «اتدعيت لقائمة على سلّتنا» (never the wrong list). Names are inserted as text only.
+- Checked here with a fake Supabase: work list, expired, unknown, a malicious list name (nothing ran).
+
+### Your steps
+1. Merge the pull request.
+2. Vercel → **sallitna-invite** → Settings → **Environment Variables**: add `EXPO_PUBLIC_SUPABASE_URL` and
+   `EXPO_PUBLIC_SUPABASE_KEY` (same values as the dashboard; publishable key only) → Redeploy.
+3. On your Mac: `git pull origin main`, `npm run db:push`, `npm run db:test` (expect 118).
+4. Open the app's invite link → the page shows the list's real name.
