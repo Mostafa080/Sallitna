@@ -1232,6 +1232,11 @@ Now a code is only needed once (to prove the email is yours) and after «نسي�
 - Tested in a browser with a fake Supabase: wrong + right password, forgot password, new person, already signed
   in without a password, change from «حسابي».
 
+### Fix (28b)
+- «اعمل كلمة سر» didn't show on a phone for someone already signed in: the check only ran when «قوايمي» came into
+  view. Now `components/PasswordGate.tsx` (in the root layout) checks on any screen, at launch and whenever the app
+  comes back to the front (not on the sign-in screen or the password screen itself).
+
 ### Your side (Supabase dashboard)
 - Authentication → Sign In / Providers → Email: email provider on, «Minimum password length» = 8,
   «Secure password change» OFF (otherwise people signed in long ago can't save their first password).
