@@ -1244,3 +1244,11 @@ Now a code is only needed once (to prove the email is yours) and after «نسي�
 ### Known issues
 - The admin dashboard still signs in with a code (only admins use it).
 - Joining a second list by invite still sends a code.
+
+## Session 28c — 2026-10-22: Test accounts cleaned up
+
+- Deleted 5 test accounts (fekra.lab1, fekralab.1, fekralab1, fekrala.b1 @gmail.com, fekralab.1@gmail.co) and their
+  3 one-person lists, with SQL in the Supabase SQL Editor (lists first, then the accounts, in one transaction).
+- Left: mostafagafaar080 (admin), mostemarktin.g, mostemarkting.
+- Tip: Gmail ignores dots, so «a.b@gmail.com» and «ab@gmail.com» reach the same inbox but are separate accounts.
+- Any photos those accounts uploaded may still be in Storage (family-photos) — harmless, can be removed by hand.
