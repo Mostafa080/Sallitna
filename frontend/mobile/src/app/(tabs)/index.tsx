@@ -82,8 +82,8 @@ export default function MyListsScreen() {
     }
   }, [list.mode]);
 
-  // Not signed in → welcome. Signed in without a password yet (from before passwords) → «اعمل كلمة سر» first.
-  // Signed in without a list → «عرّفنا عليك» or «أنشئ قائمتك الأولى».
+  // Not signed in → welcome. Signed in without a list → «عرّفنا عليك» or «أنشئ قائمتك الأولى»
+  // (after «اعمل كلمة سر» for someone without a password yet — components/PasswordGate.tsx opens that one).
   // Runs again whenever we come back here unfinished, so nobody gets stuck on the logo.
   useFocusEffect(
     useCallback(() => {
@@ -91,12 +91,10 @@ export default function MyListsScreen() {
         router.push('/welcome');
         return;
       }
-      if (list.mode !== 'live' && list.mode !== 'needsHousehold') return;
+      if (list.mode !== 'needsHousehold') return;
       let active = true;
       api.hasPassword().then((has) => {
-        if (!active) return;
-        if (!has) router.push('/set-password');
-        else if (list.mode === 'needsHousehold') router.push(list.hasSignupProfile ? '/first-list' : '/about-you');
+        if (active && has) router.push(list.hasSignupProfile ? '/first-list' : '/about-you');
       });
       return () => {
         active = false;
