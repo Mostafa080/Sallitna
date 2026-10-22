@@ -57,6 +57,11 @@ export default function RootLayout() {
             <Stack.Screen name="invite-expired" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
             <Stack.Screen name="helper" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
             <Stack.Screen name="notifications" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
+            {/* Making a password can't be swiped away (changing it from «حسابي» has a back button) */}
+            <Stack.Screen
+              name="set-password"
+              options={{ presentation: 'fullScreenModal', animation: 'fade', gestureEnabled: false }}
+            />
             {/* Sign-up and joining: each step opens over the last, and finishing closes them all */}
             {['welcome', 'verify', 'about-you', 'first-list', 'new-list', 'setup-invite', 'join', 'join-setup'].map((name) => (
               <Stack.Screen

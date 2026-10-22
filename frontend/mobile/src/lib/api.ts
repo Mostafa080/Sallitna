@@ -138,6 +138,37 @@ export async function verifyCode(email: string, code: string) {
   check(await supabase.auth.verifyOtp({ email, token: code, type: 'email' }));
 }
 
+// Next times: email + password, no email sent. 'wrong' = wrong password or no such account
+// (one answer for both, so nobody can test which emails have an account).
+export async function signInWithPassword(email: string, password: string): Promise<'ok' | 'wrong'> {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (!error) {
+    // Signed in with one, so they have one (in case it was never marked)
+    if (data.user?.user_metadata?.has_password !== true) await supabase.auth.updateUser({ data: { has_password: true } });
+    return 'ok';
+  }
+  if (error.code === 'invalid_credentials' || error.code === 'email_not_confirmed') return 'wrong';
+  throw new Error(error.message);
+}
+
+// Everyone needs a password (set after their first code). Marked on the account so the app knows.
+export const PASSWORD_MIN_LENGTH = 8;
+
+export async function hasPassword() {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user.user_metadata?.has_password === true;
+}
+
+// Save a new password (signed in by code, or changing it from «حسابي»)
+export async function setPassword(password: string) {
+  const { error } = await supabase.auth.updateUser({ password, data: { has_password: true } });
+  // Typed their current password again (e.g. after «نسيت كلمة السر؟»): it's set, just mark it
+  if (error?.code === 'same_password') {
+    const marked = await supabase.auth.updateUser({ data: { has_password: true } });
+    if (marked.error) throw new Error(marked.error.message);
+  } else if (error) throw new Error(error.message);
+}
+
 export async function signOut() {
   const { error } = await supabase.auth.signOut();
   if (error) throw new Error(error.message);

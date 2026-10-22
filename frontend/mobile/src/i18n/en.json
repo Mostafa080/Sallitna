@@ -643,7 +643,8 @@
     "signOutTitle": "Sign out on this phone?",
     "signOutBody": "Your list stays. Come back with your email.",
     "signOutConfirm": "Sign out",
-    "exitDemo": "Leave the demo"
+    "exitDemo": "Leave the demo",
+    "password": "Change password"
   },
   "helper": {
     "home": "{{name}}'s home",
@@ -707,7 +708,8 @@
     "benefitLanguage": "Your driver or helper sees it in their language",
     "start": "Start a new list",
     "haveInvite": "I have an invite from my family",
-    "helperNote": "Driver or helper? Tap “عندي دعوة من العيلة” and type your code."
+    "helperNote": "Driver or helper? Tap “عندي دعوة من العيلة” and type your code.",
+    "haveAccount": "I have an account — sign in"
   },
   "verify": {
     "edit": "Edit",
@@ -729,13 +731,20 @@
     "lockNote": "After {{attempts}} wrong tries we wait {{minutes}} minutes before sending a new code",
     "sendFailed": "Couldn't send the code. Check the email and your connection, then try again.",
     "emailTitle": "Your email",
-    "emailBody": "We'll email you a 6-digit code. No password.",
+    "emailBody": "We'll email you a 6-digit code to make sure it's yours.",
     "emailLabel": "Email",
     "emailPlaceholder": "name@example.com",
     "emailHint": "Use an email you check — the code goes there",
     "sentEmail": "We emailed you the code",
     "spamHint": "Can't find it? Check your Spam or Junk folder.",
-    "wrongEmail": "Wrong email? Edit it"
+    "wrongEmail": "Wrong email? Edit it",
+    "signinTitle": "Sign in",
+    "signinBody": "Enter your email and password.",
+    "signin": "Sign in",
+    "forgot": "Forgot password?",
+    "firstTimeHint": "First time with a password? Tap “Forgot password?” and we'll email you a code.",
+    "wrongPassword": "The email or password isn't right.",
+    "signinFailed": "Couldn't sign you in. Check your connection and try again."
   },
   "setup": {
     "title": "Name your home",
@@ -936,5 +945,22 @@
       "group": "everyone",
       "members": "List members"
     }
+  },
+  "password": {
+    "label": "Password",
+    "show": "Show password",
+    "hide": "Hide password",
+    "newTitle": "Make a password",
+    "newBody": "Next time, sign in with your email and password — no waiting for a code.",
+    "resetTitle": "Make a new password",
+    "resetBody": "Type a new password. You'll sign in with it from now on.",
+    "changeTitle": "Change password",
+    "changeBody": "Type your new password.",
+    "rule": "At least {{n}} letters or numbers",
+    "tooShort": "Your password needs at least {{n}} letters or numbers.",
+    "save": "Save and continue",
+    "saveChange": "Save",
+    "saved": "Password saved",
+    "saveFailed": "Couldn't save your password. Check your connection and try again."
   }
 }

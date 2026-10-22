@@ -1,7 +1,7 @@
 // Building blocks for sign-up and joining (welcome, email + code, name your home, join).
 
-import { ShoppingBasket } from 'lucide-react-native';
-import { useContext, type ReactNode } from 'react';
+import { Eye, EyeOff, ShoppingBasket } from 'lucide-react-native';
+import { useContext, useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 
 import { AppText } from '@/components/AppText';
@@ -118,6 +118,50 @@ export function EmailField({ value, onChange, onEdit, onSubmit, autoFocus, label
           </AppText>
         </View>
       )}
+    </View>
+  );
+}
+
+// --- Password field ----------------------------------------------------------------------
+
+type PasswordFieldProps = {
+  value: string;
+  onChange: (password: string) => void;
+  onSubmit?: () => void; // the keyboard's «go» key
+  isNew?: boolean; // making a password (the phone offers a strong one) vs signing in with it
+  error?: boolean;
+  autoFocus?: boolean;
+  label: string;
+};
+
+// Dots by default; the eye on the end side shows what was typed
+export function PasswordField({ value, onChange, onSubmit, isNew, error, autoFocus, label }: PasswordFieldProps) {
+  const [visible, setVisible] = useState(false);
+  const EyeIcon = visible ? EyeOff : Eye;
+  return (
+    <View style={[styles.emailField, error && styles.fieldError]}>
+      <Pressable
+        onPress={() => setVisible((v) => !v)}
+        hitSlop={spacing.sm}
+        style={styles.emailEdit}
+        accessibilityRole="button"
+        accessibilityLabel={t(visible ? 'password.hide' : 'password.show')}>
+        <EyeIcon size={size.icon - spacing.xs} color={colors.muted} strokeWidth={size.iconStroke} />
+      </Pressable>
+      <TextInput
+        value={value}
+        onChangeText={onChange}
+        onSubmitEditing={onSubmit}
+        secureTextEntry={!visible}
+        textContentType={isNew ? 'newPassword' : 'password'}
+        autoComplete={isNew ? 'new-password' : 'current-password'}
+        autoCapitalize="none"
+        autoCorrect={false}
+        returnKeyType="go"
+        autoFocus={autoFocus}
+        style={[styles.emailInput, styles.emailText]}
+        accessibilityLabel={label}
+      />
     </View>
   );
 }
@@ -277,6 +321,10 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     backgroundColor: colors.surface,
     overflow: 'hidden',
+  },
+  fieldError: {
+    borderWidth: size.borderThick,
+    borderColor: colors.danger,
   },
   emailEdit: {
     justifyContent: 'center',

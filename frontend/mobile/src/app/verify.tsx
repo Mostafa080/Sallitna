@@ -1,5 +1,7 @@
 // Email → 6-digit code, with Supabase email sign-in (the code is emailed through Resend, see supabase/config.toml).
 // mode=create: new household (email is typed here). mode=join: email, invite code and list name come from join.
+// mode=signin: email + password (no email sent); «نسيت كلمة السر؟» sends a code instead.
+// After any code, someone without a password (or who forgot it) makes one before going on.
 
 import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -11,7 +13,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { DirectionView, directionOf } from '@/components/DirectionView';
 import { backIconFor, CircleButton } from '@/components/family/FamilyParts';
-import { cleanEmail, CodeBoxes, EmailField, isValidEmail, ltrEmail } from '@/components/onboarding/OnboardingParts';
+import { NewPasswordFields, useNewPassword } from '@/components/onboarding/NewPassword';
+import {
+  cleanEmail,
+  CodeBoxes,
+  EmailField,
+  isValidEmail,
+  ltrEmail,
+  PasswordField,
+} from '@/components/onboarding/OnboardingParts';
 import { SheetButton } from '@/components/shop/Sheet';
 import { UndoToast } from '@/components/UndoToast';
 import {
@@ -27,7 +37,7 @@ import { useList } from '@/store/ListStore';
 import { colors, opacity, radius, size, spacing } from '@/theme';
 
 type Params = {
-  mode?: 'create' | 'join';
+  mode?: 'create' | 'join' | 'signin';
   email?: string;
   lang?: LanguageKey;
   code?: string;
@@ -43,19 +53,25 @@ export default function VerifyScreen() {
   const list = useList();
   const params = useLocalSearchParams<Params>();
   const joining = params.mode === 'join';
+  const signingIn = params.mode === 'signin';
   // A helper joining sees these steps in their language (picked on the join screen); everyone else Arabic
   const [language] = useState(getLanguage);
   const tr = (key: string, p?: Record<string, string | number>) => tIn(language, key, p);
 
   const [email, setEmail] = useState(params.email ?? '');
-  const [step, setStep] = useState<'email' | 'code'>(params.email ? 'code' : 'email');
+  const [step, setStep] = useState<'email' | 'code' | 'newPassword'>(params.email ? 'code' : 'email');
+  const [password, setPassword] = useState(''); // signing in
+  const [wrongPassword, setWrongPassword] = useState(false);
+  const [forgot, setForgot] = useState(false); // came through «نسيت كلمة السر؟» → a new password after the code
   const [code, setCode] = useState('');
   const [wrongTries, setWrongTries] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [busy, setBusy] = useState(false); // waiting for Supabase
 
+  const newPassword = useNewPassword(tr, list.notify);
+
   const locked = wrongTries >= OTP_MAX_ATTEMPTS;
-  const showError = wrongTries > 0;
+  const showError = wrongTries > 0 && step === 'code';
   const codeIsWrong = showError && code.length === OTP_LENGTH;
 
   const sendCode = async (): Promise<boolean> => {
@@ -92,12 +108,48 @@ export default function VerifyScreen() {
     if (await sendCode()) setStep('code');
   };
 
+  const onForgot = async () => {
+    if (!isValidEmail(email) || busy) return;
+    Haptics.selectionAsync();
+    setForgot(true);
+    setWrongTries(0);
+    if (await sendCode()) setStep('code');
+  };
+
+  const onSignIn = async () => {
+    if (!isValidEmail(email) || !password || busy) return;
+    setBusy(true);
+    try {
+      if ((await api.signInWithPassword(cleanEmail(email), password)) === 'wrong') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        setWrongPassword(true);
+        setBusy(false);
+        return;
+      }
+    } catch (error) {
+      if (__DEV__) console.warn('[signInWithPassword]', error);
+      list.notify(tr('verify.signinFailed'));
+      setBusy(false);
+      return;
+    }
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    await goOn();
+  };
+
+  const onSavePassword = async () => {
+    if (await newPassword.save()) {
+      setBusy(true);
+      await goOn();
+    }
+  };
+
   const onEditEmail = () => {
     if (joining) {
       router.back();
       return;
     }
     setCode('');
+    setForgot(false);
     setStep('email');
   };
 
@@ -113,6 +165,17 @@ export default function VerifyScreen() {
       return;
     }
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    // Everyone needs a password: make one now (or a new one after «نسيت كلمة السر؟»)
+    if (forgot || !(await api.hasPassword())) {
+      setBusy(false);
+      setStep('newPassword');
+      return;
+    }
+    await goOn();
+  };
+
+  // Signed in: where to next
+  const goOn = async () => {
     if (joining) {
       router.replace({
         pathname: '/join-setup',
@@ -152,11 +215,16 @@ export default function VerifyScreen() {
           contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.md }]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
+          {/* Making the password can't be skipped (already signed in by then) */}
           <View style={styles.header}>
-            <CircleButton icon={BackIcon} label={tr('onboarding.back')} onPress={() => router.back()} />
+            {step !== 'newPassword' && (
+              <CircleButton icon={BackIcon} label={tr('onboarding.back')} onPress={() => router.back()} />
+            )}
           </View>
 
-          {showError ? (
+          {step === 'newPassword' ? (
+            <NewPasswordFields kind={forgot ? 'reset' : 'new'} tr={tr} form={newPassword} onSubmit={onSavePassword} />
+          ) : showError ? (
             // After a wrong code (code-error.png)
             <>
               <View style={styles.intro}>
@@ -204,10 +272,10 @@ export default function VerifyScreen() {
             <>
               <View style={styles.intro}>
                 <AppText variant="title" weight="bold" style={styles.title} accessibilityRole="header">
-                  {tr('verify.emailTitle')}
+                  {tr(signingIn && step === 'email' ? 'verify.signinTitle' : 'verify.emailTitle')}
                 </AppText>
                 <AppText variant="item" color="muted">
-                  {tr('verify.emailBody')}
+                  {tr(signingIn && step === 'email' ? 'verify.signinBody' : 'verify.emailBody')}
                 </AppText>
               </View>
 
@@ -218,20 +286,64 @@ export default function VerifyScreen() {
                 {step === 'email' ? (
                   <EmailField
                     value={email}
-                    onChange={setEmail}
-                    onSubmit={onSendFirst}
+                    onChange={(value) => {
+                      setEmail(value);
+                      setWrongPassword(false);
+                    }}
+                    onSubmit={signingIn ? undefined : onSendFirst}
                     autoFocus
                     label={tr('verify.emailLabel')}
                   />
                 ) : (
                   <EmailField value={email} onEdit={onEditEmail} label={tr('verify.emailLabel')} />
                 )}
-                {step === 'email' && (
+                {step === 'email' && !signingIn && (
                   <AppText variant="body" color="muted">
                     {tr('verify.emailHint')}
                   </AppText>
                 )}
               </View>
+
+              {step === 'email' && signingIn && (
+                <View style={styles.block}>
+                  <AppText variant="label" weight="bold">
+                    {tr('password.label')}
+                  </AppText>
+                  <PasswordField
+                    value={password}
+                    onChange={(value) => {
+                      setPassword(value);
+                      setWrongPassword(false);
+                    }}
+                    onSubmit={onSignIn}
+                    error={wrongPassword}
+                    label={tr('password.label')}
+                  />
+                  {wrongPassword ? (
+                    <View style={styles.passwordError} accessibilityLiveRegion="polite">
+                      <AlertCircle size={size.icon - spacing.xs} color={colors.danger} strokeWidth={size.iconStroke} />
+                      <AppText variant="label" weight="semibold" color="danger" style={styles.flexShrink}>
+                        {tr('verify.wrongPassword')}
+                      </AppText>
+                    </View>
+                  ) : (
+                    <AppText variant="body" color="muted">
+                      {tr('verify.firstTimeHint')}
+                    </AppText>
+                  )}
+                  <Pressable
+                    onPress={onForgot}
+                    disabled={!isValidEmail(email) || busy}
+                    hitSlop={spacing.md}
+                    style={[styles.forgot, !isValidEmail(email) && styles.disabled]}
+                    accessibilityRole="button"
+                    accessibilityState={{ disabled: !isValidEmail(email) }}>
+                    <AppText variant="body" weight="bold" color="accentInk">
+                      {tr('verify.forgot')}
+                    </AppText>
+                  </Pressable>
+                </View>
+              )}
 
               {step === 'code' && (
                 <>
@@ -271,10 +383,18 @@ export default function VerifyScreen() {
         <UndoToast bottomOffset={insets.bottom + size.button + spacing.xxxl * 2} />
 
         <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
-          {showError ? (
+          {step === 'newPassword' ? (
+            <SheetButton
+              label={tr('password.save')}
+              onPress={onSavePassword}
+              disabled={!newPassword.password || newPassword.busy || busy}
+            />
+          ) : showError ? (
             <AppText variant="body" color="muted" style={styles.center}>
               {tr('verify.lockNote', { attempts: OTP_MAX_ATTEMPTS, minutes: OTP_LOCK_MINUTES })}
             </AppText>
+          ) : step === 'email' && signingIn ? (
+            <SheetButton label={tr('verify.signin')} onPress={onSignIn} disabled={!isValidEmail(email) || !password || busy} />
           ) : step === 'email' ? (
             <SheetButton label={tr('verify.send')} onPress={onSendFirst} disabled={!isValidEmail(email) || busy} />
           ) : (
@@ -343,6 +463,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
+  },
+  passwordError: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  forgot: {
+    alignSelf: 'flex-start',
+    minHeight: size.touch,
+    justifyContent: 'center',
   },
   errorLine: {
     flexDirection: 'row',

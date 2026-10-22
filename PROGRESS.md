@@ -1212,3 +1212,30 @@ see the plan in this conversation — and paused; nothing installed.)
 
 ### Known issues
 - The screens have no product photos (the sample data has none).
+
+## Session 28 — 2026-10-22: Passwords (required)
+
+Why: every sign-in on a new phone (or after signing out) emailed a code, using up the Resend / Supabase email quota.
+Now a code is only needed once (to prove the email is yours) and after «نسيت كلمة السر؟».
+
+### Done
+- Welcome: new «عندي حساب، ادخل» → email + password, «ادخل» (no email sent). Wrong password → «الإيميل أو كلمة السر
+  مش صح» (same answer whether the email exists or not). «نسيت كلمة السر؟» → code → «اعمل كلمة سر جديدة».
+- New people and people joining by invite: email → code → «اعمل كلمة سر» (required, no skip, no back) → as before.
+- People signed in from before passwords: the app opens «اعمل كلمة سر» first (can't be swiped away), no email sent.
+- «حسابي» → «غيّر كلمة السر».
+- At least 8 characters (in the app + `minimum_password_length = 8` in supabase/config.toml).
+- How the app knows someone has a password: `has_password: true` on the account (Supabase user metadata), set when
+  the password is saved or used to sign in. The password itself is only kept by Supabase (hashed).
+- New: `app/set-password.tsx`, `components/onboarding/NewPassword.tsx`, `PasswordField`; `api.signInWithPassword`,
+  `api.setPassword`, `api.hasPassword`. Text in ar / en / hi.
+- Tested in a browser with a fake Supabase: wrong + right password, forgot password, new person, already signed
+  in without a password, change from «حسابي».
+
+### Your side (Supabase dashboard)
+- Authentication → Sign In / Providers → Email: email provider on, «Minimum password length» = 8,
+  «Secure password change» OFF (otherwise people signed in long ago can't save their first password).
+
+### Known issues
+- The admin dashboard still signs in with a code (only admins use it).
+- Joining a second list by invite still sends a code.
