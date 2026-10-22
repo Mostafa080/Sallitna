@@ -62,6 +62,11 @@ export default function WelcomeScreen() {
 
       <View style={styles.footer}>
         <SheetButton label={t('welcome.start')} onPress={() => router.push('/verify')} />
+        <SheetButton
+          label={t('welcome.haveAccount')}
+          tone="link"
+          onPress={() => router.push({ pathname: '/verify', params: { mode: 'signin' } })}
+        />
         <SheetButton label={t('welcome.haveInvite')} tone="link" onPress={() => router.push('/join')} />
         {/* For a driver or helper who doesn't read Arabic */}
         <AppText variant="meta" color="muted" style={styles.helperNote}>

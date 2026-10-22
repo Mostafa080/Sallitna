@@ -642,7 +642,8 @@
     "signOutTitle": "Sign out on this phone?",
     "signOutBody": "आपकी लिस्ट रहेगी। अपने ईमेल से वापस आएँ।",
     "signOutConfirm": "Sign out",
-    "exitDemo": "Leave the demo"
+    "exitDemo": "Leave the demo",
+    "password": "पासवर्ड बदलें"
   },
   "helper": {
     "home": "{{name}} का घर",
@@ -706,7 +707,8 @@
     "benefitLanguage": "Your driver or helper sees it in their language",
     "start": "Start a new list",
     "haveInvite": "I have an invite from my family",
-    "helperNote": "ड्राइवर या हेल्पर? “عندي دعوة من العيلة” दबाएँ और अपना कोड लिखें।"
+    "helperNote": "ड्राइवर या हेल्पर? “عندي دعوة من العيلة” दबाएँ और अपना कोड लिखें।",
+    "haveAccount": "I have an account — sign in"
   },
   "verify": {
     "edit": "बदलें",
@@ -728,13 +730,20 @@
     "lockNote": "{{attempts}} गलत कोशिशों के बाद हम नया कोड भेजने से पहले {{minutes}} मिनट रुकते हैं",
     "sendFailed": "कोड नहीं भेज पाए। ईमेल और इंटरनेट जाँचें, फिर कोशिश करें।",
     "emailTitle": "आपका ईमेल",
-    "emailBody": "हम आपको ईमेल पर 6 अंकों का कोड भेजेंगे। कोई पासवर्ड नहीं।",
+    "emailBody": "हम आपको ईमेल पर 6 अंकों का कोड भेजेंगे, ताकि पक्का हो कि ईमेल आपका है।",
     "emailLabel": "ईमेल",
     "emailPlaceholder": "name@example.com",
     "emailHint": "वह ईमेल डालें जो आप देखते हैं — कोड वहीं आएगा",
     "sentEmail": "हमने ईमेल पर कोड भेजा",
     "spamHint": "नहीं मिला? Spam या Junk फ़ोल्डर देखें।",
-    "wrongEmail": "गलत ईमेल? बदलें"
+    "wrongEmail": "गलत ईमेल? बदलें",
+    "signinTitle": "साइन इन करें",
+    "signinBody": "अपना ईमेल और पासवर्ड लिखें।",
+    "signin": "साइन इन",
+    "forgot": "पासवर्ड भूल गए?",
+    "firstTimeHint": "पहली बार पासवर्ड से? “पासवर्ड भूल गए?” दबाएँ, हम ईमेल पर कोड भेजेंगे।",
+    "wrongPassword": "ईमेल या पासवर्ड सही नहीं है।",
+    "signinFailed": "साइन इन नहीं हो पाया। इंटरनेट जाँचें और फिर कोशिश करें।"
   },
   "setup": {
     "title": "Name your home",
@@ -935,5 +944,22 @@
       "group": "सब",
       "members": "लिस्ट के लोग"
     }
+  },
+  "password": {
+    "label": "पासवर्ड",
+    "show": "पासवर्ड दिखाएँ",
+    "hide": "पासवर्ड छिपाएँ",
+    "newTitle": "पासवर्ड बनाएँ",
+    "newBody": "अगली बार ईमेल और पासवर्ड से साइन इन करें — कोड का इंतज़ार नहीं।",
+    "resetTitle": "नया पासवर्ड बनाएँ",
+    "resetBody": "नया पासवर्ड लिखें। अब से आप इसी से साइन इन करेंगे।",
+    "changeTitle": "पासवर्ड बदलें",
+    "changeBody": "अपना नया पासवर्ड लिखें।",
+    "rule": "कम से कम {{n}} अक्षर या अंक",
+    "tooShort": "पासवर्ड में कम से कम {{n}} अक्षर या अंक होने चाहिए।",
+    "save": "सेव करें और आगे बढ़ें",
+    "saveChange": "सेव करें",
+    "saved": "पासवर्ड सेव हो गया",
+    "saveFailed": "पासवर्ड सेव नहीं हो पाया। इंटरनेट जाँचें और फिर कोशिश करें।"
   }
 }

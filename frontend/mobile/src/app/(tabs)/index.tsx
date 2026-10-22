@@ -17,6 +17,7 @@ import { Brand, Field } from '@/components/onboarding/OnboardingParts';
 import { Sheet, SheetButton } from '@/components/shop/Sheet';
 import { UndoToast } from '@/components/UndoToast';
 import { t } from '@/i18n';
+import * as api from '@/lib/api';
 import type { ListSummary } from '@/lib/api';
 import { useHideTabBar } from '@/lib/tabBar';
 import { useList } from '@/store/ListStore';
@@ -81,12 +82,25 @@ export default function MyListsScreen() {
     }
   }, [list.mode]);
 
-  // Not signed in → welcome. Signed in without a list → «عرّفنا عليك» or «أنشئ قائمتك الأولى».
+  // Not signed in → welcome. Signed in without a password yet (from before passwords) → «اعمل كلمة سر» first.
+  // Signed in without a list → «عرّفنا عليك» or «أنشئ قائمتك الأولى».
   // Runs again whenever we come back here unfinished, so nobody gets stuck on the logo.
   useFocusEffect(
     useCallback(() => {
-      if (list.mode === 'signedOut') router.push('/welcome');
-      else if (list.mode === 'needsHousehold') router.push(list.hasSignupProfile ? '/first-list' : '/about-you');
+      if (list.mode === 'signedOut') {
+        router.push('/welcome');
+        return;
+      }
+      if (list.mode !== 'live' && list.mode !== 'needsHousehold') return;
+      let active = true;
+      api.hasPassword().then((has) => {
+        if (!active) return;
+        if (!has) router.push('/set-password');
+        else if (list.mode === 'needsHousehold') router.push(list.hasSignupProfile ? '/first-list' : '/about-you');
+      });
+      return () => {
+        active = false;
+      };
     }, [list.mode, list.hasSignupProfile]),
   );
 

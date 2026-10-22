@@ -234,6 +234,13 @@ export default function AccountScreen() {
 
         <Card style={styles.lastCard}>
           <Row title={t('settings.help')} onPress={comingSoon} end={<View />} />
+          {list.mode === 'live' && (
+            <Row
+              title={t('settings.password')}
+              onPress={() => router.push({ pathname: '/set-password', params: { mode: 'change' } })}
+              divider
+            />
+          )}
           <Row
             title={t(list.mode === 'demo' ? 'settings.exitDemo' : 'settings.signOut')}
             onPress={onSignOut}
