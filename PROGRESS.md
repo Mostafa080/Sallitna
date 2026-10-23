@@ -1323,3 +1323,8 @@ couldn't open in Expo Go (and notifications on iPhone without a paid Apple accou
 ### Known issues
 - gesture-handler 3 marks `Gesture.Pan()` (swipe on an item) as deprecated — still works; move to `usePanGesture`
   in a later session.
+
+### Fix (29e) — the app in a browser
+- `npx expo start` → `w` crashed with «window is not defined»: the web version draws pages on the computer first,
+  and the Supabase client tried to read the saved sign-in there. `lib/supabase.ts` skips saved sign-in only during
+  that step (phones unaffected). Useful for testing with a second account in the Mac's browser.

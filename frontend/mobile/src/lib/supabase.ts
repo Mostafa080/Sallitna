@@ -4,7 +4,7 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const key = process.env.EXPO_PUBLIC_SUPABASE_KEY;
@@ -13,11 +13,14 @@ if (!url || !key) {
   throw new Error('Missing EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_KEY — copy .env.example to .env');
 }
 
+// The web version first draws its pages on the computer (no browser yet, so nothing saved to read)
+const drawingOnServer = Platform.OS === 'web' && typeof window === 'undefined';
+
 export const supabase = createClient(url, key, {
   auth: {
-    storage: AsyncStorage, // stay signed in after closing the app
-    autoRefreshToken: true,
-    persistSession: true,
+    storage: drawingOnServer ? undefined : AsyncStorage, // stay signed in after closing the app
+    autoRefreshToken: !drawingOnServer,
+    persistSession: !drawingOnServer,
     detectSessionInUrl: false,
   },
 });
