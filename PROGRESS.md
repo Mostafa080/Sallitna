@@ -1302,3 +1302,24 @@ Now a code is only needed once (to prove the email is yours) and after «نسي�
 - In Expo Go the notifications show «Expo Go» as the app name/icon; the real name comes with the App Store build.
 - Expo Go on Android can't receive notifications (needs a test build) — iPhone is fine.
 - Handing a trip over («كمّل بدالي») doesn't send «خلّص» (nothing was finished).
+
+## Session 29d — 2026-10-23: Expo SDK 57 → 58
+
+Why: Expo Go on the iPhone updated to SDK 58 and only the newest Expo Go can be installed, so the SDK 57 app
+couldn't open in Expo Go (and notifications on iPhone without a paid Apple account need Expo Go).
+
+### Done
+- `expo` 58.0.17 and every Expo library set to its SDK 58 version (`expo install --fix`): react-native 0.88,
+  react 19.3, expo-router 58, react-native-gesture-handler 3.3, reanimated 4.7, expo-notifications 58.1, …
+  `package-lock.json` regenerated (fresh install).
+- One code change: the list screen's scroll ref type (`ScrollViewInstance`) for gesture-handler 3.
+- Checked: typecheck, app config, every sign-in / password / trip test in the browser, and the 4 main screens look
+  the same as before.
+
+### Your side
+- After pulling: in `frontend/mobile` run `npm install` (new versions), then `npx expo start --go -c` and pick
+  «Expo Go». The old Development Build (SDK 57) won't load this version.
+
+### Known issues
+- gesture-handler 3 marks `Gesture.Pan()` (swipe on an item) as deprecated — still works; move to `usePanGesture`
+  in a later session.
