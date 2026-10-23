@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { Mic, Plus, Search } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, View, type ScrollViewInstance } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { FadeOut, LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -42,7 +42,7 @@ export default function ListScreen() {
   // Empty state stays up while the user picks basics, until they tap "show list"
   const [starterMode, setStarterMode] = useState(false);
   const [addedBasics, setAddedBasics] = useState<Record<string, string>>({});
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
 
   // Signed out (or the list is gone) → back to «قوايمي», which takes over (welcome / sign-up)
   const ready = list.mode === 'live' || list.mode === 'demo';
