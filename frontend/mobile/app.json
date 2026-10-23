@@ -61,6 +61,12 @@
       "typedRoutes": true,
       "reactCompiler": true
     },
-    "backgroundColor": "#F6F4EF"
+    "backgroundColor": "#F6F4EF",
+    "owner": "mostafag",
+    "extra": {
+      "eas": {
+        "projectId": "69018711-8bf2-490f-99de-0afb1ba6ef9b"
+      }
+    }
   }
 }
