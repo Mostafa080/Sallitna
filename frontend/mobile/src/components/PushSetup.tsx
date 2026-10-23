@@ -3,10 +3,8 @@
 // • tapping a notification opens the right list and screen — a question opens «رد على السؤال»,
 //   news for the shopper opens «بالسوق», everything else the list.
 
-import { useLastNotificationResponse } from 'expo-notifications';
 import { usePathname, useRootNavigationState, useRouter } from 'expo-router';
-import { useEffect, useRef } from 'react';
-import { Platform } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
 
 import * as push from '@/lib/push';
 import { useList } from '@/store/ListStore';
@@ -27,8 +25,7 @@ export function PushSetup() {
     push.registerForPush().catch((error) => __DEV__ && console.warn('[push] register', error));
   }, [live, list.mode, busySigningIn]);
 
-  // No notifications on the web version
-  return Platform.OS === 'web' ? null : <OpenFromNotification />;
+  return <OpenFromNotification />;
 }
 
 // Opened by tapping a notification
@@ -38,14 +35,15 @@ function OpenFromNotification() {
   const list = useList();
   const live = list.mode === 'live';
   const handled = useRef<string | null>(null);
-  const response = useLastNotificationResponse();
+  const [opened, setOpened] = useState<{ id: string; data: push.PushData } | null>(null);
+
+  useEffect(() => push.watchOpenedNotifications((data, id) => setOpened({ id, data })), []);
 
   useEffect(() => {
-    if (!response || !live || !navigationReady) return;
-    const id = response.notification.request.identifier;
-    if (handled.current === id) return;
-    handled.current = id;
-    const data = (response.notification.request.content.data ?? {}) as push.PushData;
+    if (!opened || !live || !navigationReady) return;
+    if (handled.current === opened.id) return;
+    handled.current = opened.id;
+    const { data } = opened;
     (async () => {
       if (data.householdId && data.householdId !== list.householdId) await list.switchList(data.householdId);
       if (data.type === 'question' && data.questionId) {
@@ -56,7 +54,7 @@ function OpenFromNotification() {
         router.navigate('/list');
       }
     })().catch((error) => __DEV__ && console.warn('[push] open', error));
-  }, [response, live, navigationReady]);
+  }, [opened, live, navigationReady]);
 
   return null;
 }

@@ -1292,6 +1292,12 @@ Now a code is only needed once (to prove the email is yours) and after «نسي�
   visitor, and the local test database copies Supabase's default grants so this shows up before pushing.
 - `npm run db:push` now passes `--linked` (the Supabase CLI will target the local database by default later).
 
+### Fix (29c)
+- On the phone: «Cannot find native module 'ExpoPushTokenManager'» crashed the app at start — it was opened in a
+  development build made before notifications were added (not Expo Go). `lib/push.ts` now loads
+  expo-notifications only when it's built into the app (`requireOptionalNativeModule`); otherwise the app runs
+  without notifications. Test in Expo Go (`npx expo start --go`), or rebuild the development build.
+
 ### Known issues
 - In Expo Go the notifications show «Expo Go» as the app name/icon; the real name comes with the App Store build.
 - Expo Go on Android can't receive notifications (needs a test build) — iPhone is fine.

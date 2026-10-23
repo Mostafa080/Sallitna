@@ -3,10 +3,10 @@
 // who hears about it. Nothing secret here: the function checks everything against the database.
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { isRunningInExpoGo } from 'expo';
+import { isRunningInExpoGo, requireOptionalNativeModule } from 'expo';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
+import type { NotificationResponse } from 'expo-notifications';
 import { Linking, Platform } from 'react-native';
 
 import { supabase } from '@/lib/supabase';
@@ -26,12 +26,18 @@ export type PushStatus = 'granted' | 'denied' | 'undetermined' | 'unavailable';
 
 const TOKEN_KEY = 'sallitna.pushToken';
 
-const supported = Platform.OS !== 'web' && Device.isDevice && !(Platform.OS === 'android' && isRunningInExpoGo());
+// Only loaded when this build of the app has notifications inside it. Expo Go does; a development build made
+// before notifications were added doesn't — then the app works as before, just without notifications.
+const Notifications: typeof import('expo-notifications') | null =
+  Platform.OS !== 'web' && requireOptionalNativeModule('ExpoPushTokenManager') ? require('expo-notifications') : null;
+
+const supported =
+  !!Notifications && Device.isDevice && !(Platform.OS === 'android' && isRunningInExpoGo());
 const projectId: string | undefined = Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
 
 // While the app is open, the screen already updates live — only a question / answer also shows a banner,
 // since someone is waiting for it
-if (Platform.OS !== 'web') {
+if (Notifications) {
   Notifications.setNotificationHandler({
     handleNotification: async (notification) => {
       const type = (notification.request.content.data as PushData | undefined)?.type;
@@ -42,14 +48,14 @@ if (Platform.OS !== 'web') {
 }
 
 export async function pushStatus(): Promise<PushStatus> {
-  if (!supported) return 'unavailable';
+  if (!supported || !Notifications) return 'unavailable';
   const { status } = await Notifications.getPermissionsAsync();
   return status === 'granted' ? 'granted' : status === 'denied' ? 'denied' : 'undetermined';
 }
 
 // Ask once (iOS shows «Allow notifications?»), then save this phone's address for the signed-in person
 export async function registerForPush(): Promise<PushStatus> {
-  if (!supported) return 'unavailable';
+  if (!supported || !Notifications) return 'unavailable';
   let { status } = await Notifications.getPermissionsAsync();
   if (status === 'undetermined') status = (await Notifications.requestPermissionsAsync()).status;
   if (status !== 'granted') return status === 'denied' ? 'denied' : 'undetermined';
@@ -84,6 +90,18 @@ export async function forgetPush() {
   } catch (error) {
     if (__DEV__) console.warn('[push] forget', error);
   }
+}
+
+// A notification was tapped: now (the app was open or in the background) or to open the app (cold start)
+export function watchOpenedNotifications(open: (data: PushData, id: string) => void) {
+  if (!Notifications) return () => {};
+  const handle = (response: NotificationResponse | null) => {
+    if (!response) return;
+    open((response.notification.request.content.data ?? {}) as PushData, response.notification.request.identifier);
+  };
+  handle(Notifications.getLastNotificationResponse());
+  const subscription = Notifications.addNotificationResponseReceivedListener(handle);
+  return () => subscription.remove();
 }
 
 // iPhone Settings → Sallitna (to turn notifications back on)
