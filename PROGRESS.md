@@ -1285,6 +1285,13 @@ Now a code is only needed once (to prove the email is yours) and after «نسي�
 2. `npm run db:push` (new table) and `npm run db:test` (expect 129 passed).
 3. From `backend/`: `npx supabase functions deploy notify` (add `--use-api` if it asks for Docker).
 
+### Fix (29b)
+- `db:test` on the real database: 128/1 — «push: signed out cannot save a phone». Supabase grants new functions
+  to `anon` by default and the migration only revoked `public`. New migration `20261023120000_push_tokens_signed_in_only.sql`
+  revokes `anon` (the functions already refused anyone not signed in). The test now acts as a truly signed-out
+  visitor, and the local test database copies Supabase's default grants so this shows up before pushing.
+- `npm run db:push` now passes `--linked` (the Supabase CLI will target the local database by default later).
+
 ### Known issues
 - In Expo Go the notifications show «Expo Go» as the app name/icon; the real name comes with the App Store build.
 - Expo Go on Android can't receive notifications (needs a test build) — iPhone is fine.

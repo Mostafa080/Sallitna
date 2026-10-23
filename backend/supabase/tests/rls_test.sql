@@ -458,6 +458,7 @@ reset role;
 select pg_temp.check_('push: signing out removes my phone',
   (select count(*) from public.push_tokens where token = 'ExponentPushToken[umm-phone-0001]') = 0);
 set local role anon;
+select set_config('request.jwt.claims', '{"role": "anon"}', true);
 select pg_temp.check_('push: signed out cannot save a phone',
   pg_temp.blocked($q$ select public.save_push_token('ExponentPushToken[anon-phone-001]', 'ios', 'UTC') $q$));
 reset role;
