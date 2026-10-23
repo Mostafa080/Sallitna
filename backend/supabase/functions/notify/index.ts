@@ -36,8 +36,10 @@ Deno.serve(async (req) => {
   }
 
   try {
+    console.log('[notify] event', event?.type);
     const messages = await plan(database(supabase), userId, event);
     const sent = await sendToExpo(supabase, messages);
+    if (messages.length) console.log(`[notify] Expo accepted ${sent} of ${messages.length}`);
     return json({ sent });
   } catch (error) {
     console.error('[notify]', error);
@@ -101,10 +103,11 @@ async function sendToExpo(supabase: ReturnType<typeof createClient>, messages: P
       continue;
     }
     const { data: tickets } = (await response.json()) as {
-      data: { status: 'ok' | 'error'; details?: { error?: string } }[];
+      data: { status: 'ok' | 'error'; message?: string; details?: { error?: string } }[];
     };
     const gone = batch.filter((_, n) => tickets[n]?.details?.error === 'DeviceNotRegistered').map((m) => m.to);
     if (gone.length) await supabase.from('push_tokens').delete().in('token', gone);
+    for (const t of tickets) if (t.status !== 'ok') console.error('[notify] expo refused', JSON.stringify(t));
     sent += tickets.filter((t) => t.status === 'ok').length;
   }
   return sent;
