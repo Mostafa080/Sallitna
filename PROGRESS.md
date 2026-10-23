@@ -1252,3 +1252,40 @@ Now a code is only needed once (to prove the email is yours) and after «نسي�
 - Left: mostafagafaar080 (admin), mostemarktin.g, mostemarkting.
 - Tip: Gmail ignores dots, so «a.b@gmail.com» and «ab@gmail.com» reach the same inbox but are separate accounts.
 - Any photos those accounts uploaded may still be in Storage (family-photos) — harmless, can be removed by hand.
+
+## Session 29 — 2026-10-23: Push notifications
+
+### Done
+- 5 notifications, each in the reader's language (ar / en / hi) and with the sender's gender in the verb:
+  | When | Who | Setting |
+  |---|---|---|
+  | «ابدأ التسوق» | everyone else in the list | «لما حد يبدأ يتسوق» |
+  | question from the store | the person asked | always (also in quiet hours) |
+  | answer | the shopper | always (also in quiet hours) |
+  | something added while someone shops | the shopper (+ anyone with «كل حاجة تتضاف») | «اللي يتضاف وأنا في السوق» |
+  | trip finished («بلّغ العيلة») | everyone else | always |
+  «وقت الهدوء» (11pm–7am in each phone's time zone) holds back everything except questions and answers.
+- Database (`20261023090000_push_notifications.sql`): `push_tokens` (no direct access; `save_push_token` /
+  `forget_push_token` only touch your own phones; a phone that changes hands moves), `private.push_sent` +
+  `claim_push` (service only) so each event is announced once. 11 new security tests → 129 passing locally.
+- Edge Function `backend/supabase/functions/notify` (`index.ts` Supabase + Expo sending, `notify.ts` who gets
+  what, `messages.ts` the text). The app reports what happened; the function checks it's real, recent and the
+  caller's own before sending. Uses the built-in service key; no secrets in the app. `verify_jwt = false` in
+  config.toml because it checks the sign-in itself.
+- App: `expo-notifications` added (expo-device was already there), plugin in app.json. `lib/push.ts`
+  (permission, save/forget the phone, notify), `components/PushSetup.tsx` (asks once after opening a list, not over
+  the password screen; tapping a notification opens the question / «بالسوق» / the list). Sign-out forgets the phone.
+  «حسابي» shows «الإشعارات مقفولة · افتحها» when notifications are off in iPhone Settings.
+- Tested: the who-gets-what logic with sample data (languages, quiet hours, repeats and fakes refused), and the app
+  in a browser (starting a trip reports it; all sign-in / password flows still work).
+
+### Your side
+1. `cd frontend/mobile && npx eas-cli login && npx eas-cli init` → links the app to your Expo account (adds a
+   project id to app.json — send it to me so it's saved in GitHub).
+2. `npm run db:push` (new table) and `npm run db:test` (expect 129 passed).
+3. From `backend/`: `npx supabase functions deploy notify` (add `--use-api` if it asks for Docker).
+
+### Known issues
+- In Expo Go the notifications show «Expo Go» as the app name/icon; the real name comes with the App Store build.
+- Expo Go on Android can't receive notifications (needs a test build) — iPhone is fine.
+- Handing a trip over («كمّل بدالي») doesn't send «خلّص» (nothing was finished).

@@ -643,7 +643,10 @@
     "signOutBody": "आपकी लिस्ट रहेगी। अपने ईमेल से वापस आएँ।",
     "signOutConfirm": "Sign out",
     "exitDemo": "Leave the demo",
-    "password": "पासवर्ड बदलें"
+    "password": "पासवर्ड बदलें",
+    "pushOff": "नोटिफ़िकेशन बंद हैं",
+    "pushOffBody": "फ़ोन की Settings में चालू करने तक कुछ नहीं आएगा",
+    "pushOpenSettings": "चालू करें"
   },
   "helper": {
     "home": "{{name}} का घर",

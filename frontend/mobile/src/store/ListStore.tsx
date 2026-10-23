@@ -33,6 +33,7 @@ import * as api from '@/lib/api';
 import { normalizeArabic } from '@/lib/arabic';
 import { supabase } from '@/lib/supabase';
 import { formatQuantity } from '@/lib/format';
+import * as push from '@/lib/push';
 import type { ListChange } from '@/lib/voiceReview';
 import type { ActiveTrip, Question, QuestionAnswer, Trip, TripOutcome, TripSummary } from '@/store/tripTypes';
 
@@ -622,7 +623,12 @@ function useListState() {
   const addNewItems = (items: Item[]) => {
     if (items.length === 0) return;
     dispatch({ type: 'add', items });
-    if (live && state.householdId) api.insertItems(state.householdId, items).catch(itemsFailed);
+    if (live && state.householdId)
+      api
+        .insertItems(state.householdId, items)
+        // Whoever is shopping right now hears about it (the function decides who)
+        .then(() => push.notify({ type: 'items_added', itemIds: items.map((i) => i.id) }))
+        .catch(itemsFailed);
   };
   // Taking back a fresh addition: gone from the screen; in the database it's marked 'removed'
   // (never deleted — delete events would reach anyone listening, see the realtime migration)
@@ -902,7 +908,10 @@ function useListState() {
       const id = live ? api.newItemId() : newId('trip');
       const startedAt = new Date().toISOString();
       if (live && state.householdId) {
-        api.startTrip(state.householdId, { id, shopperId: me, store, mode, partnerId, startedAt }).catch(itemsFailed);
+        api
+          .startTrip(state.householdId, { id, shopperId: me, store, mode, partnerId, startedAt })
+          .then(() => push.notify({ type: 'trip_started', tripId: id }))
+          .catch(itemsFailed);
       }
 
       // Simulated split (demo only): the partner already took the dairy aisle and found one thing; produce is yours
@@ -996,7 +1005,11 @@ function useListState() {
       };
       if (live && state.householdId) {
         question.id = api.newItemId();
-        api.askQuestion(state.householdId, question).catch(itemsFailed);
+        const questionId = question.id;
+        api
+          .askQuestion(state.householdId, question)
+          .then(() => push.notify({ type: 'question', questionId }))
+          .catch(itemsFailed);
       }
       dispatch({ type: 'trip', patch: { skippedIds, outcomes: withOutcome(trip.outcomes, outcome(item, 'asked')) } });
       dispatch({ type: 'set', patch: { questions: [...state.questions, question] } });
@@ -1046,7 +1059,11 @@ function useListState() {
         type: 'set',
         patch: { questions: state.questions.map((q) => (q.id === questionId ? { ...q, answer, reply } : q)) },
       });
-      if (live) api.answerQuestion(questionId, answer, reply).catch(itemsFailed);
+      if (live)
+        api
+          .answerQuestion(questionId, answer, reply)
+          .then(() => push.notify({ type: 'answer', questionId }))
+          .catch(itemsFailed);
 
       if (trip && trip.id === question.tripId) {
         const answered = { answeredBy: question.to, reply };
@@ -1093,7 +1110,17 @@ function useListState() {
         else if (item.claimed_by === me) patchItem(item.id, { claimed_by: null });
       }
 
-      if (live) api.endTrip(trip.id, handoff).catch(itemsFailed);
+      // «بلّغ العيلة»: what was bought and what wasn't found (same counts as the trip-done screen)
+      const notFoundCount = trip.outcomes.filter(
+        (o) => !(o.decision === 'swapped' && inCart.some((i) => i.id === o.itemId)),
+      ).length;
+      if (live)
+        api
+          .endTrip(trip.id, handoff)
+          .then(() => {
+            if (!handoff) push.notify({ type: 'trip_done', tripId: trip.id, bought: mine.length, notFound: notFoundCount });
+          })
+          .catch(itemsFailed);
       const summary: TripSummary = {
         tripId: trip.id,
         shopperId: trip.shopperId,
@@ -1323,6 +1350,7 @@ function useListState() {
     },
 
     async signOut() {
+      if (live) await push.forgetPush(); // this phone stops getting my notifications
       if (live) await api.signOut().catch(failed);
       setLanguage('ar'); // welcome is Arabic again
       dispatch({ type: 'replace', state: initialState('signedOut') });

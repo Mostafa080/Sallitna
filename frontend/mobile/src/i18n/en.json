@@ -644,7 +644,10 @@
     "signOutBody": "Your list stays. Come back with your email.",
     "signOutConfirm": "Sign out",
     "exitDemo": "Leave the demo",
-    "password": "Change password"
+    "password": "Change password",
+    "pushOff": "Notifications are off",
+    "pushOffBody": "You won't get anything until you turn them on in your phone's Settings",
+    "pushOpenSettings": "Turn on"
   },
   "helper": {
     "home": "{{name}}'s home",

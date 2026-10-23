@@ -3,8 +3,18 @@
 
 import * as Haptics from 'expo-haptics';
 import { Redirect, useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Alert,
+  AppState,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
@@ -16,6 +26,7 @@ import { householdKindOrder, type HouseholdSettings } from '@/data/fakeHousehold
 import { t } from '@/i18n';
 import { isRTLLayout } from '@/lib/direction';
 import { features } from '@/lib/features';
+import * as push from '@/lib/push';
 import { useList } from '@/store/ListStore';
 import { colors, fonts, fontSize, radius, size, spacing } from '@/theme';
 
@@ -41,6 +52,15 @@ export default function AccountScreen() {
   const [editingName, setEditingName] = useState(false);
   const [name, setName] = useState(list.householdName);
   const latestName = useRef(name); // the newest text, even if Return comes in the same tick as typing
+
+  // Notifications turned off for the app in iPhone Settings → say so (checked again on coming back from Settings)
+  const [pushState, setPushState] = useState<push.PushStatus>('unavailable');
+  useEffect(() => {
+    const check = () => push.pushStatus().then(setPushState).catch(() => {});
+    check();
+    const subscription = AppState.addEventListener('change', (state) => state === 'active' && check());
+    return () => subscription.remove();
+  }, []);
 
   // A helper has their own screen on «قوايمي», never the family tabs
   if (list.isHelper) return <Redirect href="/" />;
@@ -223,6 +243,16 @@ export default function AccountScreen() {
         </Card>
 
         <SectionLabel>{t('settings.sectionNotify')}</SectionLabel>
+        {pushState === 'denied' && (
+          <Card style={styles.pushOffCard}>
+            <Row
+              title={t('settings.pushOff')}
+              body={t('settings.pushOffBody')}
+              value={t('settings.pushOpenSettings')}
+              onPress={push.openPushSettings}
+            />
+          </Card>
+        )}
         <Card>{toggleRows(notifyToggles)}</Card>
 
         {features.voice && (
@@ -317,6 +347,9 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular,
     fontSize: fontSize.item,
     textAlign: isRTLLayout ? 'right' : 'left',
+  },
+  pushOffCard: {
+    marginBottom: spacing.sm,
   },
   lastCard: {
     marginTop: spacing.md,

@@ -14,6 +14,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { PasswordGate } from '@/components/PasswordGate';
+import { PushSetup } from '@/components/PushSetup';
 import { ListProvider } from '@/store/ListStore';
 import { colors } from '@/theme';
 
@@ -74,6 +75,7 @@ export default function RootLayout() {
             ))}
           </Stack>
           <PasswordGate />
+          <PushSetup />
         </ListProvider>
       </GestureHandlerRootView>
     </SafeAreaProvider>

@@ -47,6 +47,12 @@
           "cameraPermission": "سلّتنا محتاجة الكاميرا عشان تصوّر الحاجة اللي هتتشرى. Sallitna uses the camera to photograph what to buy.",
           "microphonePermission": false
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#E8731A"
+        }
       ]
     ],
     "experiments": {

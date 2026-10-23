@@ -676,7 +676,10 @@
     "signOutBody": "قائمتك هتفضل موجودة. ترجعلها بإيميلك.",
     "signOutConfirm": "اخرج",
     "exitDemo": "اخرج من التجربة",
-    "password": "غيّر كلمة السر"
+    "password": "غيّر كلمة السر",
+    "pushOff": "الإشعارات مقفولة",
+    "pushOffBody": "مش هيوصلك حاجة لحد ما تفتحها من إعدادات الموبايل",
+    "pushOpenSettings": "افتحها"
   },
   "helper": {
     "home": "{{name}}",
