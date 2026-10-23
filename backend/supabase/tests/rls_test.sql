@@ -12,8 +12,8 @@ begin;
 
 create temp table results (n serial, test text, pass boolean) on commit drop;
 create temp table ctx (k text primary key, v text) on commit drop;
-grant all on results, ctx to authenticated, anon;
-grant usage on sequence results_n_seq to authenticated, anon;
+grant all on results, ctx to authenticated, anon, service_role;
+grant usage on sequence results_n_seq to authenticated, anon, service_role;
 
 -- Sign-in is by email; Eve's account is an older one made with a phone number
 insert into auth.users (id, aud, role, email, phone) values
@@ -419,6 +419,54 @@ select pg_temp.put('hhFriends',
   public.create_household('الصحاب', 'أم خالد', 'f', 'egyptian', 'ar', 'friends')::text);
 select pg_temp.check_('new list: keeps the chosen kind (friends)',
   (select kind from public.households where id = pg_temp.get('hhFriends')::uuid) = 'friends');
+
+-- ---------- Push notifications: phone addresses ----------
+-- Noor: a new person who signs in on Umm Khalid's old phone
+reset role;
+insert into auth.users (id, aud, role, email) values
+  ('00000000-0000-4000-a000-000000000005', 'authenticated', 'authenticated', 'noor@example.com');
+create function pg_temp.act_noor() returns void language sql as $$
+  select set_config('role', 'authenticated', true);
+  select set_config('request.jwt.claims',
+    '{"role": "authenticated", "sub": "00000000-0000-4000-a000-000000000005"}', true);
+$$;
+select pg_temp.act('umm');
+select pg_temp.check_('push: can save my phone''s address',
+  not pg_temp.blocked($q$ select public.save_push_token('ExponentPushToken[umm-phone-0001]', 'ios', 'Africa/Cairo') $q$));
+select pg_temp.check_('push: nobody can read the phone addresses directly',
+  pg_temp.blocked('select * from public.push_tokens'));
+select pg_temp.check_('push: nobody can write the phone addresses directly',
+  pg_temp.blocked($q$ insert into public.push_tokens (token, user_id, platform)
+    values ('ExponentPushToken[eve-sneaky-001]', '00000000-0000-4000-a000-000000000001', 'ios') $q$));
+select pg_temp.check_('push: something that isn''t a push address is refused',
+  pg_temp.blocked($q$ select public.save_push_token('https://evil.example', 'ios', 'UTC') $q$));
+select pg_temp.check_('push: cannot mark notifications as sent (service only)',
+  pg_temp.blocked($q$ select public.claim_push('question', array[gen_random_uuid()]) $q$));
+select pg_temp.act_noor();
+select public.save_push_token('ExponentPushToken[umm-phone-0001]', 'ios', 'Asia/Riyadh');
+select pg_temp.act('umm');
+select public.forget_push_token('ExponentPushToken[umm-phone-0001]');
+reset role;
+select pg_temp.check_('push: a phone that changes hands moves to the new person',
+  (select user_id from public.push_tokens where token = 'ExponentPushToken[umm-phone-0001]')
+    = '00000000-0000-4000-a000-000000000005');
+select pg_temp.check_('push: signing out can''t remove someone else''s phone',
+  (select count(*) from public.push_tokens where token = 'ExponentPushToken[umm-phone-0001]') = 1);
+select pg_temp.act_noor();
+select public.forget_push_token('ExponentPushToken[umm-phone-0001]');
+reset role;
+select pg_temp.check_('push: signing out removes my phone',
+  (select count(*) from public.push_tokens where token = 'ExponentPushToken[umm-phone-0001]') = 0);
+set local role anon;
+select pg_temp.check_('push: signed out cannot save a phone',
+  pg_temp.blocked($q$ select public.save_push_token('ExponentPushToken[anon-phone-001]', 'ios', 'UTC') $q$));
+reset role;
+set local role service_role;
+select pg_temp.put('pushRef', gen_random_uuid()::text);
+select pg_temp.check_('push: the first claim of an event goes through',
+  (select count(*) from public.claim_push('trip_started', array[pg_temp.get('pushRef')::uuid])) = 1);
+select pg_temp.check_('push: the same event is never sent twice',
+  (select count(*) from public.claim_push('trip_started', array[pg_temp.get('pushRef')::uuid])) = 0);
 
 reset role;
 select
