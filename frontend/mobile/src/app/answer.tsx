@@ -129,8 +129,8 @@ export default function AnswerScreen() {
               onPress={() => list.notify(t('toast.comingSoon'))}
               style={styles.voiceButton}
               accessibilityRole="button">
-              <Mic size={size.icon} color={colors.ink} strokeWidth={size.iconStroke} />
-              <AppText variant="item" weight="bold">
+              <Mic size={size.icon} color={colors.onAccent} strokeWidth={size.iconStroke} />
+              <AppText variant="item" weight="bold" color="onAccent">
                 {t(`answer.voice_${replier.gender}`)}
               </AppText>
             </Pressable>

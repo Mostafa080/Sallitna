@@ -1401,3 +1401,21 @@ couldn't open in Expo Go (and notifications on iPhone without a paid Apple accou
   setup anymore. `app/profile.tsx` is kept but nothing opens it.
 - Also removed «امسح القائمة» / «اخرج من القائمة» from «حسابي» — the same action is on the list card's «…» in
   «قوايمي».
+
+## Session 33 (D) — 2026-10-28: App icon + green colours
+
+### Done
+- App icon: the cat with the basket (from the image sent), cleaned to a full-bleed 1024×1024 square so iPhone and
+  Android can round it themselves. `assets/images/icon.png` (iPhone + app), Android adaptive icon (cat in the
+  safe area on the icon's own green gradient), splash (rounded icon), favicon, `logo.png` (small logo in the app).
+  Replaced Expo's default `expo.icon` and the monochrome Android icon.
+- App colours follow the icon: `accent` #E8731A → #0E7A42 (icon green), `accentTint` #FDEBD8 → #DDF1E3, `accentInk`
+  → #0A5C31, new `onAccent` #FFFFFF. Text and icons on the green accent are white (answer screen's voice button,
+  the «أنا هجيب» claim button, shopper banner icon, accent SheetButton). Orange stays in the icon only.
+- The small basket logo («سلّتنا» header, expired-invite screen, notification preview) is now the cat icon
+  (`components/AppLogo.tsx`). Notification colour on Android is the green. CLAUDE.md colour list updated.
+
+### Known / next
+- The website (sallitna.online) and the admin dashboard still use the orange palette and the basket logo.
+- The icon art has no Arabic text (good for stores). Apple's icon must have no transparency — this one has none.
+- To check on a phone: app icon only changes with a new build (not in Expo Go); everything else shows right away.

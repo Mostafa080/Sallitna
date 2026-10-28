@@ -6,12 +6,13 @@
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { setStatusBarStyle, StatusBar } from 'expo-status-bar';
-import { Mic, ShoppingBasket } from 'lucide-react-native';
+import { Mic } from 'lucide-react-native';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeOut, LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AppLogo } from '@/components/AppLogo';
 import { AppText } from '@/components/AppText';
 import { UndoToast } from '@/components/UndoToast';
 import { activeShopperId, activeShopperSinceMinutes, type Item } from '@/data/fakeHousehold';
@@ -175,9 +176,7 @@ function NotificationCard({ time, title, body, old, onPress, children }: CardPro
     <View style={[styles.card, { backgroundColor: old ? colors.notificationOld : colors.notification }]}>
       <Pressable onPress={onPress} style={styles.cardText} accessibilityRole="button">
         <View style={styles.cardHeader}>
-          <View style={styles.appIcon}>
-            <ShoppingBasket size={size.iconSmall + spacing.xxs} color={colors.ink} strokeWidth={size.iconStroke} />
-          </View>
+          <AppLogo small />
           <AppText variant="label" weight="medium" style={styles.flex}>
             {t('notifications.appName')}
           </AppText>
@@ -236,14 +235,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     marginBottom: spacing.xs,
-  },
-  appIcon: {
-    width: size.avatar,
-    height: size.avatar,
-    borderRadius: radius.badge,
-    backgroundColor: colors.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   actions: {
     flexDirection: 'row',

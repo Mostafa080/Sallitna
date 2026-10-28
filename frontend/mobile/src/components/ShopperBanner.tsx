@@ -40,7 +40,7 @@ export function ShopperBanner({ shopper, self, compact, onPress }: Props) {
       style={styles.banner}
       accessibilityRole={onPress ? 'button' : 'summary'}>
       <View style={styles.iconCircle}>
-        <ShoppingCart size={size.icon - spacing.xs} color={colors.ink} strokeWidth={size.iconStroke} />
+        <ShoppingCart size={size.icon - spacing.xs} color={colors.onAccent} strokeWidth={size.iconStroke} />
         <View style={styles.liveDot} />
       </View>
       <View style={styles.text}>

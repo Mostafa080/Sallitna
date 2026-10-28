@@ -7,15 +7,16 @@ export const colors = {
   ink: '#1D1B18',
   muted: '#615C53',
   line: '#E6E1D6',
-  accent: '#E8731A',
-  accentTint: '#FDEBD8',
+  accent: '#0E7A42', // the green of the app icon (the cat's background)
+  accentTint: '#DDF1E3',
   success: '#2E7A4E',
   info: '#2F5D8A',
   danger: '#9B2C1F',
 
   // Derived tokens (seen in /design, not in the base palette — confirm with design)
-  accentInk: '#B4560F', // darker orange text on accentTint (the "جديد" badge)
-  onDark: '#FFFFFF', // text/icons on ink, accent, info backgrounds
+  accentInk: '#0A5C31', // darker green text on accentTint (the "جديد" badge)
+  onAccent: '#FFFFFF', // text/icons on the green accent (dark ink is hard to read on it)
+  onDark: '#FFFFFF', // text/icons on ink, info backgrounds
   darkGround: '#1D1B18', // voice screens background
   darkSurface: '#2E2A26', // voice screens cards
   darkLine: '#3A3530', // rings, skeletons and outlines on dark screens

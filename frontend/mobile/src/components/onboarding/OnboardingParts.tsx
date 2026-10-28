@@ -1,9 +1,10 @@
 // Building blocks for sign-up and joining (welcome, email + code, name your home, join).
 
-import { Eye, EyeOff, ShoppingBasket } from 'lucide-react-native';
+import { Eye, EyeOff } from 'lucide-react-native';
 import { useContext, useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 
+import { AppLogo } from '@/components/AppLogo';
 import { AppText } from '@/components/AppText';
 import { OTP_LENGTH } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
@@ -24,14 +25,12 @@ export const ltrEmail = (email: string) => `\u2066${cleanEmail(email)}\u2069`;
 
 const onlyDigits = (text: string) => text.replace(/\D/g, '');
 
-// --- App name with the basket logo -------------------------------------------------------
+// --- App name with the app icon -------------------------------------------------------
 
 export function Brand() {
   return (
     <View style={styles.brand}>
-      <View style={styles.logo}>
-        <ShoppingBasket size={size.icon - spacing.xs} color={colors.ink} strokeWidth={size.iconStroke} />
-      </View>
+      <AppLogo />
       <AppText variant="heading" weight="bold">
         {t('onboarding.appName')}
       </AppText>
@@ -274,14 +273,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-  },
-  logo: {
-    width: size.bannerIcon,
-    height: size.bannerIcon,
-    borderRadius: radius.control,
-    backgroundColor: colors.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   dashes: {
     flexDirection: 'row',
