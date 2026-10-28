@@ -17,6 +17,8 @@ I'm a product designer, not a developer.
 - `frontend/dashboard` — the admin website (uses the same public keys from `frontend/mobile/.env`)
 - `backend/supabase` — migrations, security tests, seed data (run Supabase CLI commands from `backend/`)
 - Shortcuts in the top-level `package.json`: `npm run app | dashboard | db:push | db:test | typecheck`
+  (+ `db:push:test | db:test:test | functions:deploy | functions:deploy:test` for the test copy)
+- Releasing (test copy → live, instant updates vs store versions): see `RELEASING.md`
 
 ## Stack
 - Expo (current SDK) + TypeScript + expo-router

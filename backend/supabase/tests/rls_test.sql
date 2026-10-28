@@ -535,6 +535,17 @@ select pg_temp.check_('delete account: other people''s accounts are untouched',
   (select count(*) from auth.users where id in ('00000000-0000-4000-a000-000000000008',
     '00000000-0000-4000-a000-000000000010')) = 2);
 
+-- ---------- App settings («حدّث التطبيق») ----------
+set local role anon;
+select set_config('request.jwt.claims', '{"role": "anon"}', true);
+select pg_temp.check_('app settings: readable signed out (checked at launch)',
+  (select count(*) from public.app_config) = 1);
+select pg_temp.act('umm');
+select pg_temp.check_('app settings: a user cannot change the minimum version',
+  pg_temp.affected($q$ update public.app_config set min_version = '9.9.9' $q$) <= 0);
+select pg_temp.check_('app settings: a user cannot add settings',
+  pg_temp.blocked($q$ insert into public.app_config (id) values (true) $q$));
+
 reset role;
 select
   count(*) filter (where pass) as passed,

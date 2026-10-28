@@ -988,5 +988,10 @@
     "failed": "Couldn't delete the account. Check your connection and try again.",
     "doneTitle": "Your account was deleted",
     "doneBody": "Thanks for trying Sallitna."
+  },
+  "update": {
+    "title": "A new version of Sallitna is out",
+    "body": "This version is too old to work properly. Update it from the store to carry on — your lists stay as they are.",
+    "button": "Update Sallitna"
   }
 }
