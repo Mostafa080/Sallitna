@@ -1348,3 +1348,18 @@ couldn't open in Expo Go (and notifications on iPhone without a paid Apple accou
 
 ### Known issues
 - Photos uploaded to a list that gets deleted stay in Storage (not visible to anyone); a clean-up job later.
+
+## Session 31 (B) — 2026-10-28: Privacy policy + terms (store requirements)
+
+### Done
+- sallitna.online/privacy and /terms (`frontend/invite/privacy.html`, `terms.html`, `legal.css`): Arabic first,
+  English below (#en), same look as the site. The privacy policy only describes what the app really does: email,
+  hashed password, name / gender / dialect / language, lists (items, notes, trips, questions, amount paid), photos
+  (seen only inside the list), notification address + time zone; no ads, no selling, no tracking, no location /
+  contacts / phone number; who sees what; processors (Supabase, Resend, Expo / Apple / Google, Vercel); how
+  «احذف حسابي» works; security; not for under-13s; contact hello@sallitna.online.
+- Links: landing footer; sign-in screen «لما تكمّل تبقى موافق على الشروط وسياسة الخصوصية» (both words open the
+  page, English half for helpers); «حسابي» → «سياسة الخصوصية» and «الشروط» (`lib/legal.ts`, in-app browser).
+
+### Notes
+- Update privacy.html before turning on anything that stores new data (e.g. voice).

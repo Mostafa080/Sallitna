@@ -649,7 +649,9 @@
     "pushOpenSettings": "चालू करें",
     "deleteAccount": "मेरा अकाउंट हटाएँ",
     "helpSubject": "Sallitna — मदद",
-    "helpCopied": "हमारा ईमेल कॉपी हो गया: {{email}}"
+    "helpCopied": "हमारा ईमेल कॉपी हो गया: {{email}}",
+    "privacy": "प्राइवेसी नीति",
+    "terms": "शर्तें"
   },
   "helper": {
     "home": "{{name}} का घर",
@@ -724,7 +726,6 @@
     "resendIn": "{{time}} में दोबारा भेजें",
     "resend": "दोबारा भेजें",
     "confirm": "पक्का करें",
-    "terms": "आगे बढ़कर आप शर्तों और प्राइवेसी नीति से सहमत होते हैं",
     "codeTitle": "कोड डालें",
     "sentTo": "हमने {{email}} पर भेजा",
     "wrong": {
@@ -749,7 +750,12 @@
     "forgot": "पासवर्ड भूल गए?",
     "firstTimeHint": "पहली बार पासवर्ड से? “पासवर्ड भूल गए?” दबाएँ, हम ईमेल पर कोड भेजेंगे।",
     "wrongPassword": "ईमेल या पासवर्ड सही नहीं है।",
-    "signinFailed": "साइन इन नहीं हो पाया। इंटरनेट जाँचें और फिर कोशिश करें।"
+    "signinFailed": "साइन इन नहीं हो पाया। इंटरनेट जाँचें और फिर कोशिश करें।",
+    "termsBefore": "आगे बढ़कर आप ",
+    "termsLink": "शर्तों",
+    "termsAnd": " और ",
+    "privacyLink": "प्राइवेसी नीति",
+    "termsAfter": " से सहमत होते हैं"
   },
   "setup": {
     "title": "Name your home",

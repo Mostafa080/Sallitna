@@ -650,7 +650,9 @@
     "pushOpenSettings": "Turn on",
     "deleteAccount": "Delete my account",
     "helpSubject": "Sallitna — help",
-    "helpCopied": "Copied our email: {{email}}"
+    "helpCopied": "Copied our email: {{email}}",
+    "privacy": "Privacy policy",
+    "terms": "Terms"
   },
   "helper": {
     "home": "{{name}}'s home",
@@ -725,7 +727,6 @@
     "resendIn": "Resend in {{time}}",
     "resend": "Resend",
     "confirm": "Confirm",
-    "terms": "By continuing you agree to the Terms and Privacy Policy",
     "codeTitle": "Enter the code",
     "sentTo": "We sent it to {{email}}",
     "wrong": {
@@ -750,7 +751,12 @@
     "forgot": "Forgot password?",
     "firstTimeHint": "First time with a password? Tap “Forgot password?” and we'll email you a code.",
     "wrongPassword": "The email or password isn't right.",
-    "signinFailed": "Couldn't sign you in. Check your connection and try again."
+    "signinFailed": "Couldn't sign you in. Check your connection and try again.",
+    "termsBefore": "By continuing you agree to the ",
+    "termsLink": "Terms",
+    "termsAnd": " and ",
+    "privacyLink": "Privacy Policy",
+    "termsAfter": ""
   },
   "setup": {
     "title": "Name your home",

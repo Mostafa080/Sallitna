@@ -682,7 +682,9 @@
     "pushOpenSettings": "افتحها",
     "deleteAccount": "احذف حسابي",
     "helpSubject": "سلّتنا — مساعدة",
-    "helpCopied": "نسخنا إيميلنا: {{email}}"
+    "helpCopied": "نسخنا إيميلنا: {{email}}",
+    "privacy": "سياسة الخصوصية",
+    "terms": "الشروط"
   },
   "helper": {
     "home": "{{name}}",
@@ -757,7 +759,6 @@
     "resendIn": "تقدر تبعت تاني بعد {{time}}",
     "resend": "ابعت تاني",
     "confirm": "تأكيد",
-    "terms": "لما تكمّل تبقى موافق على الشروط وسياسة الخصوصية",
     "codeTitle": "اكتب الكود",
     "sentTo": "بعتناه على {{email}}",
     "wrong": {
@@ -784,7 +785,12 @@
     "forgot": "نسيت كلمة السر؟",
     "firstTimeHint": "أول مرة تدخل بكلمة سر؟ اضغط «نسيت كلمة السر؟» وهنبعتلك كود.",
     "wrongPassword": "الإيميل أو كلمة السر مش صح.",
-    "signinFailed": "معرفناش ندخلك. اتأكد من النت وجرّب تاني."
+    "signinFailed": "معرفناش ندخلك. اتأكد من النت وجرّب تاني.",
+    "termsBefore": "لما تكمّل تبقى موافق على ",
+    "termsLink": "الشروط",
+    "termsAnd": " و",
+    "privacyLink": "سياسة الخصوصية",
+    "termsAfter": ""
   },
   "setup": {
     "title": "سمّي بيتك",
