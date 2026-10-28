@@ -1392,3 +1392,10 @@ couldn't open in Expo Go (and notifications on iPhone without a paid Apple accou
 ## Session 32b — 2026-10-28: Email in «حسابي»
 - The profile card at the top of «حسابي» shows the email this account signs in with (under the name and role),
   left-to-right inside the Arabic layout. From the saved sign-in, no extra request.
+
+## Session 32c — 2026-10-28: Simpler «حسابي»
+- Removed the «البيت» section (list name / members / invite) and the «القائمة» section (rename, «القائمة دي
+  لمين؟») from «حسابي». The top card (name, role, dialect, language, email) is display-only — no profile edit.
+- Still elsewhere: rename and delete a list from the «…» on its card in «قوايمي»; members and invites from the list.
+- Known: who a list is for (family / friends / work) and your name / dialect / language can't be changed after
+  setup anymore. `app/profile.tsx` is kept but nothing opens it.
