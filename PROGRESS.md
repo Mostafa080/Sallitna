@@ -1388,3 +1388,7 @@ couldn't open in Expo Go (and notifications on iPhone without a paid Apple accou
 ### Next (from the launch plan)
 - D: app icon + splash (needs your 1024×1024 icon) · E: store listing pack · F: first EAS build → TestFlight ·
   G: submit.
+
+## Session 32b — 2026-10-28: Email in «حسابي»
+- The profile card at the top of «حسابي» shows the email this account signs in with (under the name and role),
+  left-to-right inside the Arabic layout. From the saved sign-in, no extra request.

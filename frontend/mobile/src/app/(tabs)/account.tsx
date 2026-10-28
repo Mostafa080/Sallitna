@@ -22,12 +22,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { Card, ForwardIcon, Row, SectionLabel, Toggle } from '@/components/family/FamilyParts';
-import { ChipRow, ChoiceChip } from '@/components/onboarding/OnboardingParts';
+import { ChipRow, ChoiceChip, ltrEmail } from '@/components/onboarding/OnboardingParts';
 import { UndoToast } from '@/components/UndoToast';
 import { householdKindOrder, type HouseholdSettings } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { isRTLLayout } from '@/lib/direction';
 import { features } from '@/lib/features';
+import * as api from '@/lib/api';
 import { openLegal } from '@/lib/legal';
 import * as push from '@/lib/push';
 import { useList } from '@/store/ListStore';
@@ -58,6 +59,12 @@ export default function AccountScreen() {
   const [editingName, setEditingName] = useState(false);
   const [name, setName] = useState(list.householdName);
   const latestName = useRef(name); // the newest text, even if Return comes in the same tick as typing
+
+  // The email this account signs in with (shown under the name — easy to forget which one)
+  const [email, setEmail] = useState<string | null>(null);
+  useEffect(() => {
+    api.myEmail().then(setEmail).catch(() => {});
+  }, []);
 
   // Notifications turned off for the app in iPhone Settings → say so (checked again on coming back from Settings)
   const [pushState, setPushState] = useState<push.PushStatus>('unavailable');
@@ -192,6 +199,11 @@ export default function AccountScreen() {
                 t('item.metaSeparator'),
               )}
             </AppText>
+            {email && (
+              <AppText variant="body" color="muted" numberOfLines={1} accessibilityLabel={t('account.emailA11y', { email })}>
+                {ltrEmail(email)}
+              </AppText>
+            )}
           </View>
           <ForwardIcon size={size.icon} color={colors.muted} strokeWidth={size.iconStroke} />
         </Pressable>
