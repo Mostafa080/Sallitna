@@ -1,0 +1,80 @@
+/* Privacy policy and terms (sallitna.online/privacy, /terms): one readable column. Uses styles.css tokens. */
+
+.legal > * {
+  max-width: 760px;
+  margin-inline: auto;
+  padding-inline: var(--space-lg);
+}
+
+.legal .top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: var(--space-xl);
+}
+
+.legal .brand {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.legal .switch {
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.doc {
+  padding-bottom: var(--space-xxl);
+}
+
+.doc h1 {
+  font-size: 32px;
+  line-height: 1.3;
+  margin-bottom: var(--space-sm);
+}
+
+.doc h2 {
+  margin: var(--space-xxl) 0 var(--space-md);
+  font-size: 21px;
+  line-height: 1.4;
+}
+
+.doc p,
+.doc li {
+  margin: 0 0 var(--space-md);
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.doc ul {
+  margin: 0 0 var(--space-md);
+  padding-inline-start: var(--space-xl);
+}
+
+.doc a {
+  color: var(--ink);
+}
+
+.doc .card {
+  margin-block: var(--space-xl);
+}
+
+.doc.en {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-xxl);
+}
+
+.legal .foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-xl);
+  justify-content: center;
+  padding-block: var(--space-xl) var(--space-xxl);
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.legal .foot a {
+  color: var(--ink);
+}

@@ -33,6 +33,7 @@ import {
 } from '@/data/fakeHousehold';
 import { getLanguage, tIn } from '@/i18n';
 import * as api from '@/lib/api';
+import { openLegal } from '@/lib/legal';
 import { useList } from '@/store/ListStore';
 import { colors, opacity, radius, size, spacing } from '@/theme';
 
@@ -404,8 +405,17 @@ export default function VerifyScreen() {
                 onPress={() => check(code)}
                 disabled={code.length < OTP_LENGTH || busy}
               />
+              {/* «لما تكمّل تبقى موافق على الشروط وسياسة الخصوصية» — both open the page on sallitna.online */}
               <AppText variant="meta" color="muted" style={styles.center}>
-                {tr('verify.terms')}
+                {tr('verify.termsBefore')}
+                <AppText variant="meta" weight="bold" style={styles.link} onPress={() => openLegal('terms', language)}>
+                  {tr('verify.termsLink')}
+                </AppText>
+                {tr('verify.termsAnd')}
+                <AppText variant="meta" weight="bold" style={styles.link} onPress={() => openLegal('privacy', language)}>
+                  {tr('verify.privacyLink')}
+                </AppText>
+                {tr('verify.termsAfter')}
               </AppText>
             </>
           )}
@@ -441,6 +451,9 @@ const styles = StyleSheet.create({
   },
   center: {
     textAlign: 'center',
+  },
+  link: {
+    textDecorationLine: 'underline',
   },
   content: {
     paddingHorizontal: spacing.lg,

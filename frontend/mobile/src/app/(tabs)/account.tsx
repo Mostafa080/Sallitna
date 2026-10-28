@@ -28,6 +28,7 @@ import { householdKindOrder, type HouseholdSettings } from '@/data/fakeHousehold
 import { t } from '@/i18n';
 import { isRTLLayout } from '@/lib/direction';
 import { features } from '@/lib/features';
+import { openLegal } from '@/lib/legal';
 import * as push from '@/lib/push';
 import { useList } from '@/store/ListStore';
 import { colors, fonts, fontSize, radius, size, spacing } from '@/theme';
@@ -279,6 +280,8 @@ export default function AccountScreen() {
 
         <Card style={styles.lastCard}>
           <Row title={t('settings.help')} onPress={onHelp} end={<View />} />
+          <Row title={t('settings.privacy')} onPress={() => openLegal('privacy', me.view_language)} divider />
+          <Row title={t('settings.terms')} onPress={() => openLegal('terms', me.view_language)} divider />
           {list.mode === 'live' && (
             <Row
               title={t('settings.password')}
