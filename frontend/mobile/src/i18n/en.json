@@ -647,7 +647,10 @@
     "password": "Change password",
     "pushOff": "Notifications are off",
     "pushOffBody": "You won't get anything until you turn them on in your phone's Settings",
-    "pushOpenSettings": "Turn on"
+    "pushOpenSettings": "Turn on",
+    "deleteAccount": "Delete my account",
+    "helpSubject": "Sallitna — help",
+    "helpCopied": "Copied our email: {{email}}"
   },
   "helper": {
     "home": "{{name}}'s home",
@@ -965,5 +968,19 @@
     "saveChange": "Save",
     "saved": "Password saved",
     "saveFailed": "Couldn't save your password. Check your connection and try again."
+  },
+  "deleteAccount": {
+    "title": "Delete your account",
+    "body": "Your account will be deleted for good: your email, name and settings.",
+    "bulletAlone": "Lists where you're the only one will be deleted.",
+    "bulletManager": "Lists you manage go to the longest-standing member.",
+    "bulletItems": "Things you added stay on the lists, without your name.",
+    "bulletForever": "This can't be undone. To come back, you'd make a new account.",
+    "passwordLabel": "Type your password to confirm",
+    "wrongPassword": "That password isn't right.",
+    "confirm": "Delete my account for good",
+    "failed": "Couldn't delete the account. Check your connection and try again.",
+    "doneTitle": "Your account was deleted",
+    "doneBody": "Thanks for trying Sallitna."
   }
 }

@@ -1,6 +1,7 @@
 // «حسابي» — my profile (tap to edit), my lists & household, list name, notifications, voice & privacy, sign out.
 // Opened from my avatar at the top of the list screen.
 
+import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { Redirect, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
@@ -8,6 +9,7 @@ import {
   Alert,
   AppState,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -29,6 +31,9 @@ import { features } from '@/lib/features';
 import * as push from '@/lib/push';
 import { useList } from '@/store/ListStore';
 import { colors, fonts, fontSize, radius, size, spacing } from '@/theme';
+
+// Where «مساعدة وكلّمنا» writes to
+const SUPPORT_EMAIL = 'hello@sallitna.online';
 
 const notifyToggles: (keyof HouseholdSettings)[] = ['notifyTripStarted', 'notifyAddedWhileShopping', 'notifyEveryAdd', 'quietHours'];
 const voiceToggles: (keyof HouseholdSettings)[] = ['reviewBeforeAdd', 'keepRecordings'];
@@ -66,7 +71,17 @@ export default function AccountScreen() {
   if (list.isHelper) return <Redirect href="/" />;
   if (!me) return null;
   const canManage = me.role === 'owner';
-  const comingSoon = () => list.notify(t('toast.comingSoon'));
+
+  // «مساعدة وكلّمنا»: an email to us; no mail app on the phone → the address is copied instead
+  const onHelp = async () => {
+    const url = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(t('settings.helpSubject'))}`;
+    try {
+      await Linking.openURL(url);
+    } catch {
+      await Clipboard.setStringAsync(SUPPORT_EMAIL);
+      list.notify(t('settings.helpCopied', { email: SUPPORT_EMAIL }));
+    }
+  };
 
   const changeName = (text: string) => {
     latestName.current = text;
@@ -263,7 +278,7 @@ export default function AccountScreen() {
         )}
 
         <Card style={styles.lastCard}>
-          <Row title={t('settings.help')} onPress={comingSoon} end={<View />} />
+          <Row title={t('settings.help')} onPress={onHelp} end={<View />} />
           {list.mode === 'live' && (
             <Row
               title={t('settings.password')}
@@ -284,6 +299,9 @@ export default function AccountScreen() {
               onPress={onLeave}
               divider
             />
+          )}
+          {list.mode === 'live' && (
+            <Row title={t('settings.deleteAccount')} tone="danger" onPress={() => router.push('/delete-account')} divider />
           )}
         </Card>
       </ScrollView>

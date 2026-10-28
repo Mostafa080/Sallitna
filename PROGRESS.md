@@ -1328,3 +1328,23 @@ couldn't open in Expo Go (and notifications on iPhone without a paid Apple accou
 - `npx expo start` → `w` crashed with «window is not defined»: the web version draws pages on the computer first,
   and the Supabase client tried to read the saved sign-in there. `lib/supabase.ts` skips saved sign-in only during
   that step (phones unaffected). Useful for testing with a second account in the Mac's browser.
+
+## Session 30 (A) — 2026-10-28: Delete my account + help button (store requirements)
+
+### Done
+- «حسابي» → «احذف حسابي» (red) → `app/delete-account.tsx`: what happens (lists you're alone in are deleted,
+  lists you manage go to the longest-standing member, your items stay without your name, no way back), password
+  once more, red «احذف حسابي نهائيًا». Then back to welcome with «اتحذف حسابك».
+- Database `20261028090000_delete_my_account.sql`: `delete_my_account()` — per list: alone (or only helpers
+  left) → deleted like «امسح القائمة»; manager → longest-standing family member takes over; then the auth
+  account is deleted (member rows, phones, admin access go with it). 10 new security tests → 139 passing locally.
+- «مساعدة وكلّمنا» opens an email to hello@sallitna.online (no mail app → the address is copied).
+- `SheetButton` has a red `danger` tone. Text in ar / en / hi.
+- Also in this round: the notify function logs why nothing was sent / how many phones / Expo's answer.
+
+### Your side
+- `npm run db:push` (new migration) → `npm run db:test` (expect 139 passed).
+- `cd backend && npx supabase functions deploy notify` (the logging update).
+
+### Known issues
+- Photos uploaded to a list that gets deleted stay in Storage (not visible to anyone); a clean-up job later.
