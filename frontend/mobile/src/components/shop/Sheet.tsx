@@ -120,12 +120,12 @@ export function RadioCard({ title, body, selected, onPress, multiple }: RadioCar
 type ButtonProps = {
   label: string;
   onPress: () => void;
-  tone?: 'ink' | 'accent' | 'outline' | 'link';
+  tone?: 'ink' | 'accent' | 'outline' | 'link' | 'danger'; // danger: can't be undone («احذف حسابي»)
   disabled?: boolean;
 };
 
 export function SheetButton({ label, onPress, tone = 'ink', disabled }: ButtonProps) {
-  const textColor = tone === 'ink' ? 'onDark' : 'ink';
+  const textColor = tone === 'ink' || tone === 'danger' ? 'onDark' : 'ink';
   return (
     <Pressable
       onPress={onPress}
@@ -226,6 +226,9 @@ const styles = StyleSheet.create({
   },
   ink: {
     backgroundColor: colors.ink,
+  },
+  danger: {
+    backgroundColor: colors.danger,
   },
   accent: {
     backgroundColor: colors.accent,

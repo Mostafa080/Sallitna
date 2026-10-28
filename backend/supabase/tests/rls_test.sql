@@ -469,6 +469,72 @@ select pg_temp.check_('push: the first claim of an event goes through',
 select pg_temp.check_('push: the same event is never sent twice',
   (select count(*) from public.claim_push('trip_started', array[pg_temp.get('pushRef')::uuid])) = 0);
 
+-- ---------- «احذف حسابي»: deleting your own account ----------
+-- Five new people: Lina (alone), Omar (manages a list with Sami), Sami, Hana (manages a list with only a helper),
+-- and her helper Ravi
+reset role;
+insert into auth.users (id, aud, role, email) values
+  ('00000000-0000-4000-a000-000000000006', 'authenticated', 'authenticated', 'lina@example.com'),
+  ('00000000-0000-4000-a000-000000000007', 'authenticated', 'authenticated', 'omar@example.com'),
+  ('00000000-0000-4000-a000-000000000008', 'authenticated', 'authenticated', 'sami@example.com'),
+  ('00000000-0000-4000-a000-000000000009', 'authenticated', 'authenticated', 'hana@example.com'),
+  ('00000000-0000-4000-a000-000000000010', 'authenticated', 'authenticated', 'ravi@example.com');
+create function pg_temp.act_as(n int) returns void language sql as $$
+  select set_config('role', 'authenticated', true);
+  select set_config('request.jwt.claims', json_build_object('role', 'authenticated',
+    'sub', '00000000-0000-4000-a000-' || lpad(n::text, 12, '0'))::text, true);
+$$;
+
+select pg_temp.act_as(6);
+select pg_temp.put('hhLina', public.create_household('لينا', 'لينا', 'f')::text);
+select pg_temp.act_as(7);
+select pg_temp.put('hhOmar', public.create_household('بيت عمر', 'عمر', 'm')::text);
+select pg_temp.put('codeOmar', (select code from public.create_invite(pg_temp.get('hhOmar')::uuid)));
+select pg_temp.act_as(8);
+select public.join_household(pg_temp.get('codeOmar'), 'سامي', 'm');
+select pg_temp.act_as(7);
+insert into public.items (household_id, name, added_by)
+  values (pg_temp.get('hhOmar')::uuid, 'عيش',
+    (select id from public.members where user_id = '00000000-0000-4000-a000-000000000007'));
+select pg_temp.act_as(9);
+select pg_temp.put('hhHana', public.create_household('بيت هنا', 'هنا', 'f')::text);
+select pg_temp.put('codeRavi', (select code from public.create_invite(pg_temp.get('hhHana')::uuid, 'helper')));
+select pg_temp.act_as(10);
+select public.join_household(pg_temp.get('codeRavi'), 'Ravi', 'm', 'saudi', 'en');
+
+set local role anon;
+select set_config('request.jwt.claims', '{"role": "anon"}', true);
+select pg_temp.check_('delete account: signed out cannot', pg_temp.blocked('select public.delete_my_account()'));
+
+select pg_temp.act_as(6);
+select pg_temp.check_('delete account: Lina can delete hers', not pg_temp.blocked('select public.delete_my_account()'));
+reset role;
+select pg_temp.check_('delete account: her account is gone',
+  not exists (select 1 from auth.users where id = '00000000-0000-4000-a000-000000000006'));
+select pg_temp.check_('delete account: the list only she was in is deleted',
+  (select deleted_at is not null from public.households where id = pg_temp.get('hhLina')::uuid));
+
+select pg_temp.act_as(7);
+select public.delete_my_account();
+reset role;
+select pg_temp.check_('delete account: Omar''s list stays for Sami',
+  (select deleted_at is null from public.households where id = pg_temp.get('hhOmar')::uuid));
+select pg_temp.check_('delete account: Sami becomes the manager',
+  (select role from public.members where user_id = '00000000-0000-4000-a000-000000000008') = 'owner');
+select pg_temp.check_('delete account: what Omar added stays, without his name',
+  (select count(*) from public.items where household_id = pg_temp.get('hhOmar')::uuid and name = 'عيش' and added_by is null) = 1);
+
+select pg_temp.act_as(9);
+select public.delete_my_account();
+reset role;
+select pg_temp.check_('delete account: a list left with only a helper is deleted',
+  (select deleted_at is not null from public.households where id = pg_temp.get('hhHana')::uuid));
+select pg_temp.check_('delete account: the helper is moved out of it',
+  (select left_at is not null from public.members where user_id = '00000000-0000-4000-a000-000000000010'));
+select pg_temp.check_('delete account: other people''s accounts are untouched',
+  (select count(*) from auth.users where id in ('00000000-0000-4000-a000-000000000008',
+    '00000000-0000-4000-a000-000000000010')) = 2);
+
 reset role;
 select
   count(*) filter (where pass) as passed,

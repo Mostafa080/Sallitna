@@ -99,11 +99,17 @@ export function isQuietHour(timeZone: string, now: number) {
   return hour >= 23 || hour < 7;
 }
 
+// Why nothing was sent, in the function's log (Supabase → Edge Functions → notify → Logs)
+const skip = (why: string): PushMessage[] => {
+  console.log(`[notify] nothing sent: ${why}`);
+  return [];
+};
+
 type Draft = { member: Member; body: string; data: Record<string, string> };
 
 // Turn drafts into one message per phone, skipping «وقت الهدوء» when asked to
 async function toMessages(db: Db, title: string, drafts: Draft[], quiet: boolean, now: number): Promise<PushMessage[]> {
-  if (drafts.length === 0) return [];
+  if (drafts.length === 0) return skip('nobody else to tell (or their settings are off)');
   const tokens = await db.tokens([...new Set(drafts.map((d) => d.member.user_id))]);
   const messages: PushMessage[] = [];
   for (const d of drafts) {
@@ -112,6 +118,10 @@ async function toMessages(db: Db, title: string, drafts: Draft[], quiet: boolean
       messages.push({ to: t.token, title, body: d.body, data: d.data, sound: 'default' });
     }
   }
+  console.log(
+    `[notify] ${drafts.length} people, ${tokens.length} phones, ${messages.length} messages` +
+      (messages.length < tokens.length ? ' (others in «وقت الهدوء»)' : ''),
+  );
   return messages;
 }
 
@@ -126,19 +136,19 @@ export async function plan(db: Db, userId: string, event: NotifyEvent, now = Dat
   switch (event?.type) {
     case 'trip_started':
     case 'trip_done': {
-      if (!UUID.test(String(event.tripId))) return [];
+      if (!UUID.test(String(event.tripId))) return skip('bad trip id');
       const trip = await db.trip(event.tripId);
-      if (!trip) return [];
+      if (!trip) return skip('trip not found');
       const shopper = await db.member(trip.shopper_id);
-      if (!isMine(shopper, userId)) return [];
+      if (!isMine(shopper, userId)) return skip('caller is not the shopper');
       const starting = event.type === 'trip_started';
-      if (starting ? trip.ended_at || !recent(trip.started_at, now) : !recent(trip.ended_at, now) || trip.handoff) return [];
+      if (starting ? trip.ended_at || !recent(trip.started_at, now) : !recent(trip.ended_at, now) || trip.handoff) return skip('trip not current (ended / too old / handed over)');
       const bought = starting ? 0 : count(event.bought);
       const notFound = starting ? 0 : count(event.notFound);
-      if (!starting && bought + notFound === 0) return [];
+      if (!starting && bought + notFound === 0) return skip('nothing bought or missing');
       const household = await db.household(trip.household_id);
-      if (!household) return [];
-      if ((await db.claim(event.type, [trip.id])).length === 0) return [];
+      if (!household) return skip('list deleted');
+      if ((await db.claim(event.type, [trip.id])).length === 0) return skip('already announced');
 
       const others = (await db.members(trip.household_id)).filter(
         (m) => m.id !== shopper.id && m.id !== trip.partner_id && (!starting || setting(m, 'notifyTripStarted')),
@@ -157,18 +167,18 @@ export async function plan(db: Db, userId: string, event: NotifyEvent, now = Dat
 
     case 'question':
     case 'answer': {
-      if (!UUID.test(String(event.questionId))) return [];
+      if (!UUID.test(String(event.questionId))) return skip('bad question id');
       const q = await db.question(event.questionId);
-      if (!q || !q.from_member || !q.to_member) return [];
+      if (!q || !q.from_member || !q.to_member) return skip('question not found / no sender or receiver');
       const asking = event.type === 'question';
       const [from, to] = await Promise.all([db.member(q.from_member), db.member(q.to_member)]);
-      if (!from || !to || from.left_at || to.left_at) return [];
+      if (!from || !to || from.left_at || to.left_at) return skip('asker or receiver left the list');
       // The question is sent by whoever asked; the answer by whoever it was asked to
-      if (!isMine(asking ? from : to, userId)) return [];
-      if (asking ? q.answer || !recent(q.created_at, now) : !q.answer || !recent(q.answered_at, now)) return [];
+      if (!isMine(asking ? from : to, userId)) return skip('caller is not the asker / answerer');
+      if (asking ? q.answer || !recent(q.created_at, now) : !q.answer || !recent(q.answered_at, now)) return skip('question already answered / not answered / too old');
       const household = await db.household(q.household_id);
-      if (!household) return [];
-      if ((await db.claim(event.type, [q.id])).length === 0) return [];
+      if (!household) return skip('list deleted');
+      if ((await db.claim(event.type, [q.id])).length === 0) return skip('already announced');
 
       const recipient = asking ? to : from;
       const lang = recipient.view_language;
@@ -200,19 +210,19 @@ export async function plan(db: Db, userId: string, event: NotifyEvent, now = Dat
 
     case 'items_added': {
       const ids = Array.isArray(event.itemIds) ? event.itemIds.filter((id) => UUID.test(String(id))).slice(0, MAX_ITEMS) : [];
-      if (ids.length === 0) return [];
+      if (ids.length === 0) return skip('no item ids');
       const found = await db.items(ids);
-      if (found.length === 0) return [];
+      if (found.length === 0) return skip('items not found');
       const householdId = found[0].household_id;
       const adderId = found[0].added_by;
-      if (!adderId) return [];
+      if (!adderId) return skip('item has no adder');
       const adder = await db.member(adderId);
-      if (!isMine(adder, userId)) return [];
+      if (!isMine(adder, userId)) return skip('caller did not add these items');
       // Only the caller's own, fresh additions to one list
       const items = found.filter((i) => i.household_id === householdId && i.added_by === adderId && recent(i.created_at, now));
-      if (items.length === 0) return [];
+      if (items.length === 0) return skip('items too old');
       const household = await db.household(householdId);
-      if (!household) return [];
+      if (!household) return skip('list deleted');
 
       const [trips, members] = await Promise.all([db.activeTrips(householdId), db.members(householdId)]);
       const shopping = new Set(trips.flatMap((t) => [t.shopper_id, t.partner_id ?? '']).filter(Boolean));
@@ -221,10 +231,10 @@ export async function plan(db: Db, userId: string, event: NotifyEvent, now = Dat
           m.id !== adder.id &&
           ((shopping.has(m.id) && setting(m, 'notifyAddedWhileShopping')) || setting(m, 'notifyEveryAdd')),
       );
-      if (recipients.length === 0) return [];
+      if (recipients.length === 0) return skip('nobody shopping or following every add');
       const fresh = new Set(await db.claim('item', items.map((i) => i.id)));
       const announced = items.filter((i) => fresh.has(i.id));
-      if (announced.length === 0) return [];
+      if (announced.length === 0) return skip('already announced');
 
       const catalogIds = announced.map((i) => i.catalog_id).filter((id): id is string => !!id);
       const translations = catalogIds.length ? await db.translations(catalogIds) : {};
@@ -241,6 +251,6 @@ export async function plan(db: Db, userId: string, event: NotifyEvent, now = Dat
     }
 
     default:
-      return [];
+      return skip('unknown event type');
   }
 }

@@ -151,6 +151,18 @@ export async function signInWithPassword(email: string, password: string): Promi
   throw new Error(error.message);
 }
 
+// «احذف حسابي»: deletes the account for good (see the delete_my_account migration), then forgets it on this phone
+export async function deleteMyAccount() {
+  check(await supabase.rpc('delete_my_account'));
+  await supabase.auth.signOut({ scope: 'local' });
+}
+
+// The signed-in person's email (to check their password again before deleting)
+export async function myEmail() {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user.email ?? null;
+}
+
 // Everyone needs a password (set after their first code). Marked on the account so the app knows.
 export const PASSWORD_MIN_LENGTH = 8;
 
