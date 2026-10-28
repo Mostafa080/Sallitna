@@ -4,35 +4,32 @@
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { Redirect, useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   AppState,
   KeyboardAvoidingView,
   Linking,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
-  TextInput,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
-import { Card, ForwardIcon, Row, SectionLabel, Toggle } from '@/components/family/FamilyParts';
-import { ChipRow, ChoiceChip, ltrEmail } from '@/components/onboarding/OnboardingParts';
+import { Card, Row, SectionLabel, Toggle } from '@/components/family/FamilyParts';
+import { ltrEmail } from '@/components/onboarding/OnboardingParts';
 import { UndoToast } from '@/components/UndoToast';
-import { householdKindOrder, type HouseholdSettings } from '@/data/fakeHousehold';
+import type { HouseholdSettings } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
-import { isRTLLayout } from '@/lib/direction';
 import { features } from '@/lib/features';
 import * as api from '@/lib/api';
 import { openLegal } from '@/lib/legal';
 import * as push from '@/lib/push';
 import { useList } from '@/store/ListStore';
-import { colors, fonts, fontSize, radius, size, spacing } from '@/theme';
+import { colors, radius, size, spacing } from '@/theme';
 
 // Where «مساعدة وكلّمنا» writes to
 const SUPPORT_EMAIL = 'hello@sallitna.online';
@@ -56,10 +53,6 @@ export default function AccountScreen() {
   const list = useList();
   const me = list.memberById(list.currentMemberId);
 
-  const [editingName, setEditingName] = useState(false);
-  const [name, setName] = useState(list.householdName);
-  const latestName = useRef(name); // the newest text, even if Return comes in the same tick as typing
-
   // The email this account signs in with (shown under the name — easy to forget which one).
   // Read again whenever the sign-in or the person changes: this tab can open before the sign-in has loaded.
   const [email, setEmail] = useState<string | null>(null);
@@ -79,7 +72,6 @@ export default function AccountScreen() {
   // A helper has their own screen on «قوايمي», never the family tabs
   if (list.isHelper) return <Redirect href="/" />;
   if (!me) return null;
-  const canManage = me.role === 'owner';
 
   // «مساعدة وكلّمنا»: an email to us; no mail app on the phone → the address is copied instead
   const onHelp = async () => {
@@ -90,18 +82,6 @@ export default function AccountScreen() {
       await Clipboard.setStringAsync(SUPPORT_EMAIL);
       list.notify(t('settings.helpCopied', { email: SUPPORT_EMAIL }));
     }
-  };
-
-  const changeName = (text: string) => {
-    latestName.current = text;
-    setName(text);
-  };
-
-  const saveName = () => {
-    if (!editingName) return;
-    setEditingName(false);
-    if (latestName.current.trim()) list.setHouseholdName(latestName.current);
-    else changeName(list.householdName);
   };
 
   const onToggle = (key: keyof HouseholdSettings, value: boolean) => {
@@ -184,12 +164,8 @@ export default function AccountScreen() {
           </AppText>
         </View>
 
-        {/* Me — tap to edit name, «أنا», color, dialect, languages */}
-        <Pressable
-          onPress={() => router.push('/profile')}
-          style={styles.profileCard}
-          accessibilityRole="button"
-          accessibilityLabel={t('account.profileA11y')}>
+        {/* Me — who's signed in (name, role, dialect, language, email); not editable here */}
+        <View style={styles.profileCard}>
           <Avatar member={me} large="hero" ring="surface" />
           <View style={styles.flex}>
             <AppText variant="heading" weight="bold" numberOfLines={1}>
@@ -206,70 +182,7 @@ export default function AccountScreen() {
               </AppText>
             )}
           </View>
-          <ForwardIcon size={size.icon} color={colors.muted} strokeWidth={size.iconStroke} />
-        </Pressable>
-
-        <SectionLabel>{t('account.household')}</SectionLabel>
-        <Card>
-          <Row
-            title={t('lists.sheetTitle')}
-            value={list.householdName}
-            onPress={() => router.navigate('/')}
-          />
-          <Row
-            title={t('account.members')}
-            value={t('members.count', { n: list.members.length })}
-            onPress={() => router.push('/members')}
-            divider
-          />
-          {me.role !== 'helper' && <Row title={t('account.invite')} onPress={() => router.push('/invite')} divider />}
-        </Card>
-
-        <SectionLabel>{t('settings.sectionList')}</SectionLabel>
-        <Card>
-          {editingName ? (
-            <View style={styles.nameRow}>
-              <AppText variant="item">{t('settings.listName')}</AppText>
-              <TextInput
-                value={name}
-                onChangeText={changeName}
-                onSubmitEditing={saveName}
-                onBlur={saveName}
-                autoFocus
-                selectTextOnFocus
-                returnKeyType="done"
-                style={styles.nameInput}
-                accessibilityLabel={t('settings.listName')}
-              />
-            </View>
-          ) : (
-            <Row
-              title={t('settings.listName')}
-              value={list.householdName}
-              onPress={canManage ? () => setEditingName(true) : undefined}
-            />
-          )}
-          {/* «القائمة دي لمين؟» — the manager picks; everyone else just sees it */}
-          {canManage ? (
-            <View style={[styles.kindBlock, styles.divider]}>
-              <ChipRow label={t('lists.kindLabel')}>
-                {householdKindOrder.map((k) => (
-                  <ChoiceChip
-                    key={k}
-                    label={t(`groups.${k}.label`)}
-                    selected={list.householdKind === k}
-                    onPress={() => {
-                      Haptics.selectionAsync();
-                      list.setHouseholdKind(k);
-                    }}
-                  />
-                ))}
-              </ChipRow>
-            </View>
-          ) : (
-            <Row title={t('lists.kindLabel')} value={t(`groups.${list.householdKind}.label`)} divider />
-          )}
-        </Card>
+        </View>
 
         <SectionLabel>{t('settings.sectionNotify')}</SectionLabel>
         {pushState === 'denied' && (
@@ -357,30 +270,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     borderRadius: radius.card + spacing.xs,
     backgroundColor: colors.surface,
-  },
-  kindBlock: {
-    paddingVertical: spacing.md,
-  },
-  divider: {
-    borderTopWidth: size.border,
-    borderTopColor: colors.line,
-  },
-  nameRow: {
-    minHeight: size.toast,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  nameInput: {
-    flex: 1,
-    minHeight: size.control,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.control,
-    backgroundColor: colors.ground,
-    color: colors.ink,
-    fontFamily: fonts.regular,
-    fontSize: fontSize.item,
-    textAlign: isRTLLayout ? 'right' : 'left',
   },
   pushOffCard: {
     marginBottom: spacing.sm,
