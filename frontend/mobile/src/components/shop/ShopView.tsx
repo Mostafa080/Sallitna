@@ -222,7 +222,7 @@ export function ShopView() {
                       }}
                       style={styles.claimButton}
                       accessibilityRole="button">
-                      <AppText variant="label" weight="bold">
+                      <AppText variant="label" weight="bold" color="onAccent">
                         {t('shop.claim')}
                       </AppText>
                     </Pressable>

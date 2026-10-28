@@ -3,10 +3,11 @@
 
 import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { MessageCircle, ShoppingBasket, Unlink } from 'lucide-react-native';
+import { MessageCircle, Unlink } from 'lucide-react-native';
 import { Pressable, Share, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AppLogo } from '@/components/AppLogo';
 import { AppText } from '@/components/AppText';
 import { SheetButton } from '@/components/shop/Sheet';
 import { INVITE_VALID_DAYS } from '@/data/fakeHousehold';
@@ -33,9 +34,7 @@ export default function InviteExpiredScreen() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + spacing.sm }]}>
       <View style={styles.brand}>
-        <View style={styles.logo}>
-          <ShoppingBasket size={size.icon - spacing.xs} color={colors.ink} strokeWidth={size.iconStroke} />
-        </View>
+        <AppLogo />
         <AppText variant="heading" weight="bold">
           {t('inviteExpired.appName')}
         </AppText>
@@ -81,14 +80,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-  },
-  logo: {
-    width: size.bannerIcon,
-    height: size.bannerIcon,
-    borderRadius: radius.control,
-    backgroundColor: colors.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   body: {
     flex: 1,

@@ -125,7 +125,7 @@ type ButtonProps = {
 };
 
 export function SheetButton({ label, onPress, tone = 'ink', disabled }: ButtonProps) {
-  const textColor = tone === 'ink' || tone === 'danger' ? 'onDark' : 'ink';
+  const textColor = tone === 'ink' || tone === 'danger' ? 'onDark' : tone === 'accent' ? 'onAccent' : 'ink';
   return (
     <Pressable
       onPress={onPress}
