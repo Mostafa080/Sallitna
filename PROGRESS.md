@@ -1399,3 +1399,5 @@ couldn't open in Expo Go (and notifications on iPhone without a paid Apple accou
 - Still elsewhere: rename and delete a list from the «…» on its card in «قوايمي»; members and invites from the list.
 - Known: who a list is for (family / friends / work) and your name / dialect / language can't be changed after
   setup anymore. `app/profile.tsx` is kept but nothing opens it.
+- Also removed «امسح القائمة» / «اخرج من القائمة» from «حسابي» — the same action is on the list card's «…» in
+  «قوايمي».
