@@ -886,7 +886,8 @@
     "members": "{{members}}",
     "membersCount": "{{count}}",
     "invite": "ادعي حد",
-    "editProfile": "عدّل"
+    "editProfile": "عدّل",
+    "emailA11y": "الإيميل: {{email}}"
   },
   "profile": {
     "title": "ملفي",

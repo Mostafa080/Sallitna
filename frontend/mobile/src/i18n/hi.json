@@ -847,7 +847,8 @@
     "members": "{{members}}",
     "membersCount": "{{count}}",
     "invite": "Invite someone",
-    "editProfile": "Edit"
+    "editProfile": "Edit",
+    "emailA11y": "ईमेल: {{email}}"
   },
   "profile": {
     "title": "My profile",
