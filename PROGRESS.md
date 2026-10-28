@@ -1363,3 +1363,28 @@ couldn't open in Expo Go (and notifications on iPhone without a paid Apple accou
 
 ### Notes
 - Update privacy.html before turning on anything that stores new data (e.g. voice).
+
+## Session 32 (C) — 2026-10-28: Safe updates after launch
+
+### Done
+- «حدّث سلّتنا»: `public.app_config` (one row, readable by everyone, changed only in the SQL Editor) with
+  `min_version` + store links (`20261028120000_app_config.sql`, 3 new tests → 142 passing locally).
+  `components/UpdateGate.tsx` covers the app when its version is older (checked at launch and on coming back);
+  offline / not set → nothing. Button opens the store (sallitna.online until the store pages exist).
+- EAS: `frontend/mobile/eas.json` (development / preview / production builds, matching update channels, build
+  numbers counted by EAS), `expo-updates` added, `runtimeVersion: appVersion` + updates URL in app.json, and
+  `ITSAppUsesNonExemptEncryption: false` (Apple's export question answered once).
+- Test copy of Supabase: `npm run db:push:test | db:test:test | functions:deploy:test` (read
+  `SUPABASE_TEST_DB_URL` / `SUPABASE_TEST_REF` from your Mac, never from GitHub), plus `functions:deploy` for live.
+- `RELEASING.md`: one-time setup (test project, EAS environment variables, store links) and the steps for every
+  feature (test copy → phone → live), with the «only add» database rule. CLAUDE.md points to it.
+
+### Your side
+- `npm run db:push` → `npm run db:test` (expect 142 passed) — this also brings Session A's account deletion.
+- `npm run functions:deploy` (the logging update from Session A).
+- After pulling: `cd frontend/mobile && npm install` (expo-updates).
+- When ready: the one-time setup in RELEASING.md.
+
+### Next (from the launch plan)
+- D: app icon + splash (needs your 1024×1024 icon) · E: store listing pack · F: first EAS build → TestFlight ·
+  G: submit.
