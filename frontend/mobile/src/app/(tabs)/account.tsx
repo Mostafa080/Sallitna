@@ -60,11 +60,12 @@ export default function AccountScreen() {
   const [name, setName] = useState(list.householdName);
   const latestName = useRef(name); // the newest text, even if Return comes in the same tick as typing
 
-  // The email this account signs in with (shown under the name — easy to forget which one)
+  // The email this account signs in with (shown under the name — easy to forget which one).
+  // Read again whenever the sign-in or the person changes: this tab can open before the sign-in has loaded.
   const [email, setEmail] = useState<string | null>(null);
   useEffect(() => {
     api.myEmail().then(setEmail).catch(() => {});
-  }, []);
+  }, [list.mode, list.currentMemberId]);
 
   // Notifications turned off for the app in iPhone Settings → say so (checked again on coming back from Settings)
   const [pushState, setPushState] = useState<push.PushStatus>('unavailable');
