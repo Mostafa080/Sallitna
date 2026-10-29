@@ -7,7 +7,7 @@
       "other": "{{n}} items"
     },
     "sectionHeader": "{{name}} · {{n}}",
-    "inviteA11y": "Invite someone to the household",
+    "inviteA11y": "Invite someone to the list",
     "markBoughtA11y": "Mark {{name}} as bought",
     "emptyFilter": "Nothing added today",
     "openItemA11y": "Open {{name}}",
@@ -149,18 +149,18 @@
       "other": "Added {{n}} changes from your voice"
     },
     "offlineOn": "Offline (test) · saving everything",
-    "synced": "Back online · the family got everything",
+    "synced": "Back online · everything reached {{group}}",
     "liveAdded_m": "{{name}} added “{{item}}” while you shop",
     "liveAdded_f": "{{name}} added “{{item}}” while you shop",
     "questionSent": "{{name}} got your question",
     "skipped": "“{{name}}” is for next time",
     "answerSent": "{{name}} got your reply",
-    "askedFamily": "Asked the family: need anything?",
-    "handoff": "Sent the rest to the family",
+    "askedFamily": "Asked {{group}}: need anything?",
+    "handoff": "Sent the rest to {{group}}",
     "tripReported": "Told {{group}} · back to the list",
     "claimedTrip": "“{{name}}” is yours now",
     "memberSaved": "Saved {{name}}'s details",
-    "memberRemoved": "Removed {{name}} from the household",
+    "memberRemoved": "Removed {{name}} from the list",
     "listRenamed": "List renamed to “{{name}}”",
     "linkCopied": "Link copied",
     "joined": "Welcome {{name}} to “{{list}}”",
@@ -187,8 +187,8 @@
   },
   "empty": {
     "title": "The basket is empty",
-    "subtitle": "Tap the button and say what the house needs. For example:",
-    "subtitleType": "Type what the home needs in the box above.",
+    "subtitle": "Tap the button and say what's needed. For example:",
+    "subtitleType": "Type what's needed in the box above.",
     "example1": "“We need 2 kilos of tomatoes and cucumbers”",
     "example2": "“We’re out of milk”",
     "basicsHeader": "Or start with the basics · {{n}} added",
@@ -246,7 +246,7 @@
     "signOut": "Sign out"
   },
   "typeAdd": {
-    "placeholder": "What does the house need?",
+    "placeholder": "What do you need?",
     "searchA11y": "Type an item name",
     "voiceA11y": "Add by voice",
     "cancel": "Cancel",
@@ -402,8 +402,8 @@
   },
   "offline": {
     "title": "No connection",
-    "body_f": "Keep going. We save everything and send it to the family once you're back online.",
-    "body_m": "Keep going. We save everything and send it to the family once you're back online.",
+    "body_f": "Keep going. We save everything and tell {{group}} once you're back online.",
+    "body_m": "Keep going. We save everything and tell {{group}} once you're back online.",
     "pendingHeader": "Waiting to send · {{n}}",
     "pendingCart": "{{names}} in the cart"
   },
@@ -563,8 +563,8 @@
     "speaks_f": "Speaks",
     "speaks_m": "Speaks",
     "listSeparator": ", ",
-    "remove": "Remove {{name}} from the household",
-    "removeTitle": "Remove {{name}} from the household?",
+    "remove": "Remove {{name}} from the list",
+    "removeTitle": "Remove {{name}} from the list?",
     "removeBody_f": "She won't see or add to the list anymore. Her items stay.",
     "removeBody_m": "He won't see or add to the list anymore. His items stay.",
     "removeConfirm": "Remove",
@@ -604,11 +604,11 @@
   "inviteExpired": {
     "appName": "Sallitna",
     "title": "This invite link has expired",
-    "body": "Invite links only work for {{n}} days, to keep your family safe. Ask {{name}} for a new one.",
+    "body": "Invite links only work for {{n}} days, to keep your list safe. Ask {{name}} for a new one.",
     "ask": "Ask for a new link on WhatsApp",
     "message": "The invite link for “{{list}}” expired. Can you send me a new one?",
     "startNew": "Start a new list instead",
-    "bodyGeneric": "Invite links only work for {{n}} days, to keep your family safe. Ask for a new one."
+    "bodyGeneric": "Invite links only work for {{n}} days, to keep your list safe. Ask for a new one."
   },
   "settings": {
     "title": "Settings",
@@ -672,7 +672,7 @@
     "comingSoon": "Coming soon",
     "bought": "Crossed off “{{name}}”",
     "markBoughtA11y": "Mark {{name}} as bought",
-    "exitA11y": "Back to the family's list (test)",
+    "exitA11y": "Back to the list (test)",
     "addPlaceholder": "Add an item…",
     "addAsIs": "Add “{{text}}”",
     "addA11y": "Add {{name}}",

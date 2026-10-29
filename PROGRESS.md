@@ -1426,3 +1426,11 @@ couldn't open in Expo Go (and notifications on iPhone without a paid Apple accou
   buttons, the voice screens' buttons, and selected states (chips, filter pill, radio / store / dialect cards,
   unit picker, step dashes). White text stays on them.
 - Left dark on purpose: the undo toast, the dark voice screens, member avatar colours, text-input outlines.
+
+### Session 33c — 2026-10-29: Wording follows the list type everywhere
+- Messages that said «العيلة» / «البيت» inside a list now follow who the list is for (`{{group}}`: العيلة /
+  صحابك / زمايلك / الكل) or are neutral: «بلّغنا {{group}}: ناقصكم حاجة؟» (was «بعتنا للعيلة…»), «بلّغنا {{group}}
+  بالباقي», «النت رجع · بلّغنا {{group}} بكل حاجة», the offline banner, «ناقصكم إيه؟», «شلنا … من القائمة»,
+  «ادعي حد للقائمة», the invite-expired text, helper labels. Same in en / hi. Rule added to CLAUDE.md.
+- Still general on purpose: welcome, «سمّي قائمتك», join screens (no list yet), the website, the push
+  notifications («… في السوق دلوقتي — لو ناقص حاجة، ضيفوها» is already neutral).
