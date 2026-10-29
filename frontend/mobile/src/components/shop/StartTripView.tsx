@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   tileSelected: {
-    borderColor: colors.ink,
+    borderColor: colors.accent,
   },
   section: {
     gap: spacing.md,

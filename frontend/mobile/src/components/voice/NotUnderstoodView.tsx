@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     minHeight: size.control,
     paddingHorizontal: spacing.xxl,
     borderRadius: radius.pill,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },

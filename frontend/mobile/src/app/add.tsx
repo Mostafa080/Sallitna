@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     minHeight: size.touch,
     paddingHorizontal: spacing.xl,
     borderRadius: radius.pill,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -416,8 +416,8 @@ const styles = StyleSheet.create({
     borderWidth: size.border,
   },
   unitSelected: {
-    backgroundColor: colors.ink,
-    borderColor: colors.ink,
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
   },
   unitIdle: {
     backgroundColor: colors.surface,
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
   saveButton: {
     height: size.button,
     borderRadius: radius.pill,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },

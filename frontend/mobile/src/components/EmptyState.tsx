@@ -145,14 +145,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   chipAdded: {
-    backgroundColor: colors.ink,
-    borderColor: colors.ink,
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
   },
   showList: {
     minHeight: size.control,
     marginTop: spacing.sm,
     borderRadius: radius.pill,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
