@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.md,
     borderRadius: radius.card + spacing.xs,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.accent,
   },
   linkField: {
     minHeight: size.button + spacing.lg,

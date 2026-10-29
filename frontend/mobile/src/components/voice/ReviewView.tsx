@@ -342,8 +342,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   optionSelected: {
-    backgroundColor: colors.ink,
-    borderColor: colors.ink,
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
   },
   optionIdle: {
     backgroundColor: colors.surface,
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
   addButton: {
     height: size.button + spacing.md,
     borderRadius: radius.pill,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },

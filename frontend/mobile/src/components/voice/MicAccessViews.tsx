@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     width: size.avatar,
     height: size.avatar,
     borderRadius: radius.pill,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   primaryButton: {
     height: size.button + spacing.md,
     borderRadius: radius.pill,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },

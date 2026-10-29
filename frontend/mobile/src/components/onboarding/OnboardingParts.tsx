@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.line,
   },
   dashActive: {
-    backgroundColor: colors.ink,
+    backgroundColor: colors.accent,
   },
   fieldBlock: {
     gap: spacing.sm,
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
   },
   chipSelected: {
-    backgroundColor: colors.ink,
+    backgroundColor: colors.accent,
   },
   chipIdle: {
     backgroundColor: colors.surface,
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
   },
   dialectSelected: {
     borderWidth: size.borderThick,
-    borderColor: colors.ink,
+    borderColor: colors.accent,
   },
   dialectIdle: {
     borderWidth: size.border,

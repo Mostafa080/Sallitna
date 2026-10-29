@@ -1419,3 +1419,10 @@ couldn't open in Expo Go (and notifications on iPhone without a paid Apple accou
 - The website (sallitna.online) and the admin dashboard still use the orange palette and the basket logo.
 - The icon art has no Arabic text (good for stores). Apple's icon must have no transparency — this one has none.
 - To check on a phone: app icon only changes with a new build (not in Expo Go); everything else shows right away.
+
+### Session 33b — 2026-10-29: Every button is green
+- All black buttons are now the green accent: the main `SheetButton` (default tone «ink» → green, so «ابدأ
+  التسوق», «التالي», «تأكيد»…), the answer-screen replies, add / save / done / invite / WhatsApp / «ارجع للقائمة»
+  buttons, the voice screens' buttons, and selected states (chips, filter pill, radio / store / dialect cards,
+  unit picker, step dashes). White text stays on them.
+- Left dark on purpose: the undo toast, the dark voice screens, member avatar colours, text-input outlines.

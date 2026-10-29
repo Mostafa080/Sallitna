@@ -284,6 +284,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.md,
     borderRadius: radius.pill,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.accent,
   },
 });

@@ -36,8 +36,8 @@ const styles = StyleSheet.create({
     borderWidth: size.border,
   },
   selected: {
-    backgroundColor: colors.ink,
-    borderColor: colors.ink,
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
   },
   unselected: {
     backgroundColor: colors.surface,

@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   },
   radioCardSelected: {
     borderWidth: size.borderThick,
-    borderColor: colors.ink,
+    borderColor: colors.accent,
   },
   radioCardIdle: {
     borderWidth: size.border,
@@ -208,8 +208,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   radioSelected: {
-    borderColor: colors.ink,
-    backgroundColor: colors.ink,
+    borderColor: colors.accent,
+    backgroundColor: colors.accent,
   },
   radioDot: {
     width: size.radio / 3,
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
   ink: {
-    backgroundColor: colors.ink,
+    backgroundColor: colors.accent,
   },
   danger: {
     backgroundColor: colors.danger,

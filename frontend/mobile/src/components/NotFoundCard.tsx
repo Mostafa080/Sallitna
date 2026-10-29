@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   reopen: {
-    backgroundColor: colors.ink,
+    backgroundColor: colors.accent,
   },
   remove: {
     backgroundColor: colors.surface,

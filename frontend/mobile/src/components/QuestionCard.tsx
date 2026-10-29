@@ -96,6 +96,6 @@ const styles = StyleSheet.create({
   },
   replyMain: {
     flex: 1.4,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.accent,
   },
 });
