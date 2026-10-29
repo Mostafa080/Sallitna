@@ -37,6 +37,9 @@ I'm a product designer, not a developer.
 - Radius: cards 18, buttons/pills 999. Touch targets at least 44px.
 - Keep all colors/fonts/spacing in one theme file. No random values.
 - All UI text goes in i18n files (ar, en, hi). No hardcoded strings.
+- Text shown inside a list never hard-codes «العيلة» / «البيت» / «family»: use `{{group}}` («بلّغ {{group}}» →
+  العيلة / صحابك / زمايلك / الكل) or `{{members}}`, or neutral words («القائمة»), so it fits every list type.
+  (Only screens before a list exists — welcome, name your list, join — speak generally.)
 
 ## Security rules — never break these
 - No API keys or secrets inside the app. Secrets live only in

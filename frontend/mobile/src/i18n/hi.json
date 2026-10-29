@@ -7,7 +7,7 @@
       "other": "{{n}} items"
     },
     "sectionHeader": "{{name}} · {{n}}",
-    "inviteA11y": "Invite someone to the household",
+    "inviteA11y": "लिस्ट में किसी को बुलाएँ",
     "markBoughtA11y": "Mark {{name}} as bought",
     "emptyFilter": "Nothing added today",
     "openItemA11y": "Open {{name}}",
@@ -148,18 +148,18 @@
       "other": "Added {{n}} changes from your voice"
     },
     "offlineOn": "Offline (test) · saving everything",
-    "synced": "Back online · the family got everything",
+    "synced": "नेट वापस आया · {{group}} को सब बता दिया",
     "liveAdded_m": "{{name}} added “{{item}}” while you shop",
     "liveAdded_f": "{{name}} added “{{item}}” while you shop",
     "questionSent": "{{name}} got your question",
     "skipped": "“{{name}}” is for next time",
     "answerSent": "{{name}} got your reply",
-    "askedFamily": "Asked the family: need anything?",
-    "handoff": "Sent the rest to the family",
+    "askedFamily": "{{group}} से पूछा: कुछ चाहिए?",
+    "handoff": "बाकी {{group}} को भेज दिया",
     "tripReported": "Told {{group}} · back to the list",
     "claimedTrip": "“{{name}}” is yours now",
     "memberSaved": "Saved {{name}}'s details",
-    "memberRemoved": "Removed {{name}} from the household",
+    "memberRemoved": "{{name}} को लिस्ट से हटाया",
     "listRenamed": "List renamed to “{{name}}”",
     "linkCopied": "Link copied",
     "joined": "“{{list}}” में स्वागत है {{name}}",
@@ -186,8 +186,8 @@
   },
   "empty": {
     "title": "The basket is empty",
-    "subtitle": "Tap the button and say what the house needs. For example:",
-    "subtitleType": "Type what the home needs in the box above.",
+    "subtitle": "बटन दबाएँ और बताएँ क्या चाहिए। जैसे:",
+    "subtitleType": "ऊपर के बॉक्स में लिखें क्या चाहिए।",
     "example1": "“We need 2 kilos of tomatoes and cucumbers”",
     "example2": "“We’re out of milk”",
     "basicsHeader": "Or start with the basics · {{n}} added",
@@ -245,7 +245,7 @@
     "signOut": "Sign out"
   },
   "typeAdd": {
-    "placeholder": "What does the house need?",
+    "placeholder": "क्या चाहिए?",
     "searchA11y": "Type an item name",
     "voiceA11y": "Add by voice",
     "cancel": "Cancel",
@@ -401,8 +401,8 @@
   },
   "offline": {
     "title": "No connection",
-    "body_f": "Keep going. We save everything and send it to the family once you're back online.",
-    "body_m": "Keep going. We save everything and send it to the family once you're back online.",
+    "body_f": "चलते रहिए। हम सब सेव करते हैं और नेट आते ही {{group}} को बता देंगे।",
+    "body_m": "चलते रहिए। हम सब सेव करते हैं और नेट आते ही {{group}} को बता देंगे।",
     "pendingHeader": "Waiting to send · {{n}}",
     "pendingCart": "{{names}} in the cart"
   },
@@ -562,8 +562,8 @@
     "speaks_f": "Speaks",
     "speaks_m": "Speaks",
     "listSeparator": ", ",
-    "remove": "Remove {{name}} from the household",
-    "removeTitle": "Remove {{name}} from the household?",
+    "remove": "{{name}} को लिस्ट से हटाएँ",
+    "removeTitle": "{{name}} को लिस्ट से हटाएँ?",
     "removeBody_f": "She won't see or add to the list anymore. Her items stay.",
     "removeBody_m": "He won't see or add to the list anymore. His items stay.",
     "removeConfirm": "Remove",
@@ -603,11 +603,11 @@
   "inviteExpired": {
     "appName": "Sallitna",
     "title": "This invite link has expired",
-    "body": "Invite links only work for {{n}} days, to keep your family safe. Ask {{name}} for a new one.",
+    "body": "इनविटेशन लिंक सिर्फ़ {{n}} दिन चलते हैं, आपकी लिस्ट की सुरक्षा के लिए। {{name}} से नया लिंक माँगें।",
     "ask": "Ask for a new link on WhatsApp",
     "message": "The invite link for “{{list}}” expired. Can you send me a new one?",
     "startNew": "Start a new list instead",
-    "bodyGeneric": "Invite links only work for {{n}} days, to keep your family safe. Ask for a new one."
+    "bodyGeneric": "इनविटेशन लिंक सिर्फ़ {{n}} दिन चलते हैं, आपकी लिस्ट की सुरक्षा के लिए। नया लिंक माँगें।"
   },
   "settings": {
     "title": "Settings",
@@ -671,7 +671,7 @@
     "comingSoon": "जल्द आ रहा है",
     "bought": "“{{name}}” खरीद लिया",
     "markBoughtA11y": "{{name}} को खरीदा हुआ चिह्नित करें",
-    "exitA11y": "परिवार की सूची पर वापस जाएँ (टेस्ट)",
+    "exitA11y": "लिस्ट पर वापस जाएँ (टेस्ट)",
     "addPlaceholder": "कोई चीज़ जोड़ें…",
     "addAsIs": "“{{text}}” जोड़ें",
     "addA11y": "{{name}} जोड़ें",
