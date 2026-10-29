@@ -205,7 +205,7 @@ export default function TypeAddScreen() {
         )}
       </ScrollView>
 
-      <UndoToast bottomOffset={PASTE_BAR_HEIGHT + bottomInset + spacing.md} />
+      <UndoToast />
 
       {/* Paste a WhatsApp list */}
       <View style={[styles.pasteBar, { paddingBottom: bottomInset + spacing.md }]}>

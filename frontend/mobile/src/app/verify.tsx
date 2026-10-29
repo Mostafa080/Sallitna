@@ -381,7 +381,7 @@ export default function VerifyScreen() {
           )}
         </ScrollView>
 
-        <UndoToast bottomOffset={insets.bottom + size.button + spacing.xxxl * 2} />
+        <UndoToast />
 
         <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
           {step === 'newPassword' ? (

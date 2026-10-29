@@ -107,7 +107,7 @@ export default function DeleteAccountScreen() {
         </View>
       </ScrollView>
 
-      <UndoToast bottomOffset={insets.bottom + size.button + spacing.xxxl} />
+      <UndoToast />
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
         <SheetButton label={t('deleteAccount.confirm')} tone="danger" onPress={onDelete} disabled={!password || busy} />

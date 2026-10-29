@@ -200,7 +200,7 @@ export default function AccountScreen() {
 
       <View style={[styles.statusBarCover, { height: insets.top }]} />
 
-      <UndoToast bottomOffset={insets.bottom + size.tabBar + spacing.lg} />
+      <UndoToast />
     </KeyboardAvoidingView>
   );
 }

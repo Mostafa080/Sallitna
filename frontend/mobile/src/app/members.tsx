@@ -134,7 +134,7 @@ export default function MembersScreen() {
       {/* Covers the status bar area so content doesn't scroll under the clock */}
       <View style={[styles.statusBarCover, { height: insets.top }]} />
 
-      <UndoToast bottomOffset={insets.bottom + size.button + spacing.xxl} />
+      <UndoToast />
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
         <Pressable onPress={() => router.push('/invite')} style={styles.inviteButton} accessibilityRole="button">
