@@ -121,7 +121,7 @@ export default function NewListScreen() {
         </ChipRow>
       </ScrollView>
 
-      <UndoToast bottomOffset={insets.bottom + size.button + spacing.xxl} />
+      <UndoToast />
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
         <SheetButton label={t('lists.create')} onPress={onCreate} disabled={!trimmed || saving} />

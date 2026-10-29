@@ -168,7 +168,7 @@ export function StartTripView() {
         )}
       </ScrollView>
 
-      <UndoToast bottomOffset={tabBarSpace + size.button + spacing.xxl * 2} />
+      <UndoToast />
 
       <View style={[styles.footer, { paddingBottom: tabBarSpace + spacing.sm }]}>
         <View style={styles.notifyRow}>

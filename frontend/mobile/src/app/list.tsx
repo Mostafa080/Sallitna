@@ -342,7 +342,7 @@ export default function ListScreen() {
       {/* Covers the status bar area so the list doesn't scroll under the clock */}
       <View style={[styles.statusBarCover, { height: insets.top }]} />
 
-      <UndoToast bottomOffset={insets.bottom + MIC_CLEARANCE + spacing.sm} />
+      <UndoToast />
 
       {/* «اضغط وتكلّم» — floating mic on the end side (bottom-left in Arabic). Long-press = simulated noisy recording */}
       {features.voice && (

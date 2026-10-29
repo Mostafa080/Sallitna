@@ -1,7 +1,8 @@
 import * as Haptics from 'expo-haptics';
 import { useEffect } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
+import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { getLanguage, tIn, type Language } from '@/i18n';
@@ -9,13 +10,14 @@ import { useList } from '@/store/ListStore';
 import { colors, motion, radius, size, spacing } from '@/theme';
 
 type Props = {
-  bottomOffset: number; // distance from the screen bottom (e.g. above the bottom bar)
   language?: Language; // the helper's screen shows "Undo" in their language
 };
 
-// Dark bar that confirms the last change, with "undo" when it can be reversed.
-export function UndoToast({ bottomOffset, language = getLanguage() }: Props) {
+// Dark bar at the top of the screen (under the status bar, where it's seen first) that confirms the last change,
+// with "undo" when it can be reversed. Put it last in the screen so it sits over everything.
+export function UndoToast({ language = getLanguage() }: Props) {
   const { toast, undo, dismissToast } = useList();
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (!toast) return;
@@ -34,9 +36,9 @@ export function UndoToast({ bottomOffset, language = getLanguage() }: Props) {
   return (
     <Animated.View
       key={toast.id}
-      entering={FadeInDown.duration(motion.normal)}
-      exiting={FadeOutDown.duration(motion.fast)}
-      style={[styles.toast, { bottom: bottomOffset }]}
+      entering={FadeInUp.duration(motion.normal)}
+      exiting={FadeOutUp.duration(motion.fast)}
+      style={[styles.toast, { top: insets.top + spacing.sm }]}
       accessibilityLiveRegion="polite"
       accessibilityRole="alert">
       <AppText variant="body" color="onDark" style={styles.message} numberOfLines={2}>
@@ -57,6 +59,7 @@ export function UndoToast({ bottomOffset, language = getLanguage() }: Props) {
 const styles = StyleSheet.create({
   toast: {
     position: 'absolute',
+    zIndex: 100, // over headers and cards
     start: spacing.lg,
     end: spacing.lg,
     minHeight: size.toast,

@@ -268,7 +268,7 @@ export function HelperHome({ helper, live, onExit }: Props) {
         {/* Covers the status bar area so the list doesn't scroll under the clock */}
         <View style={[styles.statusBarCover, { height: insets.top }]} />
 
-        <UndoToast bottomOffset={insets.bottom + BAR_HEIGHT + spacing.sm} language={language} />
+        <UndoToast language={language} />
 
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}

@@ -1446,3 +1446,9 @@ couldn't open in Expo Go (and notifications on iPhone without a paid Apple accou
   in app.json (splash `backgroundColor`) + `AnimatedSplash` (`colors.ground`) if green is wanted later.
 - To see the phone's own splash and the hand-over: only in a real build (Expo Go shows Expo's own). The animated
   part shows in Expo Go right after opening the app.
+
+### Session 34b — 2026-10-29: Message bar at the top
+- The dark message bar («بلّغنا صحابك…», «اتحفظت…», with «تراجع» when it can be undone) now appears at the TOP,
+  just under the status bar, on every screen, sliding down; it sits over headers and cards (`zIndex`).
+  `UndoToast` no longer takes a `bottomOffset` — the 17 screens that placed it at the bottom just render
+  `<UndoToast />`. Stays 6 s as before.

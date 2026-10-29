@@ -222,7 +222,7 @@ export default function MyListsScreen() {
         </Pressable>
       </ScrollView>
 
-      <UndoToast bottomOffset={insets.bottom + size.tabBar + spacing.sm} />
+      <UndoToast />
 
       <Sheet
         visible={!!menuFor}

@@ -165,7 +165,7 @@ export default function JoinSetupScreen() {
           </View>
         </ScrollView>
 
-        <UndoToast bottomOffset={insets.bottom + size.button + spacing.xxl} />
+        <UndoToast />
 
         <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
           <SheetButton label={tr(`joinSetup.enter_${g}`)} onPress={onEnter} disabled={!ready} />

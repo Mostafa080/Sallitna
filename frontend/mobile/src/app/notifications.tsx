@@ -157,7 +157,7 @@ export default function NotificationsScreen() {
         </Pressable>
       </ScrollView>
 
-      <UndoToast bottomOffset={insets.bottom + spacing.lg} />
+      <UndoToast />
     </View>
   );
 }

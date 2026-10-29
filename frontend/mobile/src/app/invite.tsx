@@ -199,7 +199,7 @@ export default function InviteScreen({ setup = false }: { setup?: boolean }) {
 
       <View style={[styles.statusBarCover, { height: insets.top }]} />
 
-      <UndoToast bottomOffset={insets.bottom + size.button + (setup ? spacing.xxxl * 2 : spacing.xxl)} />
+      <UndoToast />
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
         <SheetButton label={t(setup ? 'invite.next' : 'invite.done')} tone="accent" onPress={onStart} />

@@ -136,7 +136,7 @@ export function ShopView() {
             }}
           />
         </View>
-        <UndoToast bottomOffset={bottomSpace + size.button * 2 + spacing.xxl} />
+        <UndoToast />
       </View>
     );
   }
@@ -328,7 +328,7 @@ export function ShopView() {
         )}
       </ScrollView>
 
-      <UndoToast bottomOffset={bottomSpace + spacing.sm} />
+      <UndoToast />
 
       {/* A fresh sheet per item, so it opens at its final size (with the «اسأل» preview already showing) */}
       <NotFoundSheet

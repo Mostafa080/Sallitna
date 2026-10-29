@@ -47,7 +47,7 @@ export default function SetPasswordScreen() {
           <NewPasswordFields kind={changing ? 'change' : 'new'} tr={tr} form={form} onSubmit={onSave} />
         </ScrollView>
 
-        <UndoToast bottomOffset={insets.bottom + size.button + spacing.xxxl} />
+        <UndoToast />
 
         <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
           <SheetButton

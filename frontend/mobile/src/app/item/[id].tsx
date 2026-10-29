@@ -307,7 +307,7 @@ export default function ItemDetailScreen() {
         </View>
       </ScrollView>
 
-      <UndoToast bottomOffset={insets.bottom + size.button + spacing.xl} />
+      <UndoToast />
 
       {/* Save */}
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
