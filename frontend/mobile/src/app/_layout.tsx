@@ -13,6 +13,7 @@ import { I18nManager, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { AnimatedSplash } from '@/components/AnimatedSplash';
 import { PasswordGate } from '@/components/PasswordGate';
 import { PushSetup } from '@/components/PushSetup';
 import { UpdateGate } from '@/components/UpdateGate';
@@ -40,9 +41,11 @@ export default function RootLayout() {
     NotoSansDevanagari_700Bold,
   });
 
+  // The phone's splash stays until the animated one (components/AnimatedSplash.tsx) has its logo ready; if the
+  // fonts fail, show the app anyway
   useEffect(() => {
-    if (fontsLoaded || fontError) SplashScreen.hideAsync();
-  }, [fontsLoaded, fontError]);
+    if (fontError) SplashScreen.hideAsync();
+  }, [fontError]);
 
   if (!fontsLoaded && !fontError) return null;
 
@@ -78,6 +81,7 @@ export default function RootLayout() {
           <PasswordGate />
           <PushSetup />
           <UpdateGate />
+          <AnimatedSplash />
         </ListProvider>
       </GestureHandlerRootView>
     </SafeAreaProvider>

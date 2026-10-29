@@ -1434,3 +1434,15 @@ couldn't open in Expo Go (and notifications on iPhone without a paid Apple accou
   «ادعي حد للقائمة», the invite-expired text, helper labels. Same in en / hi. Rule added to CLAUDE.md.
 - Still general on purpose: welcome, «سمّي قائمتك», join screens (no list yet), the website, the push
   notifications («… في السوق دلوقتي — لو ناقص حاجة، ضيفوها» is already neutral).
+
+## Session 34 — 2026-10-29: Animated splash screen
+- `components/AnimatedSplash.tsx` (in the root layout): the cat logo + «سلّتنا» on the app's warm white (#F6F4EF).
+  Starts at the size of the phone's own splash (160, app.json) so there's no jump; the logo pops, then breathes
+  while the app loads (sign-in, lists), the name fades in; shown at least 1.5 s, then fades into the app. Respects
+  «Reduce Motion» (no pop / breathing).
+- The phone's own splash (still, from app.json) now stays until the animated logo is ready to draw (or 1.5 s) —
+  `_layout.tsx` no longer hides it as soon as fonts load.
+- White, not green: the icon has its own green background, so it would melt into a green splash. One colour change
+  in app.json (splash `backgroundColor`) + `AnimatedSplash` (`colors.ground`) if green is wanted later.
+- To see the phone's own splash and the hand-over: only in a real build (Expo Go shows Expo's own). The animated
+  part shows in Expo Go right after opening the app.
