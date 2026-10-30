@@ -22,9 +22,11 @@ export const colors = {
   darkLine: '#3A3530', // rings, skeletons and outlines on dark screens
   onDarkMuted: '#A39C91', // secondary text on dark screens
   live: '#4CC38A', // "the family knows you're here" dot on dark
-  glowMint: '#C4E8D0', // the soft green glow behind screens (components/glass/GradientBackground)
-  glowSage: '#DCEEDD',
-  glowCream: '#FBF1D8',
+  glowMint: '#BFE6CC', // the soft colours blended behind screens (components/glass/GradientBackground)
+  glowSage: '#E3F1E4',
+  glowLime: '#D2EDC8',
+  glowPeach: '#FBDDC8',
+  glowSky: '#D6DFF2',
   glass: 'rgba(255, 255, 255, 0.64)', // frosted card where real Liquid Glass isn't available (older iPhones, Android)
   glassBorder: 'rgba(255, 255, 255, 0.9)',
   warningTint: '#FBF1D3', // offline banner background

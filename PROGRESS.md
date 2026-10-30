@@ -1486,3 +1486,9 @@ Chosen: start with phase 1; background mood «soft green + warm white».
 ### Next
 - Phase 2 (list + shopping screens) once the look is approved on the phone. Use glass for big surfaces only
   (cards, headers, sheets), never every row of a long list; keep text dark on light glass for Arabic readability.
+
+### Session 36b — 2026-10-30: Smoother backdrop
+- The first backdrop showed hard rectangle edges on the iPhone (each glow faded only to half at the edge of its box).
+  `GradientBackground` now uses round glows that fade to nothing exactly at their edge, with smoother steps, and a
+  blend like the SmartThings screens: mint (start side), sky (top), peach (other side, middle), lime (bottom).
+  Theme: `glowSky`, `glowPeach`, `glowLime` (replace `glowCream`).
