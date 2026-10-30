@@ -27,9 +27,9 @@
   --ink: #1d1b18;
   --muted: #615c53;
   --line: #e6e1d6;
-  --accent: #e8731a;
-  --accent-tint: #fdebd8;
-  --accent-ink: #b4560f;
+  --accent: #0e7a42; /* the green of the app icon */
+  --accent-tint: #ddf1e3;
+  --accent-ink: #0a5c31;
   --success: #2e7a4e;
   --info: #2f5d8a;
   --danger: #9b2c1f;
@@ -89,10 +89,13 @@ input {
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  background: var(--accent);
-  display: grid;
-  place-items: center;
-  color: #fff;
+  overflow: hidden;
+  display: block;
+}
+.brand-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .nav-item {
   text-align: start;
@@ -228,7 +231,7 @@ h2 {
   padding: var(--space-sm) var(--space-lg);
   font-weight: 600;
   cursor: pointer;
-  background: var(--ink);
+  background: var(--accent);
   color: #fff;
 }
 .btn:disabled {
@@ -290,9 +293,9 @@ td.ltr {
   cursor: pointer;
 }
 .chip.active {
-  background: var(--ink);
+  background: var(--accent);
   color: #fff;
-  border-color: var(--ink);
+  border-color: var(--accent);
 }
 
 .table-card {

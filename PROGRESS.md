@@ -1452,3 +1452,19 @@ couldn't open in Expo Go (and notifications on iPhone without a paid Apple accou
   just under the status bar, on every screen, sliding down; it sits over headers and cards (`zIndex`).
   `UndoToast` no longer takes a `bottomOffset` — the 17 screens that placed it at the bottom just render
   `<UndoToast />`. Stays 6 s as before.
+
+## Session 35 — 2026-10-30: Website and dashboard match the app (green + cat logo)
+- Website (sallitna.online, `frontend/invite`): accent orange → icon green (#0E7A42, tint #DDF1E3, text green
+  #0A5C31), buttons and step numbers green with white text, the cat icon replaces the basket logo on the landing,
+  invite (/j/…), privacy and terms pages, favicon + iPhone home-screen icon, invite-page member faces use the
+  green. The four phone screenshots (list, shopping, question, helper) were retaken from the green app.
+- Dashboard (admin.sallitna.online, `frontend/dashboard`): same green tokens, green buttons / active chips, the
+  cat logo in the sidebar and sign-in (`src/logo.png`), favicon (`public/favicon.png`, the dashboard's first
+  `public/` folder — Vite serves it as-is). Toasts stay dark.
+- Checked: the site at desktop + phone widths (invite page with a real-looking list), dashboard sign-in screen,
+  dashboard builds.
+
+### Known / next
+- The dashboard's inner pages (overview, users…) were only checked by their CSS (they share the tokens);
+  open them once after deploy.
+- The social preview image (`og:image`) is still the home screenshot — now green too.
