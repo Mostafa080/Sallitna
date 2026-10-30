@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AddChip } from '@/components/AddChip';
 import { AppText } from '@/components/AppText';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { UndoToast } from '@/components/UndoToast';
 import { catalogToDraft, runningLow, searchCatalog, usualItems, type CatalogItem } from '@/data/fakeCatalog';
 import { t } from '@/i18n';
@@ -85,6 +86,7 @@ export default function TypeAddScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <GradientBackground />
       {/* Search field + cancel */}
       <View style={[styles.searchRow, { paddingTop: insets.top + spacing.md }]}>
         <View style={styles.searchField}>

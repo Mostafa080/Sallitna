@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { SheetButton } from '@/components/shop/Sheet';
 import { t } from '@/i18n';
 import { isRTLLayout } from '@/lib/direction';
@@ -62,6 +63,7 @@ export default function AnswerScreen() {
 
   return (
     <View style={styles.screen}>
+      <GradientBackground />
       <ScrollView contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.md }]}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.backButton} accessibilityRole="button" accessibilityLabel={t('detail.back')}>

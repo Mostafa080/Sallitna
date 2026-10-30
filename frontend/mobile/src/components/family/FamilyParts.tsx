@@ -5,10 +5,11 @@ import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { AppText } from '@/components/AppText';
+import { Glass } from '@/components/glass/Glass';
 import { RadioCard, Sheet, SheetButton } from '@/components/shop/Sheet';
 import { t } from '@/i18n';
 import { isRTLLayout } from '@/lib/direction';
-import { colors, radius, size, spacing } from '@/theme';
+import { colors, radius, shadow, size, spacing } from '@/theme';
 
 // Back points to the start side, "go into" points to the end side
 export const BackIcon = isRTLLayout ? ChevronRight : ChevronLeft;
@@ -26,9 +27,11 @@ type CircleButtonProps = {
 
 export function CircleButton({ icon: Icon, label, onPress }: CircleButtonProps) {
   return (
-    <Pressable onPress={onPress} style={styles.circleButton} accessibilityRole="button" accessibilityLabel={label}>
-      <Icon size={size.icon} color={colors.ink} strokeWidth={size.iconStroke} />
-    </Pressable>
+    <Glass radius={radius.pill} interactive style={styles.circleGlass}>
+      <Pressable onPress={onPress} style={styles.circleButton} accessibilityRole="button" accessibilityLabel={label}>
+        <Icon size={size.icon} color={colors.ink} strokeWidth={size.iconStroke} />
+      </Pressable>
+    </Glass>
   );
 }
 
@@ -190,13 +193,12 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
+  circleGlass: {
+    alignSelf: 'flex-start', // as wide as the button, not the whole row
+  },
   circleButton: {
     width: size.touch + spacing.sm,
     height: size.touch + spacing.sm,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    borderWidth: size.border,
-    borderColor: colors.line,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -204,6 +206,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     borderRadius: radius.card + spacing.xs,
     backgroundColor: colors.surface,
+    boxShadow: shadow.glass,
   },
   sectionLabel: {
     paddingHorizontal: spacing.lg,

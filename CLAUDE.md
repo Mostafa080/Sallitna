@@ -34,7 +34,7 @@ I'm a product designer, not a developer.
   line #E6E1D6 · accent #0E7A42 (the green of the app icon) · accent-tint #DDF1E3 · on-accent #FFFFFF
   (text on the green accent is white, never dark ink)
   success #2E7A4E · info #2F5D8A · danger #9B2C1F
-- Radius: cards 18, buttons/pills 999. Touch targets at least 44px.
+- Radius: cards 26 (big list cards 36), buttons/pills 999. Touch targets at least 44px.
 - Keep all colors/fonts/spacing in one theme file. No random values.
 - All UI text goes in i18n files (ar, en, hi). No hardcoded strings.
 - Text shown inside a list never hard-codes «العيلة» / «البيت» / «family»: use `{{group}}` («بلّغ {{group}}» →

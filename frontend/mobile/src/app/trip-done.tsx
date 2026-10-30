@@ -8,6 +8,7 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Share, StyleShee
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { SheetButton } from '@/components/shop/Sheet';
 import { t } from '@/i18n';
 import { toWesternDigits } from '@/lib/arabic';
@@ -99,6 +100,7 @@ export default function TripDoneScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <GradientBackground />
       <ScrollView
         contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.xxxl }]}
         keyboardShouldPersistTaps="handled"

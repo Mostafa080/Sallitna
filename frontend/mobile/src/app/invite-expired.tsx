@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppLogo } from '@/components/AppLogo';
 import { AppText } from '@/components/AppText';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { SheetButton } from '@/components/shop/Sheet';
 import { INVITE_VALID_DAYS } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
@@ -33,6 +34,7 @@ export default function InviteExpiredScreen() {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + spacing.sm }]}>
+      <GradientBackground />
       <View style={styles.brand}>
         <AppLogo />
         <AppText variant="heading" weight="bold">

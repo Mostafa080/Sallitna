@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { Avatar, AvatarStack } from '@/components/Avatar';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { RadioCard, Sheet, SheetButton } from '@/components/shop/Sheet';
 import { UndoToast } from '@/components/UndoToast';
 import { activeShopperSinceMinutes, categoryOrder, storeOrder, type StoreKey } from '@/data/fakeHousehold';
@@ -74,6 +75,7 @@ export function StartTripView() {
 
   return (
     <View style={styles.screen}>
+      <GradientBackground />
       <ScrollView
         contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.lg }]}
         showsVerticalScrollIndicator={false}>

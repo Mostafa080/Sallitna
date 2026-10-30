@@ -1498,3 +1498,13 @@ Chosen: start with phase 1; background mood «soft green + warm white».
   round white card per list (`radius.big` 36, soft shadow): name + «…», «العيلة · 4 أفراد», faces + «+» to invite,
   and a picture at the end by list type (house / people / briefcase / basket) on the soft green tile.
   The old «قائمة جديدة» card is gone — «+» in the top bar does it. `ListSummary` now has `kind`.
+
+### Session 36d — 2026-10-30: The glass look on every screen (phases 2 and 3)
+- `GradientBackground` is the first child of every screen's root: welcome, sign-in / join / about-you / first list /
+  new list / invite / set-password / delete-account, «بالسوق» (start + shopping), the list, item detail, add,
+  members + member detail, answer, trip-done, invite-expired, «حسابي», the helper's screen.
+- Shared pieces: `radius.card` 18 → 26 (cards and sheets are softer; list cards 36), `Card` (family parts) has the soft
+  green shadow, `CircleButton` (back / close) is a glass circle. CLAUDE.md radius rule updated.
+- Left as they were on purpose: the dark voice screens (voice is switched off anyway), bottom sheets (white, softer
+  corners), the dark message bar, solid green buttons. List rows stay plain (no glass on every row).
+- Known: web preview can't show real Liquid Glass or RTL order of rows exactly — check on the iPhone.

@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { AvatarStack } from '@/components/Avatar';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { SheetButton } from '@/components/shop/Sheet';
 import {
   OfflineBanner,
@@ -99,6 +100,7 @@ export function ShopView() {
   if (tripItems.length === 0) {
     return (
       <View style={styles.screen}>
+        <GradientBackground />
         <ShopHeader title={t(`shop.title_${g}`)} subtitle={t('shop.familyKnows')} />
         <ScrollView contentContainerStyle={styles.emptyContent}>
           <View style={styles.emptyIcon}>
@@ -170,6 +172,7 @@ export function ShopView() {
 
   return (
     <View style={styles.screen}>
+      <GradientBackground />
       <ShopHeader
         title={split ? t(`shop.splitTitle_${g}`, { name: partner!.display_name }) : t(`shop.title_${g}`)}
         subtitle={

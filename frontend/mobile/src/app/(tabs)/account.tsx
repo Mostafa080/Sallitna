@@ -20,6 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { Card, Row, SectionLabel, Toggle } from '@/components/family/FamilyParts';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { ltrEmail } from '@/components/onboarding/OnboardingParts';
 import { UndoToast } from '@/components/UndoToast';
 import type { HouseholdSettings } from '@/data/fakeHousehold';
@@ -122,6 +123,7 @@ export default function AccountScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <GradientBackground />
       <ScrollView
         contentContainerStyle={[
           styles.content,

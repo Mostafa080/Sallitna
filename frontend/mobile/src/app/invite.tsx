@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { BackIcon, Card, CircleButton, SectionLabel, StatusPill } from '@/components/family/FamilyParts';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { StepDashes } from '@/components/onboarding/OnboardingParts';
 import { SheetButton } from '@/components/shop/Sheet';
 import { UndoToast } from '@/components/UndoToast';
@@ -105,6 +106,7 @@ export default function InviteScreen({ setup = false }: { setup?: boolean }) {
 
   return (
     <View style={styles.screen}>
+      <GradientBackground />
       <ScrollView
         contentContainerStyle={[
           styles.content,

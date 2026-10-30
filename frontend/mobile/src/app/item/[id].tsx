@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { ItemPhotoPreview } from '@/components/ItemPhoto';
 import { UndoToast } from '@/components/UndoToast';
 import { commonUnits, type Unit } from '@/data/fakeHousehold';
@@ -128,6 +129,7 @@ export default function ItemDetailScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <GradientBackground />
       <ScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}

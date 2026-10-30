@@ -7,6 +7,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 're
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DirectionView, directionOf } from '@/components/DirectionView';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { backIconFor, CircleButton } from '@/components/family/FamilyParts';
 import { NewPasswordFields, useNewPassword } from '@/components/onboarding/NewPassword';
 import { SheetButton } from '@/components/shop/Sheet';
@@ -37,6 +38,7 @@ export default function SetPasswordScreen() {
   return (
     <DirectionView language={language}>
       <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <GradientBackground />
         <ScrollView
           contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.md }]}
           keyboardShouldPersistTaps="handled"

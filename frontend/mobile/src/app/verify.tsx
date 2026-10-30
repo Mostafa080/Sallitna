@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { DirectionView, directionOf } from '@/components/DirectionView';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { backIconFor, CircleButton } from '@/components/family/FamilyParts';
 import { NewPasswordFields, useNewPassword } from '@/components/onboarding/NewPassword';
 import {
@@ -212,6 +213,7 @@ export default function VerifyScreen() {
   return (
     <DirectionView language={language}>
       <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <GradientBackground />
         <ScrollView
           contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.md }]}
           keyboardShouldPersistTaps="handled"
