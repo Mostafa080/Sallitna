@@ -11,6 +11,8 @@
     <meta name="description" content="اتدعيت لقائمة على سلّتنا" />
     <meta property="og:title" content="دعوة لقائمة على سلّتنا" />
     <meta property="og:description" content="قائمة مشتريات واحدة للكل" />
+    <link rel="icon" type="image/png" href="/img/favicon.png" />
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -21,14 +23,7 @@
   <body>
     <main>
       <div class="brand">
-        <span class="logo" aria-hidden="true">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1D1B18" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="m15 11-1 9" /><path d="m19 11-4-7" /><path d="M2 11h20" />
-            <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4" />
-            <path d="M4.5 15.5h15" /><path d="m5 11 4-7" /><path d="m9 11 1 9" />
-          </svg>
-        </span>
+        <span class="logo" aria-hidden="true"><img src="/img/logo.png" alt="" width="44" height="44" /></span>
         سلّتنا
       </div>
 
@@ -93,8 +88,8 @@
       // Who the list is for — the same words as the app («قائمة الصحاب»…); "other" has no label
       var KIND_LIST = { family: 'قائمة العيلة', friends: 'قائمة الصحاب', work: 'قائمة الشغل' };
       // The app's avatar colours (theme) and which of them need dark letters
-      var COLORS = { ink: '#1D1B18', info: '#2F5D8A', accent: '#E8731A', success: '#2E7A4E', danger: '#9B2C1F',
-        muted: '#615C53', accentTint: '#FDEBD8', line: '#E6E1D6', surface: '#FFFFFF', ground: '#F6F4EF' };
+      var COLORS = { ink: '#1D1B18', info: '#2F5D8A', accent: '#0E7A42', success: '#2E7A4E', danger: '#9B2C1F',
+        muted: '#615C53', accentTint: '#DDF1E3', line: '#E6E1D6', surface: '#FFFFFF', ground: '#F6F4EF' };
       var LIGHT = ['accentTint', 'line', 'surface', 'ground'];
 
       // Fill the page with the real list (names go in as text, never as HTML)
