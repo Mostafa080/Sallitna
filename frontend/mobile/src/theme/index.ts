@@ -77,7 +77,7 @@ export const spacing = {
 } as const;
 
 export const radius = {
-  card: 18,
+  card: 26, // cards and sheets (soft, rounded — the glass look)
   big: 36, // the big soft cards of the glass look (list cards)
   control: 12, // inputs, unit buttons, toast action
   badge: 8,

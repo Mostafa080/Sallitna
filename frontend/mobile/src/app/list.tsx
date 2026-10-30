@@ -10,6 +10,7 @@ import { AppText } from '@/components/AppText';
 import { AvatarStack } from '@/components/Avatar';
 import { EmptyState } from '@/components/EmptyState';
 import { BackIcon, CircleButton } from '@/components/family/FamilyParts';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { ItemRow } from '@/components/ItemRow';
 import { NotFoundCard } from '@/components/NotFoundCard';
 import { QuestionCard } from '@/components/QuestionCard';
@@ -183,6 +184,7 @@ export default function ListScreen() {
 
   return (
     <View style={styles.screen}>
+      <GradientBackground />
       <ScrollView
         ref={scrollRef}
         contentContainerStyle={{

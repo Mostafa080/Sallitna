@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { BackIcon, Card, CircleButton, ForwardIcon, SectionLabel, StatusPill } from '@/components/family/FamilyParts';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { UndoToast } from '@/components/UndoToast';
 import { pastTrips, type Member } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
@@ -52,6 +53,7 @@ export default function MembersScreen() {
 
   return (
     <View style={styles.screen}>
+      <GradientBackground />
       <ScrollView
         contentContainerStyle={[
           styles.content,

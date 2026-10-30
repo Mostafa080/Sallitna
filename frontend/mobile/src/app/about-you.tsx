@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { BackIcon, CircleButton } from '@/components/family/FamilyParts';
 import { ChipRow, ChoiceChip, DialectCard, Field, StepDashes } from '@/components/onboarding/OnboardingParts';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { SheetButton } from '@/components/shop/Sheet';
 import { UndoToast } from '@/components/UndoToast';
 import { dialectOrder, type DialectKey } from '@/data/fakeHousehold';
@@ -64,6 +65,7 @@ export default function AboutYouScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <GradientBackground />
       <ScrollView
         contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.md }]}
         keyboardShouldPersistTaps="handled"

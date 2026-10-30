@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { Brand } from '@/components/onboarding/OnboardingParts';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { SheetButton } from '@/components/shop/Sheet';
 import { t, tIn } from '@/i18n';
 import { useList } from '@/store/ListStore';
@@ -32,6 +33,7 @@ export default function WelcomeScreen() {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + spacing.sm }]}>
+      <GradientBackground />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Pressable onLongPress={enterDemo} delayLongPress={800} accessible={false} style={styles.brand}>
           <Brand />

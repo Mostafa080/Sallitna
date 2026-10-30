@@ -12,6 +12,7 @@ import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { BackIcon, CircleButton } from '@/components/family/FamilyParts';
 import { ChipRow, ChoiceChip, Field } from '@/components/onboarding/OnboardingParts';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { SheetButton } from '@/components/shop/Sheet';
 import { dialectOrder, languageOrder, type LanguageKey, type Member } from '@/data/fakeHousehold';
 import { t, tIn } from '@/i18n';
@@ -56,6 +57,7 @@ export default function ProfileScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <GradientBackground />
       <ScrollView
         contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.md }]}
         keyboardShouldPersistTaps="handled"

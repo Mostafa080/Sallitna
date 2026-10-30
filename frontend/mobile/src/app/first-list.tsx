@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { BackIcon, CircleButton } from '@/components/family/FamilyParts';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { StepDashes } from '@/components/onboarding/OnboardingParts';
 import { SheetButton } from '@/components/shop/Sheet';
 import { t } from '@/i18n';
@@ -19,6 +20,7 @@ export default function FirstListScreen() {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + spacing.sm }]}>
+      <GradientBackground />
       <View style={styles.header}>
         <CircleButton icon={BackIcon} label={t('onboarding.back')} onPress={() => router.replace('/about-you')} />
         <StepDashes current={2} total={3} />

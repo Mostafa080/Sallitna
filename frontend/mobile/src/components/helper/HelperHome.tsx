@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { ItemPhotoThumb } from '@/components/ItemPhoto';
 import { SwipeActions } from '@/components/SwipeActions';
 import { UndoToast } from '@/components/UndoToast';
@@ -128,6 +129,7 @@ export function HelperHome({ helper, live, onExit }: Props) {
   return (
     <LayoutDirectionContext.Provider value={direction}>
       <View style={[styles.screen, { direction }]}>
+        <GradientBackground />
         <ScrollView
           contentContainerStyle={[
             styles.content,

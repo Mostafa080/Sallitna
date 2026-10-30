@@ -12,6 +12,7 @@ import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { DirectionView } from '@/components/DirectionView';
 import { ChipRow, ChoiceChip, Field } from '@/components/onboarding/OnboardingParts';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { SheetButton } from '@/components/shop/Sheet';
 import { UndoToast } from '@/components/UndoToast';
 import { dialectOrder, languageOrder, type DialectKey, type LanguageKey } from '@/data/fakeHousehold';
@@ -77,6 +78,7 @@ export default function JoinSetupScreen() {
   return (
     <DirectionView language={helper ? language : 'ar'}>
       <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <GradientBackground />
         <ScrollView
           contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.xl }]}
           keyboardShouldPersistTaps="handled"
