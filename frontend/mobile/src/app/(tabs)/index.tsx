@@ -12,6 +12,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { AvatarStack } from '@/components/Avatar';
 import { ForwardIcon } from '@/components/family/FamilyParts';
+import { Glass } from '@/components/glass/Glass';
+import { GradientBackground } from '@/components/glass/GradientBackground';
 import { HelperHome } from '@/components/helper/HelperHome';
 import { Brand, Field } from '@/components/onboarding/OnboardingParts';
 import { Sheet, SheetButton } from '@/components/shop/Sheet';
@@ -136,6 +138,7 @@ export default function MyListsScreen() {
   if (list.mode !== 'live' && list.mode !== 'demo') {
     return (
       <View style={styles.loading}>
+        <GradientBackground />
         <Brand />
         {list.mode === 'loading' && <ActivityIndicator color={colors.muted} />}
       </View>
@@ -144,6 +147,7 @@ export default function MyListsScreen() {
 
   return (
     <View style={styles.screen}>
+      <GradientBackground />
       <ScrollView
         contentContainerStyle={[
           styles.content,
@@ -155,71 +159,74 @@ export default function MyListsScreen() {
         </AppText>
 
         {list.lists.map((l) => (
-          <Pressable
-            key={l.householdId}
-            onPress={() => onOpen(l)}
-            style={({ pressed }) => [styles.card, pressed && styles.pressed]}
-            accessibilityRole="button"
-            accessibilityLabel={t('lists.cardA11y', {
-              name: l.name,
-              members: t('lists.members', { n: l.memberCount }),
-            })}>
-            <View style={styles.cardTop}>
-              <AppText variant="heading" weight="bold" style={styles.flex} numberOfLines={1}>
-                {l.name}
-              </AppText>
-              {/* «…» — delete (manager) or leave the list; not in the demo */}
-              {list.mode === 'live' && (
+          <Glass key={l.householdId}>
+            <Pressable
+              onPress={() => onOpen(l)}
+              style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel={t('lists.cardA11y', {
+                name: l.name,
+                members: t('lists.members', { n: l.memberCount }),
+              })}>
+              <View style={styles.cardTop}>
+                <AppText variant="heading" weight="bold" style={styles.flex} numberOfLines={1}>
+                  {l.name}
+                </AppText>
+                {/* «…» — delete (manager) or leave the list; not in the demo */}
+                {list.mode === 'live' && (
+                  <Pressable
+                    onPress={() => {
+                      Haptics.selectionAsync();
+                      setMenuFor(l);
+                    }}
+                    style={styles.more}
+                    hitSlop={spacing.sm}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('lists.optionsA11y', { name: l.name })}>
+                    <Ellipsis size={size.icon} color={colors.ink} strokeWidth={size.iconStroke} />
+                  </Pressable>
+                )}
+                {opening === l.householdId ? (
+                  <ActivityIndicator color={colors.muted} />
+                ) : (
+                  <ForwardIcon size={size.icon} color={colors.muted} strokeWidth={size.iconStroke} />
+                )}
+              </View>
+
+              {/* The list's people, «+» right next to them to invite more, and the count when there's more than one */}
+              <View style={styles.cardBottom}>
+                {l.members.length > 0 && <AvatarStack members={l.members} ring="surface" max={MAX_CARD_AVATARS} />}
                 <Pressable
-                  onPress={() => {
-                    Haptics.selectionAsync();
-                    setMenuFor(l);
-                  }}
-                  style={styles.more}
+                  onPress={() => onInvite(l)}
+                  style={styles.invite}
                   hitSlop={spacing.sm}
                   accessibilityRole="button"
-                  accessibilityLabel={t('lists.optionsA11y', { name: l.name })}>
-                  <Ellipsis size={size.icon} color={colors.ink} strokeWidth={size.iconStroke} />
+                  accessibilityLabel={t('lists.inviteA11y', { name: l.name })}>
+                  <Plus size={size.iconSmall + spacing.xxs} color={colors.ink} strokeWidth={size.iconStroke + 0.5} />
                 </Pressable>
-              )}
-              {opening === l.householdId ? (
-                <ActivityIndicator color={colors.muted} />
-              ) : (
-                <ForwardIcon size={size.icon} color={colors.muted} strokeWidth={size.iconStroke} />
-              )}
-            </View>
-
-            {/* The list's people, «+» right next to them to invite more, and the count when there's more than one */}
-            <View style={styles.cardBottom}>
-              {l.members.length > 0 && <AvatarStack members={l.members} ring="surface" max={MAX_CARD_AVATARS} />}
-              <Pressable
-                onPress={() => onInvite(l)}
-                style={styles.invite}
-                hitSlop={spacing.sm}
-                accessibilityRole="button"
-                accessibilityLabel={t('lists.inviteA11y', { name: l.name })}>
-                <Plus size={size.iconSmall + spacing.xxs} color={colors.ink} strokeWidth={size.iconStroke + 0.5} />
-              </Pressable>
-              {l.memberCount > 1 && (
-                <AppText variant="body" color="muted" style={styles.flex} numberOfLines={1}>
-                  {t('lists.members', { n: l.memberCount })}
-                </AppText>
-              )}
-            </View>
-          </Pressable>
+                {l.memberCount > 1 && (
+                  <AppText variant="body" color="muted" style={styles.flex} numberOfLines={1}>
+                    {t('lists.members', { n: l.memberCount })}
+                  </AppText>
+                )}
+              </View>
+            </Pressable>
+          </Glass>
         ))}
 
-        <Pressable
-          onPress={onNew}
-          style={({ pressed }) => [styles.newCard, pressed && styles.pressed]}
-          accessibilityRole="button">
-          <View style={styles.newIcon}>
-            <Plus size={size.icon - spacing.xs} color={colors.onDark} strokeWidth={size.iconStroke} />
-          </View>
-          <AppText variant="item" weight="semibold">
-            {t('lists.new')}
-          </AppText>
-        </Pressable>
+        <Glass interactive>
+          <Pressable
+            onPress={onNew}
+            style={({ pressed }) => [styles.newCard, pressed && styles.pressed]}
+            accessibilityRole="button">
+            <View style={styles.newIcon}>
+              <Plus size={size.icon - spacing.xs} color={colors.onDark} strokeWidth={size.iconStroke} />
+            </View>
+            <AppText variant="item" weight="semibold">
+              {t('lists.new')}
+            </AppText>
+          </Pressable>
+        </Glass>
       </ScrollView>
 
       <UndoToast />
@@ -292,7 +299,7 @@ export default function MyListsScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.ground,
+    backgroundColor: colors.ground, // under the soft glow (GradientBackground)
   },
   loading: {
     flex: 1,
@@ -315,8 +322,6 @@ const styles = StyleSheet.create({
   card: {
     gap: spacing.md,
     padding: spacing.lg,
-    borderRadius: radius.card,
-    backgroundColor: colors.surface,
   },
   pressed: {
     opacity: opacity.pressed,
@@ -338,7 +343,7 @@ const styles = StyleSheet.create({
     borderWidth: size.border,
     borderStyle: 'dashed',
     borderColor: colors.muted,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.glass,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -346,7 +351,9 @@ const styles = StyleSheet.create({
     width: size.touch - spacing.sm,
     height: size.touch - spacing.sm,
     borderRadius: radius.pill,
-    backgroundColor: colors.ground,
+    backgroundColor: colors.glass,
+    borderWidth: size.border,
+    borderColor: colors.glassBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -374,10 +381,6 @@ const styles = StyleSheet.create({
     minHeight: size.button,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
-    borderRadius: radius.card,
-    borderWidth: size.border,
-    borderStyle: 'dashed',
-    borderColor: colors.muted,
   },
   newIcon: {
     width: size.avatar,
