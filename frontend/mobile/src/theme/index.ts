@@ -78,6 +78,7 @@ export const spacing = {
 
 export const radius = {
   card: 18,
+  big: 36, // the big soft cards of the glass look (list cards)
   control: 12, // inputs, unit buttons, toast action
   badge: 8,
   pill: 999,
@@ -105,6 +106,7 @@ export const size = {
   button: 56, // full-width primary button
   swipeAction: 68, // width of each swipe action
   emptyIcon: 96,
+  listArt: 88, // the picture at the end of a list card
   toast: 64,
   voiceMic: 128,
   voiceRing: 184,

@@ -149,6 +149,7 @@ function demoState(): State {
       {
         householdId: household.id,
         name: household.name,
+        kind: 'family',
         memberCount: demoMembers.length,
         members: demoMembers,
         myRole: 'owner',

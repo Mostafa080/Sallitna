@@ -4,14 +4,14 @@
 
 import * as Haptics from 'expo-haptics';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Ellipsis, LogOut, Pencil, Plus, Trash2 } from 'lucide-react-native';
+import { Briefcase, Ellipsis, House, LogOut, Pencil, Plus, ShoppingBasket, Trash2, Users, type LucideIcon } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AppLogo } from '@/components/AppLogo';
 import { AppText } from '@/components/AppText';
 import { AvatarStack } from '@/components/Avatar';
-import { ForwardIcon } from '@/components/family/FamilyParts';
 import { Glass } from '@/components/glass/Glass';
 import { GradientBackground } from '@/components/glass/GradientBackground';
 import { HelperHome } from '@/components/helper/HelperHome';
@@ -23,10 +23,18 @@ import * as api from '@/lib/api';
 import type { ListSummary } from '@/lib/api';
 import { useHideTabBar } from '@/lib/tabBar';
 import { useList } from '@/store/ListStore';
-import { colors, opacity, radius, size, spacing } from '@/theme';
+import { colors, opacity, radius, shadow, size, spacing } from '@/theme';
 
 // Faces on a card; more than this become «+N»
 const MAX_CARD_AVATARS = 5;
+
+// The picture at the end of a list card, by who the list is for
+const KIND_ICON: Record<ListSummary['kind'], LucideIcon> = {
+  family: House,
+  friends: Users,
+  work: Briefcase,
+  other: ShoppingBasket,
+};
 
 export default function MyListsScreen() {
   const insets = useSafeAreaInsets();
@@ -151,16 +159,38 @@ export default function MyListsScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + size.tabBar + spacing.xl },
+          { paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + size.tabBar + spacing.xl },
         ]}
         showsVerticalScrollIndicator={false}>
-        <AppText variant="title" weight="bold" style={styles.title} accessibilityRole="header">
+        {/* Top bar of glass pills, like the iOS 26 home screens: the app name, and «+» for a new list */}
+        <View style={styles.topBar}>
+          <Glass radius={radius.pill} style={styles.brandPill}>
+            <AppLogo small />
+            <AppText variant="item" weight="bold">
+              {t('onboarding.appName')}
+            </AppText>
+          </Glass>
+          <Glass radius={radius.pill} interactive>
+            <Pressable
+              onPress={onNew}
+              style={styles.newPill}
+              hitSlop={spacing.sm}
+              accessibilityRole="button"
+              accessibilityLabel={t('lists.new')}>
+              <Plus size={size.icon} color={colors.ink} strokeWidth={size.iconStroke} />
+            </Pressable>
+          </Glass>
+        </View>
+
+        <AppText variant="item" weight="medium" color="muted" style={styles.sectionLabel} accessibilityRole="header">
           {t('lists.sheetTitle')}
         </AppText>
 
-        {list.lists.map((l) => (
-          <Glass key={l.householdId}>
+        {list.lists.map((l) => {
+          const KindIcon = KIND_ICON[l.kind];
+          return (
             <Pressable
+              key={l.householdId}
               onPress={() => onOpen(l)}
               style={({ pressed }) => [styles.card, pressed && styles.pressed]}
               accessibilityRole="button"
@@ -168,65 +198,54 @@ export default function MyListsScreen() {
                 name: l.name,
                 members: t('lists.members', { n: l.memberCount }),
               })}>
-              <View style={styles.cardTop}>
-                <AppText variant="heading" weight="bold" style={styles.flex} numberOfLines={1}>
-                  {l.name}
+              <View style={styles.cardText}>
+                <View style={styles.cardTop}>
+                  <AppText variant="heading" weight="bold" style={styles.flex} numberOfLines={1}>
+                    {l.name}
+                  </AppText>
+                  {/* «…» — delete (manager) or leave the list; not in the demo */}
+                  {list.mode === 'live' && (
+                    <Pressable
+                      onPress={() => {
+                        Haptics.selectionAsync();
+                        setMenuFor(l);
+                      }}
+                      style={styles.more}
+                      hitSlop={spacing.sm}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('lists.optionsA11y', { name: l.name })}>
+                      <Ellipsis size={size.icon} color={colors.ink} strokeWidth={size.iconStroke} />
+                    </Pressable>
+                  )}
+                </View>
+                <AppText variant="body" color="muted" numberOfLines={2}>
+                  {[l.kind === 'other' ? null : t(`groups.${l.kind}.label`), t('lists.members', { n: l.memberCount })]
+                    .filter(Boolean)
+                    .join(t('item.metaSeparator'))}
                 </AppText>
-                {/* «…» — delete (manager) or leave the list; not in the demo */}
-                {list.mode === 'live' && (
+                {/* The list's people, and «+» right next to them to invite more */}
+                <View style={styles.cardBottom}>
+                  {l.members.length > 0 && <AvatarStack members={l.members} ring="surface" max={MAX_CARD_AVATARS} />}
                   <Pressable
-                    onPress={() => {
-                      Haptics.selectionAsync();
-                      setMenuFor(l);
-                    }}
-                    style={styles.more}
+                    onPress={() => onInvite(l)}
+                    style={styles.invite}
                     hitSlop={spacing.sm}
                     accessibilityRole="button"
-                    accessibilityLabel={t('lists.optionsA11y', { name: l.name })}>
-                    <Ellipsis size={size.icon} color={colors.ink} strokeWidth={size.iconStroke} />
+                    accessibilityLabel={t('lists.inviteA11y', { name: l.name })}>
+                    <Plus size={size.iconSmall + spacing.xxs} color={colors.ink} strokeWidth={size.iconStroke + 0.5} />
                   </Pressable>
-                )}
-                {opening === l.householdId ? (
-                  <ActivityIndicator color={colors.muted} />
-                ) : (
-                  <ForwardIcon size={size.icon} color={colors.muted} strokeWidth={size.iconStroke} />
-                )}
+                </View>
               </View>
-
-              {/* The list's people, «+» right next to them to invite more, and the count when there's more than one */}
-              <View style={styles.cardBottom}>
-                {l.members.length > 0 && <AvatarStack members={l.members} ring="surface" max={MAX_CARD_AVATARS} />}
-                <Pressable
-                  onPress={() => onInvite(l)}
-                  style={styles.invite}
-                  hitSlop={spacing.sm}
-                  accessibilityRole="button"
-                  accessibilityLabel={t('lists.inviteA11y', { name: l.name })}>
-                  <Plus size={size.iconSmall + spacing.xxs} color={colors.ink} strokeWidth={size.iconStroke + 0.5} />
-                </Pressable>
-                {l.memberCount > 1 && (
-                  <AppText variant="body" color="muted" style={styles.flex} numberOfLines={1}>
-                    {t('lists.members', { n: l.memberCount })}
-                  </AppText>
+              <View style={styles.cardArt}>
+                {opening === l.householdId ? (
+                  <ActivityIndicator color={colors.accent} />
+                ) : (
+                  <KindIcon size={size.icon * 2} color={colors.accent} strokeWidth={size.iconStroke - 0.5} />
                 )}
               </View>
             </Pressable>
-          </Glass>
-        ))}
-
-        <Glass interactive>
-          <Pressable
-            onPress={onNew}
-            style={({ pressed }) => [styles.newCard, pressed && styles.pressed]}
-            accessibilityRole="button">
-            <View style={styles.newIcon}>
-              <Plus size={size.icon - spacing.xs} color={colors.onDark} strokeWidth={size.iconStroke} />
-            </View>
-            <AppText variant="item" weight="semibold">
-              {t('lists.new')}
-            </AppText>
-          </Pressable>
-        </Glass>
+          );
+        })}
       </ScrollView>
 
       <UndoToast />
@@ -315,13 +334,50 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     gap: spacing.md,
   },
-  title: {
-    lineHeight: size.titleLine,
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: spacing.sm,
   },
+  brandPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    minHeight: size.button,
+    paddingStart: spacing.sm,
+    paddingEnd: spacing.xl,
+  },
+  newPill: {
+    width: size.button,
+    height: size.button,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sectionLabel: {
+    paddingHorizontal: spacing.sm,
+    marginTop: spacing.sm,
+  },
   card: {
-    gap: spacing.md,
-    padding: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.lg,
+    padding: spacing.xl,
+    borderRadius: radius.big,
+    backgroundColor: colors.surface,
+    boxShadow: shadow.glass,
+  },
+  cardText: {
+    flex: 1,
+    gap: spacing.sm,
+  },
+  cardArt: {
+    width: size.listArt,
+    height: size.listArt,
+    borderRadius: radius.big,
+    backgroundColor: colors.accentTint,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   pressed: {
     opacity: opacity.pressed,
@@ -343,7 +399,6 @@ const styles = StyleSheet.create({
     borderWidth: size.border,
     borderStyle: 'dashed',
     borderColor: colors.muted,
-    backgroundColor: colors.glass,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -351,9 +406,7 @@ const styles = StyleSheet.create({
     width: size.touch - spacing.sm,
     height: size.touch - spacing.sm,
     borderRadius: radius.pill,
-    backgroundColor: colors.glass,
-    borderWidth: size.border,
-    borderColor: colors.glassBorder,
+    backgroundColor: colors.ground,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -371,22 +424,6 @@ const styles = StyleSheet.create({
     height: size.touch - spacing.sm,
     borderRadius: radius.pill,
     backgroundColor: colors.ground,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  newCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    minHeight: size.button,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-  newIcon: {
-    width: size.avatar,
-    height: size.avatar,
-    borderRadius: radius.pill,
-    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
