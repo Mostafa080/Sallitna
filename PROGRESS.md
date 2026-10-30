@@ -1468,3 +1468,21 @@ couldn't open in Expo Go (and notifications on iPhone without a paid Apple accou
 - The dashboard's inner pages (overview, users…) were only checked by their CSS (they share the tokens);
   open them once after deploy.
 - The social preview image (`og:image`) is still the home screenshot — now green too.
+
+## Session 36 — 2026-10-30: Glass look, phase 1 («قوايمي»)
+Asked for after the user liked SmartThings' iOS Liquid Glass style. Plan: 1 foundation + «قوايمي» · 2 list and
+shopping screens · 3 everything else (sheets, sign-up, «حسابي», answer) · 4 website and dashboard.
+Chosen: start with phase 1; background mood «soft green + warm white».
+
+### Done (phase 1)
+- `components/glass/GradientBackground.tsx`: warm white with a mint glow (top), cream (side) and sage (bottom),
+  drawn with react-native-svg (no new library), sized to the window.
+- `components/glass/Glass.tsx`: a frosted surface — Apple's real Liquid Glass (`expo-glass-effect`) on iOS 26+, a
+  translucent white with a light edge and soft green shadow elsewhere (older iPhones, Android, web).
+- Theme: `glowMint / glowSage / glowCream / glass / glassBorder` colours and `shadow.glass`.
+- «قوايمي» uses them: the backdrop, glass list cards, a glass «قائمة جديدة» card, glass «…» and «+» circles. The tab
+  bar was already Apple's glass bar.
+
+### Next
+- Phase 2 (list + shopping screens) once the look is approved on the phone. Use glass for big surfaces only
+  (cards, headers, sheets), never every row of a long list; keep text dark on light glass for Arabic readability.
