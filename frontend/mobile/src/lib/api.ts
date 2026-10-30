@@ -211,7 +211,14 @@ export async function clearStaleSession(): Promise<boolean> {
 
 // A face on a list card (enough for an avatar)
 export type Face = Pick<Member, 'id' | 'display_name' | 'initial' | 'avatar_color'>;
-export type ListSummary = { householdId: string; name: string; memberCount: number; members: Face[]; myRole: MemberRole };
+export type ListSummary = {
+  householdId: string;
+  name: string;
+  kind: HouseholdKind; // who the list is for (family / friends / work / other)
+  memberCount: number;
+  members: Face[];
+  myRole: MemberRole;
+};
 
 // Everything about my lists in ONE request (the database is far away, so every round trip counts):
 // all my lists with their people (for «قوايمي»), and the one to open — the one asked for, else the last one
@@ -240,6 +247,7 @@ export async function loadMyLists(householdId?: string): Promise<{ membership: M
     return {
       householdId: r.household_id,
       name: r.households?.name ?? '',
+      kind: r.households?.kind ?? 'family',
       memberCount: Math.max(1, current.length),
       members: current.map((m) => ({
         id: m.id,

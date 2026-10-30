@@ -1492,3 +1492,9 @@ Chosen: start with phase 1; background mood «soft green + warm white».
   `GradientBackground` now uses round glows that fade to nothing exactly at their edge, with smoother steps, and a
   blend like the SmartThings screens: mint (start side), sky (top), peach (other side, middle), lime (bottom).
   Theme: `glowSky`, `glowPeach`, `glowLime` (replace `glowCream`).
+
+### Session 36c — 2026-10-30: «قوايمي» in the SmartThings layout
+- Top bar of glass pills (app name with the cat logo; «+» = new list), a plain «قوايمي» section label, then one big
+  round white card per list (`radius.big` 36, soft shadow): name + «…», «العيلة · 4 أفراد», faces + «+» to invite,
+  and a picture at the end by list type (house / people / briefcase / basket) on the soft green tile.
+  The old «قائمة جديدة» card is gone — «+» in the top bar does it. `ListSummary` now has `kind`.
