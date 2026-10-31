@@ -7,7 +7,7 @@ import { Check, SearchX } from 'lucide-react-native';
 import { useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { AppText } from '@/components/AppText';
@@ -62,7 +62,11 @@ export function SwipeActions({ boughtLabel, notFoundLabel, onBought, onNotFound,
       else if (right) scheduleOnRN(act, 'notFound');
     });
 
-  const rowStyle = useAnimatedStyle(() => ({ transform: [{ translateX: offset.value }] }));
+  const rowStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: offset.value }],
+    // See-through (glass) at rest; solid while swiping so the coloured panels stay hidden
+    backgroundColor: interpolateColor(Math.abs(offset.value), [0, 6], [colors.surfaceClear, colors.surface]),
+  }));
   const boughtStyle = useAnimatedStyle(() => ({ opacity: offset.value < 0 ? 1 : 0 }));
   const notFoundStyle = useAnimatedStyle(() => ({ opacity: offset.value > 0 ? 1 : 0 }));
 

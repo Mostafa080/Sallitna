@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { AppText } from '@/components/AppText';
+import { Glass } from '@/components/glass/Glass';
 import type { Basic } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { features } from '@/lib/features';
@@ -23,9 +24,9 @@ export function EmptyState({ basics, added, onToggleBasic, onShowList }: Props) 
   return (
     <Animated.View entering={FadeIn.duration(motion.normal)} style={styles.container}>
       <View style={styles.hero}>
-        <View style={styles.iconBox}>
+        <Glass radius={radius.card + spacing.sm} style={styles.iconBox}>
           <ShoppingBasket size={size.icon + spacing.lg} color={colors.muted} strokeWidth={size.iconStroke} />
-        </View>
+        </Glass>
         <AppText variant="heading" weight="bold" style={styles.center}>
           {t('empty.title')}
         </AppText>
@@ -36,11 +37,11 @@ export function EmptyState({ basics, added, onToggleBasic, onShowList }: Props) 
         {features.voice && (
           <View style={styles.examples}>
             {[t('empty.example1'), t('empty.example2')].map((example) => (
-              <View key={example} style={styles.example}>
+              <Glass key={example} radius={radius.pill} style={styles.example}>
                 <AppText variant="body" style={styles.center}>
                   {example}
                 </AppText>
-              </View>
+              </Glass>
             ))}
           </View>
         )}
@@ -64,6 +65,7 @@ export function EmptyState({ basics, added, onToggleBasic, onShowList }: Props) 
                 accessibilityRole="button"
                 accessibilityState={{ selected: isAdded }}
                 accessibilityLabel={t(isAdded ? 'empty.basicRemoveA11y' : 'empty.basicAddA11y', { name: basic.name })}>
+                {!isAdded && <Glass radius={radius.pill} style={StyleSheet.absoluteFill} pointerEvents="none" />}
                 {isAdded ? (
                   <Check size={size.iconSmall + spacing.xs} color={colors.onDark} strokeWidth={size.iconStroke} />
                 ) : (
@@ -103,8 +105,6 @@ const styles = StyleSheet.create({
   iconBox: {
     width: size.emptyIcon,
     height: size.emptyIcon,
-    borderRadius: radius.card + spacing.sm,
-    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.xs,
@@ -121,8 +121,6 @@ const styles = StyleSheet.create({
     minHeight: size.pill,
     paddingHorizontal: spacing.xxl,
     paddingVertical: spacing.sm,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
     justifyContent: 'center',
   },
   basics: {
@@ -140,9 +138,6 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     paddingHorizontal: spacing.xl,
     borderRadius: radius.pill,
-    borderWidth: size.border,
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
   },
   chipAdded: {
     backgroundColor: colors.accent,
