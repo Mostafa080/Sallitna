@@ -1547,3 +1547,8 @@ picture on the list cards, not the tab bar).
 - Check on the iPhone; then phase 4 (website + dashboard in glass style).
 ### Known issues
 - The 3 old unused-variable warnings (join-setup, join, TripSheets) — unchanged.
+
+## Session 37b — 2026-10-31: Fix swipe buttons showing through; glass shopping list
+- Bug from 37: the see-through rows showed the swipe buttons (مسح / عدّل / أنا هجيبه) behind them. They are now
+  invisible until the row is moved.
+- «بالسوق»: item rows no longer solid white; header bar has rounded bottom corners (no hard edge); progress track softer.

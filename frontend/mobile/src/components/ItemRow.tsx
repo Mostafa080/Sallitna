@@ -94,6 +94,9 @@ export function ItemRow({
     backgroundColor: interpolateColor(Math.abs(reveal.value), [0, 6], [colors.surfaceClear, colors.surface]),
   }));
 
+  // The buttons only exist while the row is moved (the row itself is see-through)
+  const actionsStyle = useAnimatedStyle(() => ({ opacity: Math.abs(reveal.value) > 1 ? 1 : 0 }));
+
   // --- Taps ----------------------------------------------------------------
   const closeThen = (action: () => void) => () => {
     onOpenChange(false);
@@ -145,7 +148,7 @@ export function ItemRow({
   return (
     <View style={styles.container}>
       {/* Actions sit behind the row, on the end side */}
-      <View style={styles.actions}>
+      <Animated.View style={[styles.actions, actionsStyle]}>
         <SwipeAction
           icon={User}
           label={t(claimedByMe ? 'swipe.unclaim' : 'swipe.claim')}
@@ -154,7 +157,7 @@ export function ItemRow({
         />
         <SwipeAction icon={Pencil} label={t('swipe.edit')} color="muted" onPress={closeThen(onEdit)} />
         <SwipeAction icon={Trash2} label={t('swipe.delete')} color="danger" onPress={closeThen(onDelete)} />
-      </View>
+      </Animated.View>
 
       <GestureDetector gesture={pan}>
         <Animated.View style={contentStyle}>
