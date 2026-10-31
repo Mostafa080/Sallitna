@@ -1527,3 +1527,12 @@ Feedback after trying it: the screens didn't feel like glass (white solid cards)
 - Glass now also on: text fields (`Field`), the email / password boxes, the idle chips (the chosen chip stays solid
   green), the dialect cards, and on the invite screen the link row and the «ادعي السواق» card (copy button is soft
   green). Removed the beige band behind the bottom button on invite, members, member detail and item detail.
+
+### Session 36h — 2026-10-31: More glass, tab icons back
+Feedback from the phone: the profile card was still solid, «إنت في السوق» had a solid beige header and a cut-off
+card, the cart circle was solid, and the bottom bar icons were missed (the earlier «remove the menu icons» meant the
+picture on the list cards, not the tab bar).
+- Bottom bar icons are back, cleaner this time: `checklist` («قوايمي»), `cart` («بالسوق»), `person` («حسابي»), filled
+  when chosen where the symbol has one.
+- Glass: the profile card, the shopping header (a full-width glass bar, was solid beige), the cart circle on the empty
+  shopping screen, the pending card; the empty screen is more compact so the notice card isn't cut off.
