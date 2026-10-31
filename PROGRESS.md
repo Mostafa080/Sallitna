@@ -1552,3 +1552,7 @@ picture on the list cards, not the tab bar).
 - Bug from 37: the see-through rows showed the swipe buttons (مسح / عدّل / أنا هجيبه) behind them. They are now
   invisible until the row is moved.
 - «بالسوق»: item rows no longer solid white; header bar has rounded bottom corners (no hard edge); progress track softer.
+
+## Session 37c — 2026-10-31: Glass bottom sheets, header without a box
+- Bottom sheets (e.g. «طماطم مش موجود؟») are glass; option cards and the outline button are glass (selected card keeps its green border).
+- «إنت في السوق» header is no longer a boxed bar: it sits straight on the backdrop.
