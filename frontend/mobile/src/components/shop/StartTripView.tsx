@@ -8,6 +8,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { Glass } from '@/components/glass/Glass';
 import { Avatar, AvatarStack } from '@/components/Avatar';
 import { GradientBackground } from '@/components/glass/GradientBackground';
 import { RadioCard, Sheet, SheetButton } from '@/components/shop/Sheet';
@@ -84,6 +85,7 @@ export function StartTripView() {
         </AppText>
 
         {/* The list I'm shopping for */}
+        <Glass>
         <Pressable
           onPress={onSwitchList}
           disabled={!canSwitch}
@@ -112,6 +114,7 @@ export function StartTripView() {
             </AppText>
           )}
         </Pressable>
+        </Glass>
 
         <View style={styles.section}>
           <AppText variant="label" weight="bold">
@@ -122,20 +125,21 @@ export function StartTripView() {
               const Icon = storeIcons[key];
               const selected = store === key;
               return (
-                <Pressable
-                  key={key}
-                  onPress={() => {
-                    Haptics.selectionAsync();
-                    setStore(key);
-                  }}
-                  style={[styles.tile, selected && styles.tileSelected]}
-                  accessibilityRole="radio"
-                  accessibilityState={{ selected }}>
-                  <Icon size={size.icon} color={selected ? colors.accent : colors.muted} strokeWidth={size.iconStroke} />
-                  <AppText variant="label" weight={selected ? 'bold' : 'medium'} numberOfLines={1}>
-                    {t(`stores.${key}`)}
-                  </AppText>
-                </Pressable>
+                <Glass key={key} interactive style={[styles.tile, selected && styles.tileSelected]}>
+                  <Pressable
+                    onPress={() => {
+                      Haptics.selectionAsync();
+                      setStore(key);
+                    }}
+                    style={styles.tileInner}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}>
+                    <Icon size={size.icon} color={selected ? colors.accent : colors.muted} strokeWidth={size.iconStroke} />
+                    <AppText variant="label" weight={selected ? 'bold' : 'medium'} numberOfLines={1}>
+                      {t(`stores.${key}`)}
+                    </AppText>
+                  </Pressable>
+                </Glass>
               );
             })}
           </View>
@@ -239,8 +243,6 @@ const styles = StyleSheet.create({
   listCard: {
     gap: spacing.xs,
     padding: spacing.lg,
-    borderRadius: radius.card,
-    backgroundColor: colors.surface,
   },
   listName: {
     flex: 1,
@@ -277,12 +279,12 @@ const styles = StyleSheet.create({
   tile: {
     flexBasis: '45%',
     flexGrow: 1,
+    borderWidth: size.borderThick,
+    borderColor: 'transparent',
+  },
+  tileInner: {
     gap: spacing.sm,
     padding: spacing.lg,
-    borderRadius: radius.card,
-    borderWidth: size.borderThick,
-    borderColor: colors.surface,
-    backgroundColor: colors.surface,
   },
   tileSelected: {
     borderColor: colors.accent,

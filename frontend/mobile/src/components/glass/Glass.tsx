@@ -3,32 +3,40 @@
 // Use it for big surfaces (cards, headers, sheets) — not for every row of a long list.
 
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, View, type ViewProps } from 'react-native';
 
 import { colors, radius as radii, shadow, size } from '@/theme';
 
-type Props = {
-  children?: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
+type Props = ViewProps & {
   radius?: number; // corner radius; radii.pill for a pill or circle
   interactive?: boolean; // reacts to touch (buttons)
 };
 
 const realGlass = isLiquidGlassAvailable();
 
-export function Glass({ children, style, radius = radii.card, interactive }: Props) {
+export function Glass({ children, style, radius = radii.card, interactive, ...rest }: Props) {
   if (realGlass) {
     return (
       <GlassView
         glassEffectStyle="regular"
         colorScheme="light"
         isInteractive={interactive}
-        style={[{ borderRadius: radius, boxShadow: shadow.glass }, style]}>
+        style={[{ borderRadius: radius, boxShadow: shadow.glass }, style]}
+        {...rest}>
         {children}
       </GlassView>
     );
   }
-  return <View style={[styles.frosted, { borderRadius: radius }, style]}>{children}</View>;
+  return (
+    <View style={[styles.frosted, { borderRadius: radius }, style]} {...rest}>
+      {children}
+    </View>
+  );
+}
+
+// A glass card: a View that is frosted glass (swap «View» for «GlassCard» and drop the card's white background)
+export function GlassCard(props: ViewProps) {
+  return <Glass radius={radii.card} {...props} />;
 }
 
 const styles = StyleSheet.create({

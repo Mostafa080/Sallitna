@@ -5,11 +5,11 @@ import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { AppText } from '@/components/AppText';
-import { Glass } from '@/components/glass/Glass';
+import { Glass, GlassCard } from '@/components/glass/Glass';
 import { RadioCard, Sheet, SheetButton } from '@/components/shop/Sheet';
 import { t } from '@/i18n';
 import { isRTLLayout } from '@/lib/direction';
-import { colors, radius, shadow, size, spacing } from '@/theme';
+import { colors, radius, size, spacing } from '@/theme';
 
 // Back points to the start side, "go into" points to the end side
 export const BackIcon = isRTLLayout ? ChevronRight : ChevronLeft;
@@ -38,7 +38,7 @@ export function CircleButton({ icon: Icon, label, onPress }: CircleButtonProps) 
 // --- White card with divided rows ---------------------------------------------------
 
 export function Card({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
-  return <View style={[styles.card, style]}>{children}</View>;
+  return <GlassCard style={[styles.card, style]}>{children}</GlassCard>;
 }
 
 export function SectionLabel({ children }: { children: string }) {
@@ -205,8 +205,6 @@ const styles = StyleSheet.create({
   card: {
     paddingHorizontal: spacing.xl,
     borderRadius: radius.card + spacing.xs,
-    backgroundColor: colors.surface,
-    boxShadow: shadow.glass,
   },
   sectionLabel: {
     paddingHorizontal: spacing.lg,

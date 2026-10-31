@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
+import { GlassCard } from '@/components/glass/Glass';
 import { GradientBackground } from '@/components/glass/GradientBackground';
 import { ItemPhotoPreview } from '@/components/ItemPhoto';
 import { UndoToast } from '@/components/UndoToast';
@@ -167,7 +168,7 @@ export default function ItemDetailScreen() {
         </View>
 
         {/* Quantity */}
-        <View style={styles.card}>
+        <GlassCard style={styles.card}>
           <View style={styles.quantityRow}>
             <AppText variant="label" weight="semibold" style={styles.flex}>
               {t('detail.quantity')}
@@ -219,10 +220,10 @@ export default function ItemDetailScreen() {
               );
             })}
           </View>
-        </View>
+        </GlassCard>
 
         {/* Note for the shopper */}
-        <View style={styles.card}>
+        <GlassCard style={styles.card}>
           <AppText variant="label" weight="semibold">
             {t('detail.noteLabel')}
           </AppText>
@@ -274,10 +275,10 @@ export default function ItemDetailScreen() {
               {t('detail.photoChangeHint')}
             </AppText>
           )}
-        </View>
+        </GlassCard>
 
         {/* Who added it + history */}
-        <View style={styles.card}>
+        <GlassCard style={styles.card}>
           <View style={styles.historyRow}>
             {adder && <Avatar member={adder} ring="surface" />}
             <View style={styles.flex}>
@@ -306,7 +307,7 @@ export default function ItemDetailScreen() {
               </AppText>
             </>
           )}
-        </View>
+        </GlassCard>
       </ScrollView>
 
       <UndoToast />
@@ -375,7 +376,6 @@ const styles = StyleSheet.create({
     lineHeight: size.titleLine + spacing.sm,
   },
   card: {
-    backgroundColor: colors.surface,
     borderRadius: radius.card,
     padding: spacing.lg,
     gap: spacing.md,

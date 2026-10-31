@@ -1508,3 +1508,15 @@ Chosen: start with phase 1; background mood «soft green + warm white».
 - Left as they were on purpose: the dark voice screens (voice is switched off anyway), bottom sheets (white, softer
   corners), the dark message bar, solid green buttons. List rows stay plain (no glass on every row).
 - Known: web preview can't show real Liquid Glass or RTL order of rows exactly — check on the iPhone.
+
+### Session 36e — 2026-10-31: Real glass cards, no tab icons
+Feedback after trying it: the screens didn't feel like glass (white solid cards), and the icons in the bottom menu looked off.
+- The content cards are now glass: `Glass` / `GlassCard` (real Liquid Glass on iOS 26+, a translucent frosted white
+  elsewhere). Converted: «قوايمي» list cards, the shared `Card` («حسابي», members, invite…), the start-shopping list
+  card and store tiles, item groups, shopping sections, the helper's cards, item detail cards, trip-done, the answer
+  screen's item and bubble, the sign-in code card, delete-account, join tips, partner / notify cards.
+  `Glass` now passes layout props through (a card can be a row). Not glass on purpose: list rows, inputs, chips,
+  sheets, solid green buttons.
+- The bottom menu (native tab bar) shows names only — no icons.
+- Removed the solid strip behind the clock (status-bar cover) on list, members, invite, «حسابي» and the helper
+  screen; it cut the soft background. Left on the dark voice screen.

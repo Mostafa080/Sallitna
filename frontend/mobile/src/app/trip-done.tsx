@@ -8,6 +8,7 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Share, StyleShee
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { GlassCard } from '@/components/glass/Glass';
 import { GradientBackground } from '@/components/glass/GradientBackground';
 import { SheetButton } from '@/components/shop/Sheet';
 import { t } from '@/i18n';
@@ -121,19 +122,19 @@ export default function TripDoneScreen() {
 
         <View style={styles.stats}>
           {stats.map((stat) => (
-            <View key={stat.label} style={styles.stat}>
+            <GlassCard key={stat.label} style={styles.stat}>
               <AppText variant="title" weight="bold">
                 {String(stat.value)}
               </AppText>
               <AppText variant="body" color="muted" style={styles.center}>
                 {stat.label}
               </AppText>
-            </View>
+            </GlassCard>
           ))}
         </View>
 
         {notes.length > 0 && (
-          <View style={styles.card}>
+          <GlassCard style={styles.card}>
             {notes.map((note, index) => (
               <View key={note.key} style={[styles.noteRow, index > 0 && styles.divider]}>
                 <View style={[styles.dot, { backgroundColor: colors[note.tone] }]} />
@@ -149,10 +150,10 @@ export default function TripDoneScreen() {
                 </View>
               </View>
             ))}
-          </View>
+          </GlassCard>
         )}
 
-        <View style={[styles.card, styles.paidCard]}>
+        <GlassCard style={[styles.card, styles.paidCard]}>
           <AppText variant="label" weight="bold">
             {t('tripDone.paid')}{' '}
             <AppText variant="label" color="muted">
@@ -180,7 +181,7 @@ export default function TripDoneScreen() {
               <Camera size={size.icon - spacing.xs} color={colors.ink} strokeWidth={size.iconStroke} />
             </Pressable>
           </View>
-        </View>
+        </GlassCard>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
@@ -228,12 +229,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: radius.card,
-    backgroundColor: colors.surface,
   },
   card: {
     paddingHorizontal: spacing.xl,
     borderRadius: radius.card,
-    backgroundColor: colors.surface,
   },
   noteRow: {
     flexDirection: 'row',

@@ -10,6 +10,7 @@ import { AppText } from '@/components/AppText';
 import { AvatarStack } from '@/components/Avatar';
 import { EmptyState } from '@/components/EmptyState';
 import { BackIcon, CircleButton } from '@/components/family/FamilyParts';
+import { GlassCard } from '@/components/glass/Glass';
 import { GradientBackground } from '@/components/glass/GradientBackground';
 import { ItemRow } from '@/components/ItemRow';
 import { NotFoundCard } from '@/components/NotFoundCard';
@@ -310,7 +311,7 @@ export default function ListScreen() {
                     n: section.items.length,
                   })}
                 </AppText>
-                <View style={styles.card}>
+                <GlassCard style={styles.card}>
                   {section.items.map((item, index) => (
                     <Animated.View
                       key={item.id}
@@ -334,15 +335,13 @@ export default function ListScreen() {
                       />
                     </Animated.View>
                   ))}
-                </View>
+                </GlassCard>
               </Animated.View>
             ))}
           </>
         )}
       </ScrollView>
 
-      {/* Covers the status bar area so the list doesn't scroll under the clock */}
-      <View style={[styles.statusBarCover, { height: insets.top }]} />
 
       <UndoToast />
 
@@ -399,13 +398,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     boxShadow: shadow.floating,
-  },
-  statusBarCover: {
-    position: 'absolute',
-    top: 0,
-    start: 0,
-    end: 0,
-    backgroundColor: colors.ground,
   },
   header: {
     flexDirection: 'row',
@@ -464,7 +456,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   card: {
-    backgroundColor: colors.surface,
     borderRadius: radius.card,
     overflow: 'hidden',
   },

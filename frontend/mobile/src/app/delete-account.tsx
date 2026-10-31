@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { BackIcon, CircleButton } from '@/components/family/FamilyParts';
+import { GlassCard } from '@/components/glass/Glass';
 import { GradientBackground } from '@/components/glass/GradientBackground';
 import { PasswordField } from '@/components/onboarding/OnboardingParts';
 import { SheetButton } from '@/components/shop/Sheet';
@@ -73,7 +74,7 @@ export default function DeleteAccountScreen() {
           </AppText>
         </View>
 
-        <View style={styles.card}>
+        <GlassCard style={styles.card}>
           {WHAT_HAPPENS.map((key) => (
             <View key={key} style={styles.bullet}>
               <View style={styles.dot} />
@@ -82,7 +83,7 @@ export default function DeleteAccountScreen() {
               </AppText>
             </View>
           ))}
-        </View>
+        </GlassCard>
 
         <View style={styles.block}>
           <AppText variant="label" weight="bold">
@@ -141,7 +142,6 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     gap: spacing.md,
     borderRadius: radius.card,
-    backgroundColor: colors.surface,
   },
   bullet: {
     flexDirection: 'row',

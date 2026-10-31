@@ -200,7 +200,6 @@ export default function AccountScreen() {
         </Card>
       </ScrollView>
 
-      <View style={[styles.statusBarCover, { height: insets.top }]} />
 
       <UndoToast />
     </KeyboardAvoidingView>
@@ -241,12 +240,5 @@ const styles = StyleSheet.create({
   },
   lastCard: {
     marginTop: spacing.md,
-  },
-  statusBarCover: {
-    position: 'absolute',
-    top: 0,
-    start: 0,
-    end: 0,
-    backgroundColor: colors.ground,
   },
 });
