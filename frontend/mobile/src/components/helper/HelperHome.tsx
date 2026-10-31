@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
+import { GlassCard } from '@/components/glass/Glass';
 import { GradientBackground } from '@/components/glass/GradientBackground';
 import { ItemPhotoThumb } from '@/components/ItemPhoto';
 import { SwipeActions } from '@/components/SwipeActions';
@@ -198,7 +199,7 @@ export function HelperHome({ helper, live, onExit }: Props) {
               </AppText>
             </View>
           ) : (
-            <View style={styles.card}>
+            <GlassCard style={styles.card}>
               {rows.map((item, index) => {
                 const checked = checking.includes(item.id);
                 return (
@@ -263,12 +264,10 @@ export function HelperHome({ helper, live, onExit }: Props) {
                   </Animated.View>
                 );
               })}
-            </View>
+            </GlassCard>
           )}
         </ScrollView>
 
-        {/* Covers the status bar area so the list doesn't scroll under the clock */}
-        <View style={[styles.statusBarCover, { height: insets.top }]} />
 
         <UndoToast language={language} />
 
@@ -378,7 +377,6 @@ const styles = StyleSheet.create({
     marginBottom: -spacing.sm,
   },
   card: {
-    backgroundColor: colors.surface,
     borderRadius: radius.card,
     overflow: 'hidden',
   },
@@ -439,13 +437,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     paddingVertical: spacing.xxxl,
     paddingHorizontal: spacing.xl,
-  },
-  statusBarCover: {
-    position: 'absolute',
-    top: 0,
-    start: 0,
-    end: 0,
-    backgroundColor: colors.ground,
   },
   barWrap: {
     position: 'absolute',

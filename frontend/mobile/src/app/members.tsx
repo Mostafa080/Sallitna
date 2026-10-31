@@ -133,8 +133,6 @@ export default function MembersScreen() {
         </Card>
       </ScrollView>
 
-      {/* Covers the status bar area so content doesn't scroll under the clock */}
-      <View style={[styles.statusBarCover, { height: insets.top }]} />
 
       <UndoToast />
 
@@ -262,13 +260,6 @@ const styles = StyleSheet.create({
   emptyActivity: {
     paddingVertical: spacing.xl,
     textAlign: 'center',
-  },
-  statusBarCover: {
-    position: 'absolute',
-    top: 0,
-    start: 0,
-    end: 0,
-    backgroundColor: colors.ground,
   },
   footer: {
     position: 'absolute',

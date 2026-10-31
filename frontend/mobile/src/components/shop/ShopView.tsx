@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { AvatarStack } from '@/components/Avatar';
+import { GlassCard } from '@/components/glass/Glass';
 import { GradientBackground } from '@/components/glass/GradientBackground';
 import { SheetButton } from '@/components/shop/Sheet';
 import {
@@ -112,14 +113,14 @@ export function ShopView() {
           <AppText variant="label" color="muted" style={styles.center}>
             {t(`shopEmpty.body_${g}`)}
           </AppText>
-          <View style={styles.notifyCard}>
+          <GlassCard style={styles.notifyCard}>
             <AppText variant="body" color="muted">
               {t('shopEmpty.notifyLabel')}
             </AppText>
             <AppText variant="item">
               {t('shopEmpty.notifyText', { name: me.display_name, store: t(`stores.${trip.store}`) })}
             </AppText>
-          </View>
+          </GlassCard>
         </ScrollView>
         <View style={[styles.emptyFooter, { paddingBottom: bottomSpace + spacing.sm }]}>
           <SheetButton
@@ -254,7 +255,7 @@ export function ShopView() {
         {split && partnerItems.length > 0 && (
           <View style={styles.section}>
             <SectionHeader label={t('shop.partnerHeader', { name: partner!.display_name, n: partnerItems.length })} />
-            <View style={styles.partnerCard}>
+            <GlassCard style={styles.partnerCard}>
               {partnerBought.map((item) => (
                 <View key={item.id} style={styles.partnerRow}>
                   <AppText variant="label" color="muted" style={[styles.flex, styles.struck]} numberOfLines={1}>
@@ -275,7 +276,7 @@ export function ShopView() {
                   </AppText>
                 </View>
               )}
-            </View>
+            </GlassCard>
           </View>
         )}
 
@@ -392,7 +393,6 @@ const styles = StyleSheet.create({
   partnerCard: {
     paddingHorizontal: spacing.xl,
     borderRadius: radius.card,
-    backgroundColor: colors.surface,
   },
   partnerRow: {
     minHeight: size.toast,
@@ -447,7 +447,6 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     gap: spacing.xs,
     borderRadius: radius.card,
-    backgroundColor: colors.surface,
   },
   emptyFooter: {
     paddingHorizontal: spacing.xl,

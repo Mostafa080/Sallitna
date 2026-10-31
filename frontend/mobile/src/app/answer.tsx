@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
+import { GlassCard } from '@/components/glass/Glass';
 import { GradientBackground } from '@/components/glass/GradientBackground';
 import { SheetButton } from '@/components/shop/Sheet';
 import { t } from '@/i18n';
@@ -84,7 +85,7 @@ export default function AnswerScreen() {
           </View>
         </View>
 
-        <View style={styles.itemCard}>
+        <GlassCard style={styles.itemCard}>
           <View style={styles.flex}>
             <AppText variant="item" weight="bold">
               {item.name}
@@ -101,16 +102,16 @@ export default function AnswerScreen() {
               {t('answer.badge')}
             </AppText>
           </View>
-        </View>
+        </GlassCard>
 
         <View style={styles.bubbleRow}>
           <Avatar member={shopper} ring="ground" />
-          <View style={styles.bubble}>
+          <GlassCard style={styles.bubble}>
             <AppText variant="item">{questionText.replace(/[«»]/g, '')}</AppText>
             <AppText variant="meta" color="muted">
               {formatRelativeTime(question.createdAt)}
             </AppText>
-          </View>
+          </GlassCard>
         </View>
       </ScrollView>
 
@@ -191,7 +192,6 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.xl,
     borderRadius: radius.card,
-    backgroundColor: colors.surface,
   },
   badge: {
     paddingHorizontal: spacing.lg,
@@ -210,7 +210,6 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     borderRadius: radius.card,
     borderBottomStartRadius: spacing.xs,
-    backgroundColor: colors.surface,
   },
   footer: {
     paddingHorizontal: spacing.lg,

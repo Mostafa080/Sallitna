@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, View, type AccessibilityActionEvent } from 'reac
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { GlassCard } from '@/components/glass/Glass';
 import { ItemPhotoThumb } from '@/components/ItemPhoto';
 import { SwipeActions } from '@/components/SwipeActions';
 import type { Item } from '@/data/fakeHousehold';
@@ -193,13 +194,13 @@ export function SectionHeader({ label }: { label: string }) {
 // Group of rows on one white card, with dividers
 export function RowCard({ children }: { children: ReactNode[] }) {
   return (
-    <View style={styles.card}>
+    <GlassCard style={styles.card}>
       {children.map((child, index) => (
         <View key={index} style={index > 0 && styles.divider}>
           {child}
         </View>
       ))}
-    </View>
+    </GlassCard>
   );
 }
 
@@ -302,7 +303,6 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: radius.card,
     overflow: 'hidden',
-    backgroundColor: colors.surface,
   },
   divider: {
     borderTopWidth: size.border,

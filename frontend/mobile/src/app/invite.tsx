@@ -199,7 +199,6 @@ export default function InviteScreen({ setup = false }: { setup?: boolean }) {
         </Card>
       </ScrollView>
 
-      <View style={[styles.statusBarCover, { height: insets.top }]} />
 
       <UndoToast />
 
@@ -303,13 +302,6 @@ const styles = StyleSheet.create({
   divider: {
     borderTopWidth: size.border,
     borderTopColor: colors.line,
-  },
-  statusBarCover: {
-    position: 'absolute',
-    top: 0,
-    start: 0,
-    end: 0,
-    backgroundColor: colors.ground,
   },
   footer: {
     position: 'absolute',

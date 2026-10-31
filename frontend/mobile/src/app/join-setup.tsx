@@ -12,6 +12,7 @@ import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
 import { DirectionView } from '@/components/DirectionView';
 import { ChipRow, ChoiceChip, Field } from '@/components/onboarding/OnboardingParts';
+import { GlassCard } from '@/components/glass/Glass';
 import { GradientBackground } from '@/components/glass/GradientBackground';
 import { SheetButton } from '@/components/shop/Sheet';
 import { UndoToast } from '@/components/UndoToast';
@@ -149,7 +150,7 @@ export default function JoinSetupScreen() {
             ))}
           </ChipRow>
 
-          <View style={styles.tips}>
+          <GlassCard style={styles.tips}>
             <AppText variant="label" weight="bold">
               {tr(`joinSetup.howTitle_${g}`)}
             </AppText>
@@ -164,7 +165,7 @@ export default function JoinSetupScreen() {
                 <Tip icon={ShoppingBasket} tone="ink" text={tr(`joinSetup.tipStore_${g}`)} />
               </>
             )}
-          </View>
+          </GlassCard>
         </ScrollView>
 
         <UndoToast />
@@ -215,7 +216,6 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.xl,
     borderRadius: radius.card + spacing.xs,
-    backgroundColor: colors.surface,
   },
   tip: {
     flexDirection: 'row',

@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { DirectionView, directionOf } from '@/components/DirectionView';
+import { GlassCard } from '@/components/glass/Glass';
 import { GradientBackground } from '@/components/glass/GradientBackground';
 import { backIconFor, CircleButton } from '@/components/family/FamilyParts';
 import { NewPasswordFields, useNewPassword } from '@/components/onboarding/NewPassword';
@@ -256,7 +257,7 @@ export default function VerifyScreen() {
                 </View>
               )}
 
-              <View style={styles.card}>
+              <GlassCard style={styles.card}>
                 <OptionRow
                   icon={RefreshCw}
                   label={
@@ -268,7 +269,7 @@ export default function VerifyScreen() {
                   disabled={locked || secondsLeft > 0}
                 />
                 <OptionRow icon={Pencil} label={tr('verify.wrongEmail')} onPress={onEditEmail} divider />
-              </View>
+              </GlassCard>
             </>
           ) : (
             // Email, then the code (verify.png, with an email field instead of the phone number)
@@ -498,7 +499,6 @@ const styles = StyleSheet.create({
   card: {
     paddingHorizontal: spacing.xl,
     borderRadius: radius.card + spacing.xs,
-    backgroundColor: colors.surface,
   },
   optionRow: {
     minHeight: size.toast,
