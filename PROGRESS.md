@@ -1520,3 +1520,5 @@ Feedback after trying it: the screens didn't feel like glass (white solid cards)
 - The bottom menu (native tab bar) shows names only — no icons.
 - Removed the solid strip behind the clock (status-bar cover) on list, members, invite, «حسابي» and the helper
   screen; it cut the soft background. Left on the dark voice screen.
+- Session 36f: the picture tile (house / people / briefcase) is gone from the «قوايمي» list cards — name, kind ·
+  members, faces and «+» only; the small spinner shows while a list opens. (`size.listArt` and the icon map removed.)
