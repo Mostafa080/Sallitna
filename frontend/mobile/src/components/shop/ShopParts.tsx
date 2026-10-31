@@ -28,7 +28,7 @@ type HeaderProps = {
 export function ShopHeader({ title, subtitle, onTitleLongPress, badge, children }: HeaderProps) {
   const insets = useSafeAreaInsets();
   return (
-    <Glass radius={0} style={[styles.header, { paddingTop: insets.top + spacing.lg }]}>
+    <Glass radius={radius.card} style={[styles.header, styles.headerFlat, { paddingTop: insets.top + spacing.lg }]}>
       <View style={styles.topRow}>
         <Pressable
           style={styles.flex}
@@ -229,6 +229,12 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     gap: spacing.xs,
   },
+  headerFlat: {
+    borderTopStartRadius: 0,
+    borderTopEndRadius: 0,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+  },
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -248,7 +254,7 @@ const styles = StyleSheet.create({
   track: {
     height: size.progress,
     borderRadius: radius.pill,
-    backgroundColor: colors.line,
+    backgroundColor: colors.glowSage,
     overflow: 'hidden',
     alignItems: 'flex-start', // fills from the start side
   },
@@ -264,7 +270,6 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
-    backgroundColor: colors.surface,
   },
   rowHighlight: {
     backgroundColor: colors.accentTint,
