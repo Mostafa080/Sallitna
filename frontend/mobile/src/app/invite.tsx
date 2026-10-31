@@ -10,6 +10,7 @@ import { Pressable, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { Glass } from '@/components/glass/Glass';
 import { Avatar } from '@/components/Avatar';
 import { BackIcon, Card, CircleButton, SectionLabel, StatusPill } from '@/components/family/FamilyParts';
 import { GradientBackground } from '@/components/glass/GradientBackground';
@@ -139,7 +140,7 @@ export default function InviteScreen({ setup = false }: { setup?: boolean }) {
             </AppText>
           </Pressable>
 
-          <View style={styles.linkField}>
+          <Glass radius={radius.card + spacing.xs} style={styles.linkField}>
             <AppText
               variant="item"
               style={styles.link}
@@ -154,23 +155,25 @@ export default function InviteScreen({ setup = false }: { setup?: boolean }) {
                 {t('invite.copy')}
               </AppText>
             </Pressable>
-          </View>
+          </Glass>
         </View>
 
         {/* Driver / maid: separate code, they see the list in their language */}
-        <Pressable onPress={onInviteHelper} style={styles.helperButton} accessibilityRole="button">
-          <View style={styles.helperIcon}>
-            <Languages size={size.icon - spacing.xs} color={colors.accent} strokeWidth={size.iconStroke} />
-          </View>
-          <View style={styles.flex}>
-            <AppText variant="item" weight="bold">
-              {t('invite.helperTitle')}
-            </AppText>
-            <AppText variant="body" color="muted">
-              {t('invite.helperBody')}
-            </AppText>
-          </View>
-        </Pressable>
+        <Glass interactive>
+          <Pressable onPress={onInviteHelper} style={styles.helperButton} accessibilityRole="button">
+            <View style={styles.helperIcon}>
+              <Languages size={size.icon - spacing.xs} color={colors.accent} strokeWidth={size.iconStroke} />
+            </View>
+            <View style={styles.flex}>
+              <AppText variant="item" weight="bold">
+                {t('invite.helperTitle')}
+              </AppText>
+              <AppText variant="body" color="muted">
+                {t('invite.helperBody')}
+              </AppText>
+            </View>
+          </Pressable>
+        </Glass>
 
         <SectionLabel>{t('invite.onList', { n: people.length })}</SectionLabel>
         <Card>
@@ -246,8 +249,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.md,
     padding: spacing.lg,
-    borderRadius: radius.card,
-    backgroundColor: colors.surface,
   },
   helperIcon: {
     width: size.touch,
@@ -276,10 +277,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     paddingStart: spacing.xl,
     paddingEnd: spacing.md,
-    borderRadius: radius.card + spacing.xs,
-    borderWidth: size.border,
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
+    // the glass wrapper carries the fill, edge and corners
   },
   link: {
     flex: 1,
@@ -290,7 +288,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
     borderRadius: radius.control,
-    backgroundColor: colors.ground,
+    backgroundColor: colors.accentTint,
   },
   personRow: {
     minHeight: size.toast + spacing.md,
@@ -311,6 +309,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
     gap: spacing.xs,
-    backgroundColor: colors.ground,
   },
 });

@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'rea
 
 import { AppLogo } from '@/components/AppLogo';
 import { AppText } from '@/components/AppText';
+import { Glass } from '@/components/glass/Glass';
 import { OTP_LENGTH } from '@/data/fakeHousehold';
 import { t } from '@/i18n';
 import { isRTLLayout, LayoutDirectionContext } from '@/lib/direction';
@@ -62,12 +63,14 @@ export function Field({ label, ...input }: FieldProps) {
       <AppText variant="label" weight="bold">
         {label}
       </AppText>
-      <TextInput
-        placeholderTextColor={colors.muted}
-        style={[styles.input, { textAlign: direction === 'rtl' ? 'right' : 'left' }]}
-        accessibilityLabel={label}
-        {...input}
-      />
+      <Glass radius={radius.card}>
+        <TextInput
+          placeholderTextColor={colors.muted}
+          style={[styles.input, { textAlign: direction === 'rtl' ? 'right' : 'left' }]}
+          accessibilityLabel={label}
+          {...input}
+        />
+      </Glass>
     </View>
   );
 }
@@ -85,7 +88,7 @@ type EmailFieldProps = {
 
 export function EmailField({ value, onChange, onEdit, onSubmit, autoFocus, label }: EmailFieldProps) {
   return (
-    <View style={styles.emailField}>
+    <Glass radius={radius.card} style={styles.emailField}>
       {onEdit && (
         <Pressable onPress={onEdit} hitSlop={spacing.sm} style={styles.emailEdit} accessibilityRole="button">
           <AppText variant="label" weight="bold">
@@ -117,7 +120,7 @@ export function EmailField({ value, onChange, onEdit, onSubmit, autoFocus, label
           </AppText>
         </View>
       )}
-    </View>
+    </Glass>
   );
 }
 
@@ -138,7 +141,7 @@ export function PasswordField({ value, onChange, onSubmit, isNew, error, autoFoc
   const [visible, setVisible] = useState(false);
   const EyeIcon = visible ? EyeOff : Eye;
   return (
-    <View style={[styles.emailField, error && styles.fieldError]}>
+    <Glass radius={radius.card} style={[styles.emailField, error && styles.fieldError]}>
       <Pressable
         onPress={() => setVisible((v) => !v)}
         hitSlop={spacing.sm}
@@ -161,7 +164,7 @@ export function PasswordField({ value, onChange, onSubmit, isNew, error, autoFoc
         style={[styles.emailInput, styles.emailText]}
         accessibilityLabel={label}
       />
-    </View>
+    </Glass>
   );
 }
 
@@ -219,10 +222,10 @@ export function CodeBoxes({ value, onChange, error, disabled, autoFocus }: CodeB
 // --- Pill choice (language, dialect, gender) ----------------------------------------------------
 
 export function ChoiceChip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
-  return (
+  const chip = (
     <Pressable
       onPress={onPress}
-      style={[styles.chip, selected ? styles.chipSelected : styles.chipIdle]}
+      style={[styles.chip, selected && styles.chipSelected]}
       accessibilityRole="radio"
       accessibilityState={{ selected }}>
       <AppText variant="item" weight={selected ? 'semibold' : 'medium'} color={selected ? 'onDark' : 'ink'}>
@@ -230,6 +233,8 @@ export function ChoiceChip({ label, selected, onPress }: { label: string; select
       </AppText>
     </Pressable>
   );
+  // The chosen one is solid green; the others are glass
+  return selected ? chip : <Glass radius={radius.pill} interactive>{chip}</Glass>;
 }
 
 export function ChipRow({ children, label }: { children: ReactNode; label?: string }) {
@@ -253,18 +258,20 @@ type DialectCardProps = { title: string; example: string; selected: boolean; onP
 
 export function DialectCard({ title, example, selected, onPress }: DialectCardProps) {
   return (
-    <Pressable
-      onPress={onPress}
-      style={[styles.dialectCard, selected ? styles.dialectSelected : styles.dialectIdle]}
-      accessibilityRole="radio"
-      accessibilityState={{ selected }}>
-      <AppText variant="item" weight="bold">
-        {title}
-      </AppText>
-      <AppText variant="body" color="muted">
-        {example}
-      </AppText>
-    </Pressable>
+    <Glass interactive style={[styles.dialectCard, selected && styles.dialectSelected]}>
+      <Pressable
+        onPress={onPress}
+        style={styles.dialectInner}
+        accessibilityRole="radio"
+        accessibilityState={{ selected }}>
+        <AppText variant="item" weight="bold">
+          {title}
+        </AppText>
+        <AppText variant="body" color="muted">
+          {example}
+        </AppText>
+      </Pressable>
+    </Glass>
   );
 }
 
@@ -293,10 +300,6 @@ const styles = StyleSheet.create({
   input: {
     minHeight: size.button + spacing.md,
     paddingHorizontal: spacing.xl,
-    borderRadius: radius.card,
-    borderWidth: size.border,
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
     color: colors.ink,
     fontFamily: fonts.regular,
     fontSize: fontSize.item,
@@ -308,9 +311,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'stretch',
     borderRadius: radius.card,
-    borderWidth: size.border,
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
     overflow: 'hidden',
   },
   fieldError: {
@@ -392,26 +392,18 @@ const styles = StyleSheet.create({
   chipSelected: {
     backgroundColor: colors.accent,
   },
-  chipIdle: {
-    backgroundColor: colors.surface,
-    borderWidth: size.border,
-    borderColor: colors.line,
-  },
   dialectCard: {
     flexBasis: layout.twoColumnBasis,
     flexGrow: 1,
+    borderWidth: size.borderThick,
+    borderColor: 'transparent',
+  },
+  dialectInner: {
     gap: spacing.xxs,
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
-    borderRadius: radius.card,
-    backgroundColor: colors.surface,
   },
   dialectSelected: {
-    borderWidth: size.borderThick,
     borderColor: colors.accent,
-  },
-  dialectIdle: {
-    borderWidth: size.border,
-    borderColor: colors.line,
   },
 });

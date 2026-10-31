@@ -1522,3 +1522,8 @@ Feedback after trying it: the screens didn't feel like glass (white solid cards)
   screen; it cut the soft background. Left on the dark voice screen.
 - Session 36f: the picture tile (house / people / briefcase) is gone from the «قوايمي» list cards — name, kind ·
   members, faces and «+» only; the small spinner shows while a list opens. (`size.listArt` and the icon map removed.)
+
+### Session 36g — 2026-10-31: More glass (forms, chips, invite)
+- Glass now also on: text fields (`Field`), the email / password boxes, the idle chips (the chosen chip stays solid
+  green), the dialect cards, and on the invite screen the link row and the «ادعي السواق» card (copy button is soft
+  green). Removed the beige band behind the bottom button on invite, members, member detail and item detail.
