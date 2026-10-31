@@ -106,7 +106,6 @@ export const size = {
   button: 56, // full-width primary button
   swipeAction: 68, // width of each swipe action
   emptyIcon: 96,
-  listArt: 88, // the picture at the end of a list card
   toast: 64,
   voiceMic: 128,
   voiceRing: 184,
