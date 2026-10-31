@@ -4,6 +4,7 @@
 export const colors = {
   ground: '#F6F4EF',
   surface: '#FFFFFF',
+  surfaceClear: 'rgba(255, 255, 255, 0)', // the same white, fully see-through (for fading to/from surface)
   ink: '#1D1B18',
   muted: '#615C53',
   line: '#E6E1D6',

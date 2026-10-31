@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet } from 'react-native';
 
 import { AppText } from '@/components/AppText';
+import { Glass } from '@/components/glass/Glass';
 import { colors, radius, size, spacing } from '@/theme';
 
 type Props = {
@@ -18,7 +19,9 @@ export function FilterPill({ label, selected, onPress }: Props) {
       hitSlop={HIT_SLOP}
       accessibilityRole="button"
       accessibilityState={{ selected }}
-      style={[styles.pill, selected ? styles.selected : styles.unselected]}>
+      style={[styles.pill, selected && styles.selected]}>
+      {/* Unselected pills are glass; the chosen one is solid green */}
+      {!selected && <Glass radius={radius.pill} style={StyleSheet.absoluteFill} pointerEvents="none" />}
       <AppText variant="body" weight="semibold" color={selected ? 'onDark' : 'ink'}>
         {label}
       </AppText>
@@ -34,13 +37,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: size.border,
+    borderColor: 'transparent',
   },
   selected: {
     backgroundColor: colors.accent,
     borderColor: colors.accent,
-  },
-  unselected: {
-    backgroundColor: colors.surface,
-    borderColor: colors.line,
   },
 });

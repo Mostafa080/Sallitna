@@ -10,7 +10,7 @@ import { AppText } from '@/components/AppText';
 import { AvatarStack } from '@/components/Avatar';
 import { EmptyState } from '@/components/EmptyState';
 import { BackIcon, CircleButton } from '@/components/family/FamilyParts';
-import { GlassCard } from '@/components/glass/Glass';
+import { Glass, GlassCard } from '@/components/glass/Glass';
 import { GradientBackground } from '@/components/glass/GradientBackground';
 import { ItemRow } from '@/components/ItemRow';
 import { NotFoundCard } from '@/components/NotFoundCard';
@@ -246,12 +246,14 @@ export default function ListScreen() {
         </View>
 
         {/* «اكتب» field (shopping lives in the «بالسوق» tab) */}
-        <Pressable onPress={() => router.push('/add')} style={styles.typeField} accessibilityRole="search">
-          <Search size={size.icon - spacing.xs} color={colors.muted} strokeWidth={size.iconStroke} />
-          <AppText variant="item" color="muted">
-            {t('home.typeField')}
-          </AppText>
-        </Pressable>
+        <Glass radius={radius.pill} interactive style={styles.typeGlass}>
+          <Pressable onPress={() => router.push('/add')} style={styles.typeField} accessibilityRole="search">
+            <Search size={size.icon - spacing.xs} color={colors.muted} strokeWidth={size.iconStroke} />
+            <AppText variant="item" color="muted">
+              {t('home.typeField')}
+            </AppText>
+          </Pressable>
+        </Glass>
 
         {questionsForMe.map(({ q, item, asker }) => (
           <QuestionCard
@@ -421,17 +423,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing.xs,
   },
-  typeField: {
+  typeGlass: {
     marginTop: -spacing.xs,
+  },
+  typeField: {
     minHeight: size.control + spacing.xs,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
     paddingHorizontal: spacing.lg,
-    borderRadius: radius.pill,
-    borderWidth: size.border,
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
   },
   title: {
     flexShrink: 1,

@@ -3,7 +3,7 @@ import { Check, Mic, Pencil, Trash2, User, type LucideIcon } from 'lucide-react-
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View, type AccessibilityActionEvent } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { AppText } from '@/components/AppText';
@@ -90,6 +90,8 @@ export function ItemRow({
 
   const contentStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: reveal.value * startSign }],
+    // See-through (glass) at rest; solid only while swiped so the buttons behind stay hidden
+    backgroundColor: interpolateColor(Math.abs(reveal.value), [0, 6], [colors.surfaceClear, colors.surface]),
   }));
 
   // --- Taps ----------------------------------------------------------------
@@ -155,7 +157,7 @@ export function ItemRow({
       </View>
 
       <GestureDetector gesture={pan}>
-        <Animated.View style={[styles.content, contentStyle]}>
+        <Animated.View style={contentStyle}>
           <Pressable
             onPress={onRowPress}
             style={styles.row}
@@ -265,9 +267,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.xs,
-  },
-  content: {
-    backgroundColor: colors.surface,
   },
   row: {
     flexDirection: 'row',

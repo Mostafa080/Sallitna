@@ -1536,3 +1536,14 @@ picture on the list cards, not the tab bar).
   when chosen where the symbol has one.
 - Glass: the profile card, the shopping header (a full-width glass bar, was solid beige), the cart circle on the empty
   shopping screen, the pending card; the empty screen is more compact so the notice card isn't cut off.
+
+## Session 37 — 2026-10-31: Glass list screen and empty basket
+### Done
+- Item rows are see-through now (the group card is the glass); a row turns solid white only while swiped, so the
+  green «اشتريت» / orange «مش لاقيها» panels behind it stay hidden. New colour `surfaceClear` (white at 0%).
+- Search pill «اكتب حاجة…» is glass; unselected filter pills are glass (selected stays solid green).
+- Empty basket: glass icon tile, glass example pills and glass «+ لبن» chips (chosen chip stays solid green).
+### Next
+- Check on the iPhone; then phase 4 (website + dashboard in glass style).
+### Known issues
+- The 3 old unused-variable warnings (join-setup, join, TripSheets) — unchanged.
