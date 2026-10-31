@@ -12,6 +12,7 @@ import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { Glass } from '@/components/glass/Glass';
 import { t } from '@/i18n';
 import { colors, motion, opacity, radius, size, spacing } from '@/theme';
 
@@ -57,6 +58,7 @@ export function Sheet({ visible, onClose, title, subtitle, children, footer }: P
             { maxHeight: height - insets.top - spacing.xl, paddingBottom: insets.bottom + spacing.sm },
           ]}
           accessibilityViewIsModal>
+          <Glass radius={radius.card * 2} style={styles.sheetGlass} pointerEvents="none" />
           <View style={styles.handle} />
           <ScrollView
             style={styles.scroll}
@@ -100,6 +102,7 @@ export function RadioCard({ title, body, selected, onPress, multiple }: RadioCar
       style={[styles.radioCard, selected ? styles.radioCardSelected : styles.radioCardIdle]}
       accessibilityRole={multiple ? 'checkbox' : 'radio'}
       accessibilityState={multiple ? { checked: selected } : { selected }}>
+      <Glass radius={radius.card} style={StyleSheet.absoluteFill} pointerEvents="none" />
       <View style={[styles.radio, selected && styles.radioSelected]}>
         {selected && <View style={styles.radioDot} />}
       </View>
@@ -157,7 +160,12 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     borderTopStartRadius: radius.card * 2,
     borderTopEndRadius: radius.card * 2,
-    backgroundColor: colors.surface,
+    overflow: 'hidden',
+  },
+  sheetGlass: {
+    ...StyleSheet.absoluteFill,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
   },
   handle: {
     alignSelf: 'center',
@@ -188,7 +196,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
     borderRadius: radius.card,
-    backgroundColor: colors.surface,
   },
   radioCardSelected: {
     borderWidth: size.borderThick,
@@ -196,7 +203,7 @@ const styles = StyleSheet.create({
   },
   radioCardIdle: {
     borderWidth: size.border,
-    borderColor: colors.line,
+    borderColor: 'transparent',
   },
   radio: {
     width: size.radio,
@@ -235,8 +242,8 @@ const styles = StyleSheet.create({
   },
   outline: {
     borderWidth: size.border,
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
+    borderColor: colors.glassBorder,
+    backgroundColor: colors.glass,
   },
   link: {
     minHeight: size.touch + spacing.sm,
