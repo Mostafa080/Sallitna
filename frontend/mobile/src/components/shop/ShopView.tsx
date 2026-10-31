@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { AvatarStack } from '@/components/Avatar';
-import { GlassCard } from '@/components/glass/Glass';
+import { Glass, GlassCard } from '@/components/glass/Glass';
 import { GradientBackground } from '@/components/glass/GradientBackground';
 import { SheetButton } from '@/components/shop/Sheet';
 import {
@@ -104,9 +104,9 @@ export function ShopView() {
         <GradientBackground />
         <ShopHeader title={t(`shop.title_${g}`)} subtitle={t('shop.familyKnows')} />
         <ScrollView contentContainerStyle={styles.emptyContent}>
-          <View style={styles.emptyIcon}>
-            <ShoppingBasket size={size.icon * 2} color={colors.success} strokeWidth={size.iconStroke} />
-          </View>
+          <Glass radius={radius.pill} style={styles.emptyIcon}>
+            <ShoppingBasket size={size.icon * 2} color={colors.accent} strokeWidth={size.iconStroke} />
+          </Glass>
           <AppText variant="heading" weight="bold" style={styles.center}>
             {t('shopEmpty.title')}
           </AppText>
@@ -304,13 +304,13 @@ export function ShopView() {
         {list.offline && list.pendingSync.length > 0 && (
           <View style={styles.section}>
             <SectionHeader label={t('offline.pendingHeader', { n: list.pendingSync.length })} />
-            <View style={styles.pendingCard}>
+            <GlassCard style={styles.pendingCard}>
               <Check size={size.icon - spacing.xs} color={colors.success} strokeWidth={size.iconStroke} />
               <AppText variant="label" style={styles.flex}>
                 {t('offline.pendingCart', { names: pendingNames })}
               </AppText>
               <Clock size={size.icon - spacing.xs} color={colors.muted} strokeWidth={size.iconStroke} />
-            </View>
+            </GlassCard>
           </View>
         )}
 
@@ -410,8 +410,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.md,
     paddingHorizontal: spacing.lg,
-    borderRadius: radius.card,
-    backgroundColor: colors.surface,
   },
   headerEnd: {
     flexDirection: 'row',
@@ -429,15 +427,14 @@ const styles = StyleSheet.create({
   emptyContent: {
     alignItems: 'stretch',
     paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xxxl * 2,
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.xl,
     gap: spacing.lg,
   },
   emptyIcon: {
     alignSelf: 'center',
-    width: size.voiceMic,
-    height: size.voiceMic,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
+    width: size.emptyIcon,
+    height: size.emptyIcon,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.sm,

@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, View, type AccessibilityActionEvent } from 'reac
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
-import { GlassCard } from '@/components/glass/Glass';
+import { Glass, GlassCard } from '@/components/glass/Glass';
 import { ItemPhotoThumb } from '@/components/ItemPhoto';
 import { SwipeActions } from '@/components/SwipeActions';
 import type { Item } from '@/data/fakeHousehold';
@@ -28,7 +28,7 @@ type HeaderProps = {
 export function ShopHeader({ title, subtitle, onTitleLongPress, badge, children }: HeaderProps) {
   const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.header, { paddingTop: insets.top + spacing.lg }]}>
+    <Glass radius={0} style={[styles.header, { paddingTop: insets.top + spacing.lg }]}>
       <View style={styles.topRow}>
         <Pressable
           style={styles.flex}
@@ -53,7 +53,7 @@ export function ShopHeader({ title, subtitle, onTitleLongPress, badge, children 
         </AppText>
       )}
       {children}
-    </View>
+    </Glass>
   );
 }
 
@@ -228,7 +228,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.md,
     gap: spacing.xs,
-    backgroundColor: colors.ground,
   },
   topRow: {
     flexDirection: 'row',

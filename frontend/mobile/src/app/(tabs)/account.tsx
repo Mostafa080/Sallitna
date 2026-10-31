@@ -19,6 +19,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/Avatar';
+import { GlassCard } from '@/components/glass/Glass';
 import { Card, Row, SectionLabel, Toggle } from '@/components/family/FamilyParts';
 import { GradientBackground } from '@/components/glass/GradientBackground';
 import { ltrEmail } from '@/components/onboarding/OnboardingParts';
@@ -138,7 +139,7 @@ export default function AccountScreen() {
         </View>
 
         {/* Me — who's signed in (name, role, dialect, language, email); not editable here */}
-        <View style={styles.profileCard}>
+        <GlassCard style={styles.profileCard}>
           <Avatar member={me} large="hero" ring="surface" />
           <View style={styles.flex}>
             <AppText variant="heading" weight="bold" numberOfLines={1}>
@@ -155,7 +156,7 @@ export default function AccountScreen() {
               </AppText>
             )}
           </View>
-        </View>
+        </GlassCard>
 
         <SectionLabel>{t('settings.sectionNotify')}</SectionLabel>
         {pushState === 'denied' && (
@@ -233,7 +234,6 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     marginBottom: spacing.sm,
     borderRadius: radius.card + spacing.xs,
-    backgroundColor: colors.surface,
   },
   pushOffCard: {
     marginBottom: spacing.sm,
