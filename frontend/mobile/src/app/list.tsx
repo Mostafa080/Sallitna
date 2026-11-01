@@ -224,22 +224,27 @@ export default function ListScreen() {
               )}
             </Pressable>
             <View style={styles.familyRow}>
-              <Pressable
-                onPress={() => router.push('/members')}
-                hitSlop={spacing.xs}
-                accessibilityRole="button"
-                accessibilityLabel={t('home.membersA11y')}>
-                <AvatarStack members={list.members} ring="ground" max={MAX_HEADER_AVATARS} />
-              </Pressable>
-              {me?.role !== 'helper' && (
+              <Glass radius={radius.pill} interactive>
                 <Pressable
-                  onPress={() => router.push('/invite')}
-                  style={styles.addMember}
-                  hitSlop={spacing.sm}
+                  onPress={() => router.push('/members')}
+                  style={styles.membersPill}
+                  hitSlop={spacing.xs}
                   accessibilityRole="button"
-                  accessibilityLabel={t('home.inviteA11y')}>
-                  <Plus size={size.iconSmall + spacing.xxs} color={colors.ink} strokeWidth={size.iconStroke + 0.5} />
+                  accessibilityLabel={t('home.membersA11y')}>
+                  <AvatarStack members={list.members} ring="surface" max={MAX_HEADER_AVATARS} />
                 </Pressable>
+              </Glass>
+              {me?.role !== 'helper' && (
+                <Glass radius={radius.pill} interactive style={styles.addMember}>
+                  <Pressable
+                    onPress={() => router.push('/invite')}
+                    style={styles.addMemberHit}
+                    hitSlop={spacing.sm}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('home.inviteA11y')}>
+                    <Plus size={size.iconSmall + spacing.xxs} color={colors.ink} strokeWidth={size.iconStroke + 0.5} />
+                  </Pressable>
+                </Glass>
               )}
             </View>
           </View>
@@ -382,11 +387,15 @@ const styles = StyleSheet.create({
   addMember: {
     width: size.avatar,
     height: size.avatar,
-    borderRadius: radius.pill,
-    borderWidth: size.border,
-    borderStyle: 'dashed',
-    borderColor: colors.muted,
-    backgroundColor: colors.surface,
+  },
+  addMemberHit: {
+    width: size.avatar,
+    height: size.avatar,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  membersPill: {
+    padding: spacing.xs,
     alignItems: 'center',
     justifyContent: 'center',
   },
