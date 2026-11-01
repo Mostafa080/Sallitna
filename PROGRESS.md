@@ -1573,3 +1573,6 @@ picture on the list cards, not the tab bar).
 - `frontend/dashboard/src/styles.css`: the same blended backdrop, glass sidebar/cards/stats/tables/inputs/chips/modals/toast,
   rounder cards (26), green buttons with a soft shadow. CSS only. Builds fine.
 - Known: only the backdrop was visually checked (the dashboard needs a sign-in) — check admin.sallitna.online after Vercel publishes.
+
+## Session 41 — 2026-11-01: Glass «+» and members on the list screen
+- The «+» (invite) is a glass circle (no dashed outline) and the member faces sit in a glass pill. `app/list.tsx` only.
