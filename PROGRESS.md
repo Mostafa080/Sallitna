@@ -1556,3 +1556,8 @@ picture on the list cards, not the tab bar).
 ## Session 37c — 2026-10-31: Glass bottom sheets, header without a box
 - Bottom sheets (e.g. «طماطم مش موجود؟») are glass; option cards and the outline button are glass (selected card keeps its green border).
 - «إنت في السوق» header is no longer a boxed bar: it sits straight on the backdrop.
+
+## Session 38 — 2026-11-01: Landing page «شكلها من جوه» in the glass design
+- The four screenshots on sallitna.online are new iPhone shots of the glass app: قوايمي, القائمة, رايح السوق؟, أنا في السوق
+  (the Expo gear button and the tab bar cropped out). Old home/answer/helper images removed. The hero uses the list shot.
+- Phone frame is a light glass frame instead of black.
