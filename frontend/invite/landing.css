@@ -17,8 +17,23 @@
   padding-block: var(--space-xl);
 }
 
+/* The top bar floats as a glass pill */
+.landing > .top {
+  max-width: calc(var(--content) - 2 * var(--space-lg));
+  margin-block: var(--space-lg) var(--space-md);
+  padding: var(--space-sm) var(--space-md) var(--space-sm) var(--space-xl);
+  border-radius: var(--radius-pill);
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+  position: sticky;
+  top: var(--space-md);
+  z-index: 5;
+}
+
 .pill {
-  background: var(--accent-tint);
   color: var(--accent-ink);
   border-radius: var(--radius-pill);
   padding: var(--space-xs) var(--space-lg);
@@ -51,25 +66,25 @@
   flex-direction: column;
   gap: var(--space-xs);
   padding: var(--space-lg) var(--space-xl);
-  border-radius: var(--radius-card);
-  background: var(--surface);
-  border: 1px solid var(--line);
+  border-radius: var(--radius-big);
 }
 
 /* A phone frame around an app screen */
 .phone {
-  border-radius: 36px;
+  border-radius: 44px;
   padding: 8px;
-  background: rgba(255, 255, 255, 0.7); /* a light glass frame, like the app */
+  background: rgba(255, 255, 255, 0.45); /* a clear glass frame, like the app */
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  backdrop-filter: blur(24px) saturate(1.6);
   border: 1px solid rgba(255, 255, 255, 0.95);
-  box-shadow: 0 18px 40px rgba(14, 122, 66, 0.16);
+  box-shadow: 0 24px 50px rgba(14, 122, 66, 0.2);
 }
 
 .phone img {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 28px;
+  border-radius: 36px;
 }
 
 .hero-phone {
@@ -99,9 +114,7 @@
 
 .how li,
 .feature {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
+  border-radius: var(--radius-big);
   padding: var(--space-xl);
   display: flex;
   flex-direction: column;
@@ -133,7 +146,7 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: var(--accent-tint);
+  background: rgba(221, 241, 227, 0.8);
   display: grid;
   place-items: center;
   margin-bottom: var(--space-sm);
@@ -196,7 +209,7 @@
   gap: var(--space-sm) var(--space-xl);
   justify-content: center;
   padding-block: var(--space-xl) var(--space-xxl);
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--glass-edge);
   font-size: 14px;
 }
 

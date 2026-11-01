@@ -17,6 +17,45 @@
   --space-lg: 16px;
   --space-xl: 24px;
   --space-xxl: 32px;
+  /* Liquid glass, like the app */
+  --glow-mint: #bfe6cc;
+  --glow-sage: #e3f1e4;
+  --glow-lime: #d2edc8;
+  --glow-peach: #fbddc8;
+  --glow-sky: #d6dff2;
+  --glass: rgba(255, 255, 255, 0.55);
+  --glass-edge: rgba(255, 255, 255, 0.9);
+  --glass-shadow: 0 10px 30px rgba(14, 122, 66, 0.1);
+  --radius-big: 32px;
+}
+
+/* The soft blended backdrop (mint, sky, peach, lime) that stays put while the page scrolls */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 60% 45% at 15% 8%, var(--glow-mint), transparent 70%),
+    radial-gradient(ellipse 55% 40% at 90% 12%, var(--glow-sky), transparent 70%),
+    radial-gradient(ellipse 60% 45% at 95% 60%, var(--glow-peach), transparent 70%),
+    radial-gradient(ellipse 60% 45% at 5% 90%, var(--glow-lime), transparent 70%),
+    linear-gradient(180deg, var(--ground), var(--glow-sage));
+}
+
+/* A frosted glass surface: see-through white, blurred behind, light edge, soft green shadow */
+.glass,
+.card,
+.soon,
+.how li,
+.feature,
+.pill,
+.btn.ghost {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
 }
 
 * {
@@ -25,7 +64,7 @@
 
 body {
   margin: 0;
-  background: var(--ground);
+  background: var(--ground); /* behind the glow backdrop */
   color: var(--ink);
   font-family: 'Readex Pro', 'Noto Sans Devanagari', system-ui, sans-serif;
   line-height: 1.6;
@@ -81,10 +120,9 @@ p {
   font-size: 14px;
 }
 
+/* (the glass look above) */
 .card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
+  border-radius: var(--radius-big);
   padding: var(--space-xl);
   display: flex;
   flex-direction: column;
@@ -99,7 +137,7 @@ p {
   letter-spacing: 6px;
   padding: var(--space-lg);
   border-radius: 12px;
-  background: var(--accent-tint);
+  background: rgba(221, 241, 227, 0.7);
   user-select: all;
 }
 
@@ -121,12 +159,11 @@ p {
 .btn.primary {
   background: var(--accent);
   color: #fff;
+  box-shadow: 0 8px 20px rgba(14, 122, 66, 0.25);
 }
 
 .btn.ghost {
-  background: var(--surface);
   color: var(--ink);
-  border-color: var(--line);
 }
 
 .steps {

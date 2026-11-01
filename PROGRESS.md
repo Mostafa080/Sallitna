@@ -1562,3 +1562,9 @@ picture on the list cards, not the tab bar).
   (the Expo gear button and the tab bar cropped out). Old home/answer/helper images removed. The hero uses the list shot.
 - Phone frame is a light glass frame instead of black.
 - Landing screenshots are taller again (full phone height, with the tab bar); the Expo gear button is painted out.
+
+## Session 39 — 2026-11-01: Landing page in the liquid-glass style
+- sallitna.online (landing, join, privacy, terms) shares the app's look: the soft mint/sky/peach/lime backdrop (fixed while
+  scrolling), glass cards and pills with blur, a floating glass top bar, big round corners (32), clear glass phone frames,
+  green primary buttons with a soft shadow. All in `styles.css` / `landing.css` (no new libraries).
+- Known: not checked on a real Safari yet (blur uses `backdrop-filter`).
