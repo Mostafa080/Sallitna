@@ -607,3 +607,92 @@ h3 {
     grid-column: auto;
   }
 }
+
+/* --- Liquid glass (same look as the app and sallitna.online) --- */
+:root {
+  --glow-mint: #bfe6cc;
+  --glow-sage: #e3f1e4;
+  --glow-lime: #d2edc8;
+  --glow-peach: #fbddc8;
+  --glow-sky: #d6dff2;
+  --glass: rgba(255, 255, 255, 0.58);
+  --glass-edge: rgba(255, 255, 255, 0.9);
+  --glass-shadow: 0 10px 30px rgba(14, 122, 66, 0.1);
+  --radius-card: 26px;
+}
+/* The soft blended backdrop, fixed while the page scrolls */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 60% 45% at 15% 8%, var(--glow-mint), transparent 70%),
+    radial-gradient(ellipse 55% 40% at 90% 12%, var(--glow-sky), transparent 70%),
+    radial-gradient(ellipse 60% 45% at 95% 60%, var(--glow-peach), transparent 70%),
+    radial-gradient(ellipse 60% 45% at 5% 90%, var(--glow-lime), transparent 70%),
+    linear-gradient(180deg, var(--ground), var(--glow-sage));
+}
+.sidebar,
+.card,
+.stat,
+.table-card,
+.btn.ghost,
+.chip,
+.input,
+.modal.card {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+}
+.sidebar {
+  border-inline-end: 1px solid var(--glass-edge);
+  box-shadow: none;
+  border-radius: 0;
+}
+.input {
+  border-radius: var(--radius-pill);
+  box-shadow: none;
+}
+.input:focus {
+  border-color: var(--accent);
+}
+.chip {
+  box-shadow: none;
+}
+.chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+.nav-item.active {
+  background: rgba(221, 241, 227, 0.85);
+}
+.btn {
+  box-shadow: 0 6px 16px rgba(14, 122, 66, 0.22);
+}
+.btn.ghost,
+.btn.danger,
+.btn:disabled {
+  box-shadow: none;
+}
+.list-pill {
+  background: rgba(255, 255, 255, 0.7);
+}
+.modal-backdrop {
+  background: rgba(29, 27, 24, 0.3);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.toast {
+  background: var(--glass);
+  color: var(--ink);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+}

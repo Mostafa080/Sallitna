@@ -1568,3 +1568,8 @@ picture on the list cards, not the tab bar).
   scrolling), glass cards and pills with blur, a floating glass top bar, big round corners (32), clear glass phone frames,
   green primary buttons with a soft shadow. All in `styles.css` / `landing.css` (no new libraries).
 - Known: not checked on a real Safari yet (blur uses `backdrop-filter`).
+
+## Session 40 — 2026-11-01: Dashboard in the liquid-glass style
+- `frontend/dashboard/src/styles.css`: the same blended backdrop, glass sidebar/cards/stats/tables/inputs/chips/modals/toast,
+  rounder cards (26), green buttons with a soft shadow. CSS only. Builds fine.
+- Known: only the backdrop was visually checked (the dashboard needs a sign-in) — check admin.sallitna.online after Vercel publishes.
