@@ -1561,3 +1561,4 @@ picture on the list cards, not the tab bar).
 - The four screenshots on sallitna.online are new iPhone shots of the glass app: قوايمي, القائمة, رايح السوق؟, أنا في السوق
   (the Expo gear button and the tab bar cropped out). Old home/answer/helper images removed. The hero uses the list shot.
 - Phone frame is a light glass frame instead of black.
+- Landing screenshots are taller again (full phone height, with the tab bar); the Expo gear button is painted out.
